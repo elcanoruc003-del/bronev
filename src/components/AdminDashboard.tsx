@@ -151,22 +151,22 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <FaSpinner className="animate-spin text-4xl text-brand-gold" />
+      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+        <FaSpinner className="animate-spin text-4xl text-[#8B7355]" />
       </div>
     );
   }
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-navy-light to-brand-navy flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#2C2416] via-[#3D3226] to-[#2C2416] flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-md w-full">
           <div className="text-center mb-10">
-            <div className="bg-gradient-to-br from-brand-gold to-brand-gold-dark w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-gold">
-              <FaHome className="text-5xl text-brand-navy" />
+            <div className="bg-gradient-to-br from-[#D4AF37] to-[#C19A6B] w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <FaHome className="text-5xl text-[#2C2416]" />
             </div>
-            <h1 className="text-4xl font-bold text-brand-navy mb-2">Admin Panel</h1>
-            <p className="text-neutral-600">BronEv Enterprise İdarəetmə</p>
+            <h1 className="text-4xl font-bold text-[#2C2416] mb-2">Admin Panel</h1>
+            <p className="text-[#6B5D4F]">A-Frame İdarəetmə</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-6">
@@ -177,26 +177,26 @@ export default function AdminDashboard() {
             )}
             
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">Email</label>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">Email</label>
               <input 
                 type="email" 
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
                 placeholder="admin@bronev.com" 
-                className="input-premium"
+                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] bg-white focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 transition-all duration-300 outline-none"
                 required
                 disabled={isLoggingIn}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">Parol</label>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">Parol</label>
               <input 
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="••••••••" 
-                className="input-premium"
+                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] bg-white focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 transition-all duration-300 outline-none"
                 required
                 disabled={isLoggingIn}
               />
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
             
             <button 
               type="submit" 
-              className="btn-premium w-full flex items-center justify-center"
+              className="w-full px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center"
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
               )}
             </button>
 
-            <div className="text-center text-sm text-neutral-500 mt-4">
+            <div className="text-center text-sm text-[#6B5D4F] mt-4">
               Demo: admin@bronev.com / admin123
             </div>
           </form>
@@ -227,16 +227,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-neutral-200 z-50">
+    <div className="min-h-screen bg-[#FAF8F5]">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5DDD5] z-50">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
-            <div className="bg-gradient-to-br from-brand-gold to-brand-gold-dark p-3 rounded-xl">
-              <FaHome className="text-2xl text-brand-navy" />
+            <div className="bg-gradient-to-br from-[#D4AF37] to-[#C19A6B] p-3 rounded-xl">
+              <FaHome className="text-2xl text-[#2C2416]" />
             </div>
             <div>
-              <h2 className="font-bold text-brand-navy">BronEv</h2>
-              <p className="text-xs text-neutral-500">Enterprise</p>
+              <h2 className="font-bold text-[#2C2416]">A-Frame</h2>
+              <p className="text-xs text-[#6B5D4F]">Admin</p>
             </div>
           </div>
 
@@ -245,8 +245,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('dashboard')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'dashboard'
-                  ? 'bg-brand-gold text-brand-navy font-semibold'
-                  : 'text-neutral-600 hover:bg-neutral-50'
+                  ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
+                  : 'text-[#6B5D4F] hover:bg-[#FAF8F5]'
               }`}
             >
               <FaChartLine />
@@ -257,8 +257,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('properties')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'properties'
-                  ? 'bg-brand-gold text-brand-navy font-semibold'
-                  : 'text-neutral-600 hover:bg-neutral-50'
+                  ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
+                  : 'text-[#6B5D4F] hover:bg-[#FAF8F5]'
               }`}
             >
               <FaHome />
@@ -269,8 +269,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('bookings')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'bookings'
-                  ? 'bg-brand-gold text-brand-navy font-semibold'
-                  : 'text-neutral-600 hover:bg-neutral-50'
+                  ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
+                  : 'text-[#6B5D4F] hover:bg-[#FAF8F5]'
               }`}
             >
               <FaCalendarAlt />
@@ -281,8 +281,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('settings')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'settings'
-                  ? 'bg-brand-gold text-brand-navy font-semibold'
-                  : 'text-neutral-600 hover:bg-neutral-50'
+                  ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
+                  : 'text-[#6B5D4F] hover:bg-[#FAF8F5]'
               }`}
             >
               <FaCog />
@@ -291,11 +291,11 @@ export default function AdminDashboard() {
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-neutral-200">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-[#E5DDD5]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="font-semibold text-brand-navy text-sm">{currentUser?.name}</p>
-              <p className="text-xs text-neutral-500">{currentUser?.email}</p>
+              <p className="font-semibold text-[#2C2416] text-sm">{currentUser?.name}</p>
+              <p className="text-xs text-[#6B5D4F]">{currentUser?.email}</p>
             </div>
           </div>
           <button
@@ -311,13 +311,13 @@ export default function AdminDashboard() {
       <main className="ml-64 p-8">
         {activeTab === 'dashboard' && metrics && (
           <div>
-            <h1 className="text-3xl font-bold text-brand-navy mb-8">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Dashboard</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="card-premium p-6">
+              <div className="bg-white rounded-2xl shadow-sm p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-neutral-600 text-sm font-semibold mb-1">Cəmi Evlər</p>
-                    <p className="text-3xl font-bold text-brand-navy">{metrics.totalProperties}</p>
+                    <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Cəmi Evlər</p>
+                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.totalProperties}</p>
                   </div>
                   <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white text-2xl">
                     <FaHome />
@@ -378,34 +378,34 @@ export default function AdminDashboard() {
         {activeTab === 'properties' && (
           <div>
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-bold text-brand-navy">Evlər</h1>
-              <button className="btn-premium">+ Yeni Ev</button>
+              <h1 className="text-3xl font-bold text-[#2C2416]">Evlər</h1>
+              <button className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95">+ Yeni Ev</button>
             </div>
 
-            <div className="card-premium overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <table className="w-full">
-                <thead className="bg-neutral-50 border-b border-neutral-200">
+                <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-neutral-700">Ev</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-neutral-700">Qiymət</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-neutral-700">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-neutral-700">Baxış</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-neutral-700">Əməliyyat</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Ev</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qiymət</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Baxış</th>
+                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Əməliyyat</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100">
+                <tbody className="divide-y divide-[#E5DDD5]">
                   {properties.map((property) => (
-                    <tr key={property.id} className="hover:bg-neutral-50">
+                    <tr key={property.id} className="hover:bg-[#FAF8F5]">
                       <td className="px-6 py-4">
-                        <p className="font-semibold text-brand-navy">{property.title}</p>
-                        <p className="text-sm text-neutral-500">{property.city}</p>
+                        <p className="font-semibold text-[#2C2416]">{property.title}</p>
+                        <p className="text-sm text-[#6B5D4F]">{property.city}</p>
                       </td>
                       <td className="px-6 py-4 font-bold">{property.basePricePerNight} ₼</td>
                       <td className="px-6 py-4">
                         <select
                           value={property.status}
                           onChange={(e) => handleStatusChange(property.id, e.target.value)}
-                          className="text-sm border rounded px-2 py-1"
+                          className="text-sm border border-[#E5DDD5] rounded px-2 py-1"
                         >
                           <option value="DRAFT">Draft</option>
                           <option value="PUBLISHED">Published</option>
@@ -417,7 +417,7 @@ export default function AdminDashboard() {
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleToggleFeatured(property.id)}
-                            className={`p-2 rounded ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-neutral-100'}`}
+                            className={`p-2 rounded ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
                           >
                             <FaStar />
                           </button>
@@ -442,18 +442,18 @@ export default function AdminDashboard() {
 
         {activeTab === 'bookings' && (
           <div>
-            <h1 className="text-3xl font-bold text-brand-navy mb-8">Bronlar</h1>
-            <div className="card-premium p-6">
-              <p className="text-neutral-600">Bronlar yüklənir...</p>
+            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Bronlar</h1>
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <p className="text-[#6B5D4F]">Bronlar yüklənir...</p>
             </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
           <div>
-            <h1 className="text-3xl font-bold text-brand-navy mb-8">Parametrlər</h1>
-            <div className="card-premium p-6">
-              <p className="text-neutral-600">Parametrlər bölməsi hazırlanır...</p>
+            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Parametrlər</h1>
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <p className="text-[#6B5D4F]">Parametrlər bölməsi hazırlanır...</p>
             </div>
           </div>
         )}
