@@ -311,8 +311,11 @@ export default function NewPropertyPage() {
                 onSuccess={handleImageUpload}
                 options={{
                   multiple: true,
-                  maxFiles: 10,
+                  maxFiles: 30,
                   resourceType: 'image',
+                  clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+                  maxFileSize: 10000000, // 10MB
+                  sources: ['local', 'camera'],
                 }}
               >
                 {({ open }) => (
@@ -322,8 +325,9 @@ export default function NewPropertyPage() {
                     className="w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2"
                   >
                     <FaUpload className="text-3xl text-[#8B7355]" />
-                    <span className="text-[#6B5D4F]">Şəkil yüklə</span>
-                    <span className="text-xs text-[#8B7355]">Çoxlu şəkil seçə bilərsiniz</span>
+                    <span className="text-[#6B5D4F] font-semibold">Şəkilləri seçin</span>
+                    <span className="text-xs text-[#8B7355]">Birdən çoxlu şəkil seçə bilərsiniz (max 30)</span>
+                    <span className="text-xs text-[#6B5D4F]">JPG, PNG, WEBP - Max 10MB</span>
                   </button>
                 )}
               </CldUploadWidget>

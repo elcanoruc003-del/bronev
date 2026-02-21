@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'BronEv - Premium Daşınmaz Əmlak | Bakı',
-  description: 'Bakıda ən yaxşı villa, mənzil və əmlak seçimləri. Professional daşınmaz əmlak xidməti. Etibarlı və sürətli xidmət.',
-  keywords: 'daşınmaz əmlak, ev almaq, villa, mənzil, Bakı, əmlak, bron ev, bronev, real estate baku',
+  title: 'BronEv - Günlük Kirayə Evlər | Azərbaycan',
+  description: 'Azərbaycanda ən yaxşı günlük kirayə villa və mənzil seçimləri. Bakı, Qəbələ, Şəki və digər şəhərlərdə premium kirayə evlər. Etibarlı və sürətli xidmət.',
+  keywords: 'günlük kirayə, kirayə ev, villa, mənzil, Bakı, Qəbələ, Şəki, bron ev, bronev, kirayə evlər',
   authors: [{ name: 'BronEv' }],
   openGraph: {
-    title: 'BronEv - Premium Daşınmaz Əmlak',
-    description: 'Bakıda ən yaxşı əmlak seçimləri',
+    title: 'BronEv - Günlük Kirayə Evlər',
+    description: 'Azərbaycanda ən yaxşı günlük kirayə evlər',
     url: 'https://bron-ev.com',
     siteName: 'BronEv',
     locale: 'az_AZ',
@@ -21,9 +21,6 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
     },
-  },
-  verification: {
-    google: 'your-google-verification-code',
   },
 }
 

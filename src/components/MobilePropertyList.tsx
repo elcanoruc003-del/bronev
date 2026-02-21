@@ -248,24 +248,45 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                   </div>
 
                   {/* WhatsApp CTA Button */}
-                  <a
-                    href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} haqqında məlumat almaq istəyirəm.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="
-                      w-full flex items-center justify-center gap-2
-                      py-2.5 rounded-full
-                      bg-gradient-to-r from-[#25D366] to-[#20BA5A]
-                      text-white text-xs font-semibold
-                      shadow-md hover:shadow-lg
-                      transition-all duration-300
-                      hover:scale-[1.02] active:scale-95
-                      tap-scale
-                    "
-                  >
-                    <FaWhatsapp className="text-base" />
-                    <span>Rezerv et</span>
-                  </a>
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} haqqında məlumat almaq istəyirəm.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        flex items-center justify-center gap-1.5
+                        py-2.5 rounded-full
+                        bg-gradient-to-r from-[#25D366] to-[#20BA5A]
+                        text-white text-xs font-semibold
+                        shadow-md hover:shadow-lg
+                        transition-all duration-300
+                        hover:scale-[1.02] active:scale-95
+                        tap-scale
+                      "
+                    >
+                      <FaWhatsapp className="text-base" />
+                      <span>WhatsApp</span>
+                    </a>
+
+                    <a
+                      href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
+                      className="
+                        flex items-center justify-center gap-1.5
+                        py-2.5 rounded-full
+                        bg-gradient-to-r from-[#4CAF50] to-[#388E3C]
+                        text-white text-xs font-semibold
+                        shadow-md hover:shadow-lg
+                        transition-all duration-300
+                        hover:scale-[1.02] active:scale-95
+                        tap-scale
+                      "
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                      <span>Zəng et</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
