@@ -1,16 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
 import { createProperty, addPropertyImages } from '@/app/actions/admin';
-import { CldUploadWidget } from 'next-cloudinary';
+
+// Declare Cloudinary widget type
+declare global {
+  interface Window {
+    cloudinary: any;
+  }
+}
 
 export default function NewPropertyPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; alt: string }>>([]);
+  const [widgetLoaded, setWidgetLoaded] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -43,12 +50,55 @@ export default function NewPropertyPage() {
     'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
   ];
 
-  function handleImageUpload(result: any) {
-    const newImage = {
-      url: result.info.secure_url,
-      alt: formData.title || 'Property image',
-    };
-    setUploadedImages([...uploadedImages, newImage]);
+  // Load Cloudinary widget script
+  useEffect(() => {
+    if (!document.getElementById('cloudinary-upload-widget')) {
+      const script = document.createElement('script');
+      script.id = 'cloudinary-upload-widget';
+      script.src = 'https://upload-widget.cloudinary.com/global/all.js';
+      script.async = true;
+      script.onload = () => setWidgetLoaded(true);
+      document.body.appendChild(script);
+    } else {
+      setWidgetLoaded(true);
+    }
+  }, []);
+
+  function openUploadWidget() {
+    if (!widgetLoaded || !window.cloudinary) {
+      alert('Şəkil yükləmə hazır deyil, bir az gözləyin...');
+      return;
+    }
+
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'dyfuasdbm',
+        uploadPreset: 'bronev_preset',
+        multiple: true,
+        maxFiles: 30,
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+        maxFileSize: 10000000,
+        sources: ['local', 'camera'],
+        folder: 'bronev/properties',
+      },
+      (error: any, result: any) => {
+        if (error) {
+          console.error('Upload error:', error);
+          setError('Şəkil yükləmə xətası: ' + error.message);
+          return;
+        }
+
+        if (result.event === 'success') {
+          const newImage = {
+            url: result.info.secure_url,
+            alt: formData.title || 'Property image',
+          };
+          setUploadedImages(prev => [...prev, newImage]);
+        }
+      }
+    );
+
+    widget.open();
   }
 
   function removeImage(index: number) {
@@ -305,32 +355,19 @@ export default function NewPropertyPage() {
                 Şəkillər
               </label>
               
-              <CldUploadWidget
-                uploadPreset="bronev_preset"
-                cloudName="dyfuasdbm"
-                onSuccess={handleImageUpload}
-                options={{
-                  multiple: true,
-                  maxFiles: 30,
-                  resourceType: 'image',
-                  clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-                  maxFileSize: 10000000, // 10MB
-                  sources: ['local', 'camera'],
-                }}
+              <button
+                type="button"
+                onClick={openUploadWidget}
+                disabled={!widgetLoaded}
+                className="w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {({ open }) => (
-                  <button
-                    type="button"
-                    onClick={() => open()}
-                    className="w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2"
-                  >
-                    <FaUpload className="text-3xl text-[#8B7355]" />
-                    <span className="text-[#6B5D4F] font-semibold">Şəkilləri seçin</span>
-                    <span className="text-xs text-[#8B7355]">Birdən çoxlu şəkil seçə bilərsiniz (max 30)</span>
-                    <span className="text-xs text-[#6B5D4F]">JPG, PNG, WEBP - Max 10MB</span>
-                  </button>
-                )}
-              </CldUploadWidget>
+                <FaUpload className="text-3xl text-[#8B7355]" />
+                <span className="text-[#6B5D4F] font-semibold">
+                  {widgetLoaded ? 'Şəkilləri seçin' : 'Yüklənir...'}
+                </span>
+                <span className="text-xs text-[#8B7355]">Birdən çoxlu şəkil seçə bilərsiniz (max 30)</span>
+                <span className="text-xs text-[#6B5D4F]">JPG, PNG, WEBP - Max 10MB</span>
+              </button>
 
               {uploadedImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
