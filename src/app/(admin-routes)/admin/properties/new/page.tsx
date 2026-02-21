@@ -1,23 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
 import { createProperty, addPropertyImages } from '@/app/actions/admin';
 
-// Declare Cloudinary widget type
-declare global {
-  interface Window {
-    cloudinary: any;
-  }
-}
-
 export default function NewPropertyPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; alt: string }>>([]);
-  const [widgetLoaded, setWidgetLoaded] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -64,61 +57,41 @@ export default function NewPropertyPage() {
     }
   }, []);
 
-  function openUploadWidget() {
-    if (!widgetLoaded || !window.cloudinary) {
-      alert('Şəkil yükləmə hazır deyil, bir az gözləyin...');
-      return;
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setError('');
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Şəkil yükləmə xətası');
+        }
+
+        const data = await response.json();
+        return {
+          url: data.url,
+          alt: formData.title || 'Property image',
+        };
+      });
+
+      const newImages = await Promise.all(uploadPromises);
+      setUploadedImages([...uploadedImages, ...newImages]);
+    } catch (error: any) {
+      setError(error.message || 'Şəkil yükləmə xətası');
+    } finally {
+      setIsUploading(false);
     }
-
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: 'dyfuasdbm',
-        uploadPreset: 'bronev_preset',
-        apiKey: '526295514959981',
-        multiple: true,
-        maxFiles: 30,
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-        maxFileSize: 10000000,
-        sources: ['local', 'camera'],
-        folder: 'bronev/properties',
-        cropping: false,
-        showSkipCropButton: true,
-        styles: {
-          palette: {
-            window: '#FFFFFF',
-            windowBorder: '#8B7355',
-            tabIcon: '#8B7355',
-            menuIcons: '#5A616A',
-            textDark: '#000000',
-            textLight: '#FFFFFF',
-            link: '#8B7355',
-            action: '#8B7355',
-            inactiveTabIcon: '#C19A6B',
-            error: '#F44235',
-            inProgress: '#8B7355',
-            complete: '#20B832',
-            sourceBg: '#FAF8F5'
-          }
-        }
-      },
-      (error: any, result: any) => {
-        if (error) {
-          console.error('Upload error:', error);
-          setError('Şəkil yükləmə xətası: ' + error.message);
-          return;
-        }
-
-        if (result.event === 'success') {
-          const newImage = {
-            url: result.info.secure_url,
-            alt: formData.title || 'Property image',
-          };
-          setUploadedImages(prev => [...prev, newImage]);
-        }
-      }
-    );
-
-    widget.open();
   }
 
   function removeImage(index: number) {
@@ -375,19 +348,36 @@ export default function NewPropertyPage() {
                 Şəkillər
               </label>
               
-              <button
-                type="button"
-                onClick={openUploadWidget}
-                disabled={!widgetLoaded}
-                className="w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              <input
+                type="file"
+                id="image-upload"
+                multiple
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileSelect}
+                disabled={isUploading}
+                className="hidden"
+              />
+              
+              <label
+                htmlFor="image-upload"
+                className={`w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2 cursor-pointer ${
+                  isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                <FaUpload className="text-3xl text-[#8B7355]" />
-                <span className="text-[#6B5D4F] font-semibold">
-                  {widgetLoaded ? 'Şəkilləri seçin' : 'Yüklənir...'}
-                </span>
-                <span className="text-xs text-[#8B7355]">Birdən çoxlu şəkil seçə bilərsiniz (max 30)</span>
-                <span className="text-xs text-[#6B5D4F]">JPG, PNG, WEBP - Max 10MB</span>
-              </button>
+                {isUploading ? (
+                  <>
+                    <FaSpinner className="text-3xl text-[#8B7355] animate-spin" />
+                    <span className="text-[#6B5D4F] font-semibold">Yüklənir...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaUpload className="text-3xl text-[#8B7355]" />
+                    <span className="text-[#6B5D4F] font-semibold">Şəkilləri seçin</span>
+                    <span className="text-xs text-[#8B7355]">Birdən çoxlu şəkil seçə bilərsiniz (max 30)</span>
+                    <span className="text-xs text-[#6B5D4F]">JPG, PNG, WEBP - Max 10MB</span>
+                  </>
+                )}
+              </label>
 
               {uploadedImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
