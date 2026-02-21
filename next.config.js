@@ -29,6 +29,20 @@ const nextConfig = {
   async generateBuildId() {
     return 'build-' + Date.now();
   },
+  // Skip prerendering for admin routes
+  async headers() {
+    return [
+      {
+        source: '/admin/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig
