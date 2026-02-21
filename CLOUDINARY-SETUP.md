@@ -20,6 +20,8 @@ Vercel dashboard-da aşağıdakı environment variable-ları əlavə edin:
 
 ```
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dyfuasdbm
+NEXT_PUBLIC_PHONE_NUMBER=0777670031
+NEXT_PUBLIC_WHATSAPP_NUMBER=994777670031
 ```
 
 ## 3. Test Etmək
@@ -27,13 +29,25 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dyfuasdbm
 1. https://bron-ev.com/admin giriş edin
 2. "Yeni Ev" düyməsinə klikləyin
 3. Formu doldurun
-4. "Şəkil yüklə" düyməsinə klikləyin
-5. Şəkilləri seçin və yükləyin
-6. "Ev Əlavə Et" düyməsinə klikləyin
+4. "Şəkilləri seçin" düyməsinə klikləyin
+5. Kompüterdən birdən çoxlu şəkil seçin (max 30 şəkil)
+6. Şəkillər avtomatik yüklənəcək
+7. "Ev Əlavə Et" düyməsinə klikləyin
+
+## Yeni Xüsusiyyətlər
+
+✅ **Branding**: Sayt adı "BronEv" olaraq yeniləndi
+✅ **Zəng düyməsi**: WhatsApp ilə yanaşı telefon zəngi düyməsi əlavə edildi
+✅ **Şəkil yükləmə**: 
+   - Max 30 şəkil eyni anda yüklənə bilər
+   - Birdən çoxlu şəkil seçmək mümkündür
+   - Dəstəklənən formatlar: JPG, PNG, WEBP
+   - Max fayl ölçüsü: 10MB
+✅ **Dizayn təkmilləşdirildi**: Daha peşəkar və mobil-uyğun görünüş
 
 ## Qeydlər
 
 - Upload preset **unsigned** olmalıdır ki, client-side yükləmə işləsin
-- Cloudinary cloud name artıq konfiqurasiya edilib: `dyfuasdbm`
-- Çoxlu şəkil eyni anda yükləyə bilərsiniz (max 10)
+- Cloudinary cloud name: `dyfuasdbm`
 - Şəkillər avtomatik olaraq property-yə əlavə olunur
+- Hər şəkil üçün order (sıra) avtomatik təyin edilir
