@@ -307,7 +307,7 @@ export default function NewPropertyPage() {
               
               <CldUploadWidget
                 uploadPreset="bronev_preset"
-                cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
+                cloudName="dyfuasdbm"
                 onSuccess={handleImageUpload}
                 options={{
                   multiple: true,
