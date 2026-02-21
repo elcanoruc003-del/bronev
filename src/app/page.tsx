@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#FAF8F5]">
       <MobileHeader />
       <MobilePropertyList />
       <MobileFooter />

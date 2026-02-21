@@ -15,8 +15,8 @@ export default function MobileFooter() {
   ];
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
-      <nav className="flex items-center justify-around px-2 py-2">
+    <footer className="fixed bottom-0 left-0 right-0 z-50 glass-effect border-t border-[#E5DDD5]/50 safe-area-bottom">
+      <nav className="flex items-center justify-around px-2 py-3">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -25,14 +25,23 @@ export default function MobileFooter() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-1.5 rounded-lg transition ${
+              className={`flex flex-col items-center justify-center gap-1 px-4 py-1 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-[#8B7355] scale-105'
+                  : 'text-[#6B5D4F] hover:text-[#8B7355]'
               }`}
             >
-              <Icon className={`text-lg ${isActive ? 'scale-110' : ''}`} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <div className={`relative ${isActive ? 'animate-bounce' : ''}`}>
+                <Icon className={`text-xl transition-all duration-300 ${isActive ? 'scale-110' : ''}`} />
+                {isActive && (
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#8B7355]"></div>
+                )}
+              </div>
+              <span className={`text-[10px] font-medium transition-all duration-300 ${
+                isActive ? 'font-semibold' : ''
+              }`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
