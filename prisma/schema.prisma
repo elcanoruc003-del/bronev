@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  phone         String?   @unique
+  password      String
+  role          UserRole  @default(USER)
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  properties    Property[]
+  bookings      Booking[]
+  reviews       Review[]
+  favorites     Favorite[]
+  
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  pricePerDay Int
+  
+  // Location
+  city        String
+  district    String
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  
+  // Details
+  type        PropertyType
+  bedrooms    Int
+  bathrooms   Int
+  area        Int
+  floor       Int?
+  totalFloors Int?
+  
+  // Features
+  features    String[]
+  amenities   String[]
+  
+  // Status
+  status      PropertyStatus @default(AVAILABLE)
+  featured    Boolean        @default(false)
+  verified    Boolean        @default(false)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String[]
+  
+  // Stats
+  views       Int      @default(0)
+  inquiries   Int      @default(0)
+  
+  // Relations
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  images      PropertyImage[]
+  bookings    Booking[]
+  reviews     Review[]
+  favorites   Favorite[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([city])
+  @@index([type])
+  @@index([status])
+  @@index([featured])
+  @@index([pricePerDay])
+  @@index([createdAt])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  alt        String?
+  order      Int      @default(0)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  
+  @@index([propertyId])
+  @@map("property_images")
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  checkIn    DateTime
+  checkOut   DateTime
+  totalDays  Int
+  totalPrice Int
+  status     BookingStatus @default(PENDING)
+  
+  guestName  String
+  guestPhone String
+  guestEmail String?
+  message    String?       @db.Text
+  
+  propertyId String
+  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  userId     String?
+  user       User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  
+  @@index([propertyId])
+  @@index([userId])
+  @@index([status])
+  @@index([checkIn])
+  @@map("bookings")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String   @db.Text
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([propertyId, userId])
+  @@index([propertyId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  
+  @@unique([propertyId, userId])
+  @@index([userId])
+  @@map("favorites")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  OWNER
+}
+
+enum PropertyType {
+  VILLA
+  APARTMENT
+  HOUSE
+  PENTHOUSE
+  COTTAGE
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  BOOKED
+  MAINTENANCE
+  INACTIVE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}

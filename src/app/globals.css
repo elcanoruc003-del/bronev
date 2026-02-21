@@ -1,0 +1,221 @@
+/* Premium Font Imports - Optimized for Luxury Brand */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-neutral-200;
+  }
+  
+  html {
+    @apply scroll-smooth;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+  }
+  
+  body {
+    @apply bg-neutral-50 text-neutral-900 antialiased;
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  /* Premium Button Styles */
+  .btn-premium {
+    @apply inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all duration-300;
+    @apply bg-gradient-to-r from-brand-gold to-brand-gold-dark text-brand-navy;
+    @apply hover:shadow-gold hover:scale-105 active:scale-100;
+    @apply focus:outline-none focus:ring-4 focus:ring-brand-gold/30;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all duration-300;
+    @apply bg-brand-navy text-white border-2 border-brand-navy;
+    @apply hover:bg-brand-navy-light hover:shadow-premium;
+    @apply focus:outline-none focus:ring-4 focus:ring-brand-navy/30;
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all duration-300;
+    @apply bg-transparent text-brand-navy border-2 border-brand-navy;
+    @apply hover:bg-brand-navy hover:text-white hover:shadow-premium;
+    @apply focus:outline-none focus:ring-4 focus:ring-brand-navy/30;
+  }
+  
+  /* Premium Card */
+  .card-premium {
+    @apply bg-white rounded-2xl shadow-premium border border-neutral-100;
+    @apply transition-all duration-300 hover:shadow-premium-lg hover:-translate-y-1;
+  }
+  
+  /* Premium Input */
+  .input-premium {
+    @apply w-full px-6 py-4 rounded-xl border-2 border-neutral-200;
+    @apply bg-white text-neutral-900 placeholder:text-neutral-400;
+    @apply transition-all duration-200;
+    @apply focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/20 focus:outline-none;
+    @apply hover:border-neutral-300;
+  }
+  
+  /* Premium Badge */
+  .badge-premium {
+    @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold;
+    @apply bg-gradient-to-r from-brand-gold to-brand-gold-dark text-brand-navy;
+    @apply shadow-gold;
+  }
+  
+  /* Glass Effect */
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+  }
+  
+  /* Premium Gradient Text */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold bg-clip-text text-transparent;
+  }
+  
+  /* Section Container */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Premium Divider */
+  .divider-premium {
+    @apply h-px bg-gradient-to-r from-transparent via-brand-gold to-transparent;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Premium Scrollbar */
+  .scrollbar-premium::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+  
+  .scrollbar-premium::-webkit-scrollbar-track {
+    @apply bg-neutral-100 rounded-full;
+  }
+  
+  .scrollbar-premium::-webkit-scrollbar-thumb {
+    @apply bg-brand-gold rounded-full;
+  }
+  
+  .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+    @apply bg-brand-gold-dark;
+  }
+  
+  /* Shimmer Effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* Custom Scrollbar Global */
+::-webkit-scrollbar {
+  @apply w-3;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-gold rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-gold-dark;
+}
+
+/* Selection */
+::selection {
+  @apply bg-brand-gold/30 text-brand-navy;
+}
+
+/* Focus Visible */
+:focus-visible {
+  @apply outline-none ring-4 ring-brand-gold/30;
+}
+
+/* Smooth Transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Premium Loading Skeleton */
+.skeleton {
+  @apply animate-pulse bg-neutral-200 rounded-xl;
+}
+
+/* Premium Hover Effects */
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-2;
+}
+
+.hover-glow {
+  @apply transition-shadow duration-300 hover:shadow-gold;
+}
+
+/* Premium Typography */
+.heading-display {
+  @apply font-display font-bold text-brand-navy tracking-tight;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.heading-premium {
+  @apply font-sans font-bold text-brand-navy;
+  letter-spacing: -0.01em;
+}
+
+.text-premium {
+  @apply font-sans text-neutral-700 leading-relaxed;
+  letter-spacing: -0.005em;
+}
+
+/* Premium Font Weights */
+.font-light-premium {
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+.font-regular-premium {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.font-medium-premium {
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.font-semibold-premium {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.font-bold-premium {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.font-extrabold-premium {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
