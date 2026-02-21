@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
 
 export const dynamic = 'force-dynamic';
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm',
-  api_key: process.env.CLOUDINARY_API_KEY || '526295514959981',
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +20,32 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64');
     const dataURI = `data:${file.type};base64,${base64}`;
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'bronev/properties',
-      resource_type: 'auto',
-    });
+    // Upload to Cloudinary using unsigned preset
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm';
+    const uploadPreset = 'bronev_preset'; // Your unsigned preset
+
+    const cloudinaryResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          file: dataURI,
+          upload_preset: uploadPreset,
+          folder: 'bronev/properties',
+        }),
+      }
+    );
+
+    if (!cloudinaryResponse.ok) {
+      const errorData = await cloudinaryResponse.json();
+      console.error('Cloudinary error:', errorData);
+      throw new Error(errorData.error?.message || 'Cloudinary yükləmə xətası');
+    }
+
+    const result = await cloudinaryResponse.json();
 
     return NextResponse.json({
       success: true,
