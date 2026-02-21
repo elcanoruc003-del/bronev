@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { propertySchema, bookingSchema } from '@/lib/validations/property'
 import { generateSlug } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
+import { BookingService } from '@/lib/services/booking.service'
+import { AnalyticsService } from '@/lib/services/analytics.service'
 
 export async function getProperties(filters?: {
   city?: string
@@ -31,16 +33,15 @@ export async function getProperties(filters?: {
     }
 
     if (filters?.minPrice || filters?.maxPrice) {
-      where.pricePerDay = {}
-      if (filters.minPrice) where.pricePerDay.gte = filters.minPrice
-      if (filters.maxPrice) where.pricePerDay.lte = filters.maxPrice
+      where.basePricePerNight = {}
+      if (filters.minPrice) where.basePricePerNight.gte = filters.minPrice
+      if (filters.maxPrice) where.basePricePerNight.lte = filters.maxPrice
     }
 
     const [properties, total] = await Promise.all([
-      prisma.property.findMany({
+      prisma.properties.findMany({
         where,
-        include: {
-          images: {
+        include: { property_images: {
             orderBy: { order: 'asc' },
             take: 1,
           },
@@ -52,7 +53,7 @@ export async function getProperties(filters?: {
         skip,
         take: limit,
       }),
-      prisma.property.count({ where }),
+      prisma.properties.count({ where }),
     ])
 
     return {
@@ -72,13 +73,12 @@ export async function getProperties(filters?: {
 
 export async function getPropertyBySlug(slug: string) {
   try {
-    const property = await prisma.property.findUnique({
+    const property = await prisma.properties.findUnique({
       where: { slug },
-      include: {
-        images: {
+      include: { property_images: {
           orderBy: { order: 'asc' },
         },
-        owner: {
+        users: {
           select: {
             name: true,
             phone: true,
@@ -86,7 +86,7 @@ export async function getPropertyBySlug(slug: string) {
         },
         reviews: {
           include: {
-            user: {
+            users: {
               select: {
                 name: true,
               },
@@ -98,7 +98,7 @@ export async function getPropertyBySlug(slug: string) {
     })
 
     if (property) {
-      await prisma.property.update({
+      await prisma.properties.update({
         where: { id: property.id },
         data: { views: { increment: 1 } },
       })
@@ -116,12 +116,12 @@ export async function createProperty(data: any, ownerId: string) {
     const validated = propertySchema.parse(data)
     const slug = generateSlug(validated.title)
 
-    const property = await prisma.property.create({
+    const property = await prisma.properties.create({
       data: {
         ...validated,
         slug,
         ownerId,
-      },
+      } as any,
     })
 
     revalidatePath('/')
@@ -139,7 +139,7 @@ export async function updateProperty(id: string, data: any) {
     const validated = propertySchema.parse(data)
     const slug = generateSlug(validated.title)
 
-    const property = await prisma.property.update({
+    const property = await prisma.properties.update({
       where: { id },
       data: {
         ...validated,
@@ -160,7 +160,7 @@ export async function updateProperty(id: string, data: any) {
 
 export async function deleteProperty(id: string) {
   try {
-    await prisma.property.delete({
+    await prisma.properties.delete({
       where: { id },
     })
 
@@ -176,41 +176,27 @@ export async function deleteProperty(id: string) {
 
 export async function createBooking(data: any) {
   try {
-    const validated = bookingSchema.parse(data)
+    // Use enterprise booking service with transaction
+    const result = await BookingService.createBooking({
+      propertyId: data.propertyId,
+      checkIn: new Date(data.checkIn),
+      checkOut: new Date(data.checkOut),
+      guestCount: data.guests || data.guestCount || 2,
+      guestName: data.guestName,
+      guestEmail: data.guestEmail || '',
+      guestPhone: data.guestPhone,
+      specialRequests: data.specialRequests,
+      promoCode: data.promoCode,
+    });
 
-    const checkIn = new Date(validated.checkIn)
-    const checkOut = new Date(validated.checkOut)
-    const totalDays = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-
-    const property = await prisma.property.findUnique({
-      where: { id: validated.propertyId },
-      select: { pricePerDay: true },
-    })
-
-    if (!property) {
-      return { success: false, error: 'Ev tapılmadı' }
+    if (!result.success) {
+      return { success: false, error: result.error };
     }
 
-    const totalPrice = totalDays * property.pricePerDay
-
-    const booking = await prisma.booking.create({
-      data: {
-        ...validated,
-        checkIn,
-        checkOut,
-        totalDays,
-        totalPrice,
-      },
-    })
-
-    await prisma.property.update({
-      where: { id: validated.propertyId },
-      data: { inquiries: { increment: 1 } },
-    })
-
-    return { success: true, booking }
+    revalidatePath('/admin');
+    return { success: true, booking: result.booking };
   } catch (error) {
-    console.error('Create Booking Error:', error)
-    return { success: false, error: 'Bron edilərkən xəta baş verdi' }
+    console.error('Create Booking Error:', error);
+    return { success: false, error: 'Bron edilərkən xəta baş verdi' };
   }
 }

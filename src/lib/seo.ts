@@ -89,7 +89,7 @@ export function generateSEO({
 export function generatePropertySchema(property: {
   title: string
   description: string
-  pricePerDay: number
+  basePricePerNight: number
   city: string
   district: string
   images: { url: string }[]
@@ -104,7 +104,7 @@ export function generatePropertySchema(property: {
     image: property.images.map(img => img.url),
     offers: {
       '@type': 'Offer',
-      price: property.pricePerDay,
+      price: property.basePricePerNight,
       priceCurrency: 'AZN',
       availability: 'https://schema.org/InStock',
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),

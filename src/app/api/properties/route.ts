@@ -28,16 +28,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (minPrice || maxPrice) {
-      where.pricePerDay = {}
-      if (minPrice) where.pricePerDay.gte = parseInt(minPrice)
-      if (maxPrice) where.pricePerDay.lte = parseInt(maxPrice)
+      where.basePricePerNight = {}
+      if (minPrice) where.basePricePerNight.gte = parseInt(minPrice)
+      if (maxPrice) where.basePricePerNight.lte = parseInt(maxPrice)
     }
 
     const [properties, total] = await Promise.all([
-      prisma.property.findMany({
+      prisma.properties.findMany({
         where,
-        include: {
-          images: {
+        include: { property_images: {
             orderBy: { order: 'asc' },
             take: 1,
           },
@@ -52,7 +51,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.property.count({ where }),
+      prisma.properties.count({ where }),
     ])
 
     return NextResponse.json({

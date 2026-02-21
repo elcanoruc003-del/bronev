@@ -3,7 +3,7 @@ export interface Property {
   slug: string
   title: string
   description: string
-  pricePerDay: number
+  basePricePerNight: number
   city: string
   district: string
   address?: string

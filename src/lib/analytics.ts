@@ -38,25 +38,25 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       properties,
       bookings,
     ] = await Promise.all([
-      prisma.property.count(),
-      prisma.property.count({ where: { status: 'AVAILABLE' } }),
-      prisma.property.findMany({
+      prisma.properties.count(),
+      prisma.properties.count({ where: { status: 'PUBLISHED' as any } }),
+      prisma.properties.findMany({
         select: {
           id: true,
           title: true,
-          pricePerDay: true,
+          basePricePerNight: true,
           views: true,
           inquiries: true,
           city: true,
           status: true,
         },
       }),
-      prisma.booking.count(),
+      prisma.bookings.count(),
     ])
 
     // Calculate totals
-    const totalViews = properties.reduce((sum, p) => sum + p.views, 0)
-    const totalInquiries = properties.reduce((sum, p) => sum + p.inquiries, 0)
+    const totalViews = properties.reduce((sum: number, p: any) => sum + p.views, 0)
+    const totalInquiries = properties.reduce((sum: number, p: any) => sum + p.inquiries, 0)
     
     // Calculate conversion rate (inquiries / views * 100)
     const conversionRate = totalViews > 0 
@@ -65,12 +65,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
     // Calculate average price
     const averagePrice = properties.length > 0
-      ? Math.round(properties.reduce((sum, p) => sum + p.pricePerDay, 0) / properties.length)
+      ? Math.round(properties.reduce((sum: number, p: any) => sum + p.basePricePerNight, 0) / properties.length)
       : 0
 
     // Find top performing property
     const topPerformingProperty = properties.length > 0
-      ? properties.reduce((top, current) => {
+      ? properties.reduce((top: any, current: any) => {
           const topScore = top.views + (top.inquiries * 10)
           const currentScore = current.views + (current.inquiries * 10)
           return currentScore > topScore ? current : top
@@ -78,8 +78,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       : null
 
     // Views by city
-    const viewsByCity = properties.reduce((acc, property) => {
-      const existing = acc.find(item => item.city === property.city)
+    const viewsByCity = properties.reduce((acc: Array<{ city: string; count: number }>, property: any) => {
+      const existing = acc.find((item: any) => item.city === property.city)
       if (existing) {
         existing.count += property.views
       } else {
@@ -87,7 +87,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       }
       return acc
     }, [] as Array<{ city: string; count: number }>)
-    .sort((a, b) => b.count - a.count)
+    .sort((a: any, b: any) => b.count - a.count)
     .slice(0, 5)
 
     // Price distribution
@@ -101,15 +101,15 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
     const priceDistribution = priceRanges.map(range => ({
       range: range.range,
-      count: properties.filter(p => 
-        p.pricePerDay >= range.min && p.pricePerDay < range.max
+      count: properties.filter((p: any) => 
+        p.basePricePerNight >= range.min && p.basePricePerNight < range.max
       ).length,
     }))
 
     // Recent activity (mock for now, will be real with activity log)
     const recentActivity = properties
       .slice(0, 5)
-      .map(p => ({
+      .map((p: any) => ({
         type: 'view' as const,
         propertyTitle: p.title,
         timestamp: new Date(),
@@ -141,7 +141,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
 export async function trackPropertyView(propertyId: string) {
   try {
-    await prisma.property.update({
+    await prisma.properties.update({
       where: { id: propertyId },
       data: { views: { increment: 1 } },
     })
@@ -152,7 +152,7 @@ export async function trackPropertyView(propertyId: string) {
 
 export async function trackPropertyInquiry(propertyId: string) {
   try {
-    await prisma.property.update({
+    await prisma.properties.update({
       where: { id: propertyId },
       data: { inquiries: { increment: 1 } },
     })

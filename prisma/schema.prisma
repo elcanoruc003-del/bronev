@@ -7,469 +7,348 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// USER MANAGEMENT
-// ============================================
+model audit_logs {
+  id        String   @id
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  changes   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  users     users?   @relation(fields: [userId], references: [id])
 
-model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  phone         String?   @unique
-  password      String
-  role          UserRole  @default(USER)
-  emailVerified DateTime?
-  phoneVerified DateTime?
-  image         String?
-  
-  // Profile
-  bio           String?   @db.Text
-  language      String    @default("az")
-  timezone      String    @default("Asia/Baku")
-  
-  // Security
-  twoFactorEnabled Boolean @default(false)
-  lastLoginAt      DateTime?
-  lastLoginIp      String?
-  
-  // Status
-  isActive      Boolean   @default(true)
-  isBanned      Boolean   @default(false)
-  bannedReason  String?
-  bannedAt      DateTime?
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  // Relations
-  properties    Property[]
-  bookings      Booking[]
-  reviews       Review[]
-  favorites     Favorite[]
-  auditLogs     AuditLog[]
-  notifications Notification[]
-  
-  @@index([email])
-  @@index([phone])
-  @@index([role])
-  @@index([isActive])
-  @@map("users")
-}
-
-// ============================================
-// PROPERTY MANAGEMENT (ENTERPRISE LEVEL)
-// ============================================
-
-model Property {
-  id          String   @id @default(cuid())
-  
-  // Basic Info
-  title       String
-  slug        String   @unique
-  shortDescription String @db.Text
-  longDescription  String @db.Text
-  
-  // Pricing (Multi-tier)
-  basePricePerNight    Int
-  weeklyPrice          Int?
-  monthlyPrice         Int?
-  cleaningFee          Int      @default(0)
-  securityDeposit      Int      @default(0)
-  extraGuestFee        Int      @default(0)
-  
-  // Discount System
-  weekendPriceMultiplier Float  @default(1.0)
-  weeklyDiscount         Int    @default(0) // percentage
-  monthlyDiscount        Int    @default(0) // percentage
-  
-  // Location
-  country     String   @default("Azerbaijan")
-  city        String
-  district    String
-  address     String
-  zipCode     String?
-  latitude    Float
-  longitude   Float
-  
-  // Property Details
-  type        PropertyType
-  bedrooms    Int
-  beds        Int
-  bathrooms   Float // 1.5 for half bath
-  area        Int // m²
-  floor       Int?
-  totalFloors Int?
-  maxGuests   Int
-  minNights   Int      @default(1)
-  maxNights   Int      @default(365)
-  
-  // Check-in/out
-  checkInTime  String   @default("14:00")
-  checkOutTime String   @default("12:00")
-  
-  // Features & Amenities (JSON for flexibility)
-  amenities   Json     @default("[]") // [{id, name, icon}]
-  features    Json     @default("[]") // [{category, items[]}]
-  rules       Json     @default("{}") // {smoking, pets, parties, etc}
-  
-  // Status & Visibility
-  status      PropertyStatus @default(DRAFT)
-  featured    Boolean        @default(false)
-  verified    Boolean        @default(false)
-  instantBook Boolean        @default(false)
-  
-  // Custom Badges
-  badges      String[]       @default([])
-  
-  // SEO
-  metaTitle       String?
-  metaDescription String?
-  metaKeywords    String[]
-  canonicalUrl    String?
-  
-  // Statistics
-  views           Int      @default(0)
-  inquiries       Int      @default(0)
-  bookings        Int      @default(0)
-  averageRating   Float    @default(0)
-  totalReviews    Int      @default(0)
-  responseRate    Float    @default(0)
-  responseTime    Int      @default(0) // minutes
-  
-  // Owner
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  
-  // Relations
-  images          PropertyImage[]
-  availability    PropertyAvailability[]
-  pricingRules    PricingRule[]
-  bookingRequests Booking[]
-  reviews         Review[]
-  favorites       Favorite[]
-  
-  // Timestamps
-  publishedAt DateTime?
-  archivedAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([slug])
-  @@index([city])
-  @@index([type])
-  @@index([status])
-  @@index([featured])
-  @@index([basePricePerNight])
   @@index([createdAt])
-  @@index([ownerId])
-  @@index([averageRating])
-  @@map("properties")
+  @@index([entity, entityId])
+  @@index([userId])
 }
 
-model PropertyImage {
-  id         String   @id @default(cuid())
-  url        String
-  thumbnailUrl String?
-  alt        String?
-  caption    String?
-  order      Int      @default(0)
-  isCover    Boolean  @default(false)
-  width      Int?
-  height     Int?
-  size       Int?     // bytes
-  
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  createdAt  DateTime @default(now())
-  
+model bookings {
+  id                 String        @id
+  checkIn            DateTime      @db.Date
+  checkOut           DateTime      @db.Date
+  totalPrice         Int
+  status             BookingStatus @default(PENDING)
+  guestName          String
+  guestPhone         String
+  guestEmail         String
+  propertyId         String
+  userId             String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime
+  basePrice          Int
+  bookingNumber      String        @unique
+  cancellationReason String?
+  cancelledAt        DateTime?
+  cancelledBy        String?
+  cleaningFee        Int           @default(0)
+  completedAt        DateTime?
+  confirmedAt        DateTime?
+  discountAmount     Int           @default(0)
+  emailSent          Boolean       @default(false)
+  guestCount         Int
+  paidAmount         Int           @default(0)
+  paymentMethod      String?
+  paymentStatus      PaymentStatus @default(UNPAID)
+  promoCode          String?
+  promoDiscount      Int           @default(0)
+  refundAmount       Int?
+  serviceFee         Int           @default(0)
+  smsSent            Boolean       @default(false)
+  specialRequests    String?
+  taxes              Int           @default(0)
+  totalNights        Int
+  whatsappSent       Boolean       @default(false)
+  properties         properties    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  users              users?        @relation(fields: [userId], references: [id])
+
+  @@index([bookingNumber])
+  @@index([checkIn, checkOut])
+  @@index([createdAt])
   @@index([propertyId])
-  @@index([isCover])
-  @@map("property_images")
+  @@index([status])
+  @@index([userId])
 }
 
-// ============================================
-// AVAILABILITY SYSTEM (CORE FEATURE)
-// ============================================
-
-model PropertyAvailability {
-  id         String   @id @default(cuid())
-  
+model favorites {
+  id         String     @id
   propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  // Date Range
-  startDate  DateTime @db.Date
-  endDate    DateTime @db.Date
-  
-  // Availability Status
-  isAvailable Boolean @default(true)
-  
-  // Reason for blocking
-  blockReason String?  // "maintenance", "personal_use", "booked", "manual"
-  
-  // Custom pricing for this period
+  userId     String
+  createdAt  DateTime   @default(now())
+  properties properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  users      users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, userId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model notifications {
+  id        String           @id
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  users     users            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([userId, isRead])
+}
+
+model pricing_rules {
+  id              String          @id
+  propertyId      String
+  name            String
+  description     String?
+  type            PricingRuleType
+  startDate       DateTime        @db.Date
+  endDate         DateTime        @db.Date
+  adjustmentType  AdjustmentType
+  adjustmentValue Int
+  daysOfWeek      Int[]           @default([])
+  priority        Int             @default(0)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  properties      properties      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+  @@index([propertyId])
+  @@index([startDate, endDate])
+}
+
+model properties {
+  id                     String                  @id
+  title                  String
+  slug                   String                  @unique
+  city                   String
+  district               String
+  address                String
+  latitude               Float
+  longitude              Float
+  type                   PropertyType
+  bedrooms               Int
+  bathrooms              Float
+  area                   Int
+  floor                  Int?
+  totalFloors            Int?
+  status                 PropertyStatus          @default(DRAFT)
+  featured               Boolean                 @default(false)
+  verified               Boolean                 @default(false)
+  metaTitle              String?
+  metaDescription        String?
+  metaKeywords           String[]
+  views                  Int                     @default(0)
+  inquiries              Int                     @default(0)
+  ownerId                String
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime
+  archivedAt             DateTime?
+  averageRating          Float                   @default(0)
+  badges                 String[]                @default([])
+  basePricePerNight      Int
+  beds                   Int
+  bookings               Int                     @default(0)
+  canonicalUrl           String?
+  checkInTime            String                  @default("14:00")
+  checkOutTime           String                  @default("12:00")
+  cleaningFee            Int                     @default(0)
+  country                String                  @default("Azerbaijan")
+  extraGuestFee          Int                     @default(0)
+  instantBook            Boolean                 @default(false)
+  longDescription        String
+  maxGuests              Int
+  maxNights              Int                     @default(365)
+  minNights              Int                     @default(1)
+  monthlyDiscount        Int                     @default(0)
+  monthlyPrice           Int?
+  publishedAt            DateTime?
+  responseRate           Float                   @default(0)
+  responseTime           Int                     @default(0)
+  rules                  Json                    @default("{}")
+  securityDeposit        Int                     @default(0)
+  shortDescription       String
+  totalReviews           Int                     @default(0)
+  weekendPriceMultiplier Float                   @default(1.0)
+  weeklyDiscount         Int                     @default(0)
+  weeklyPrice            Int?
+  zipCode                String?
+  features               Json                    @default("[]")
+  amenities              Json                    @default("[]")
+  bookingRequests        bookings[]
+  favorites              favorites[]
+  pricing_rules          pricing_rules[]
+  users                  users                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  property_availability  property_availability[]
+  property_images        property_images[]
+  reviews                reviews[]
+
+  @@index([averageRating])
+  @@index([basePricePerNight])
+  @@index([city])
+  @@index([createdAt])
+  @@index([featured])
+  @@index([ownerId])
+  @@index([slug])
+  @@index([status])
+  @@index([type])
+}
+
+model property_availability {
+  id          String     @id
+  propertyId  String
+  startDate   DateTime   @db.Date
+  endDate     DateTime   @db.Date
+  isAvailable Boolean    @default(true)
+  blockReason String?
   customPrice Int?
-  
-  // Minimum stay override
   minNights   Int?
-  
-  // Notes
-  notes       String?  @db.Text
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  properties  properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
   @@unique([propertyId, startDate, endDate])
   @@index([propertyId, startDate, endDate])
   @@index([startDate, endDate])
-  @@map("property_availability")
 }
 
-// ============================================
-// DYNAMIC PRICING RULES
-// ============================================
+model property_images {
+  id           String     @id
+  url          String
+  alt          String?
+  order        Int        @default(0)
+  propertyId   String
+  createdAt    DateTime   @default(now())
+  caption      String?
+  height       Int?
+  isCover      Boolean    @default(false)
+  size         Int?
+  thumbnailUrl String?
+  width        Int?
+  properties   properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-model PricingRule {
-  id          String   @id @default(cuid())
-  
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  name        String
-  description String?
-  
-  // Rule Type
-  type        PricingRuleType
-  
-  // Date Range
-  startDate   DateTime @db.Date
-  endDate     DateTime @db.Date
-  
-  // Pricing Adjustment
-  adjustmentType  AdjustmentType // PERCENTAGE or FIXED
-  adjustmentValue Int
-  
-  // Days of week (for weekend pricing)
-  daysOfWeek  Int[]    @default([]) // [0=Sunday, 1=Monday, ...]
-  
-  // Priority (higher = applied first)
-  priority    Int      @default(0)
-  
-  isActive    Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  @@index([isCover])
   @@index([propertyId])
-  @@index([startDate, endDate])
-  @@index([isActive])
-  @@map("pricing_rules")
 }
 
-// ============================================
-// BOOKING SYSTEM
-// ============================================
-
-model Booking {
-  id         String        @id @default(cuid())
-  bookingNumber String     @unique @default(cuid())
-  
-  // Dates
-  checkIn    DateTime      @db.Date
-  checkOut   DateTime      @db.Date
-  totalNights Int
-  
-  // Pricing Breakdown
-  basePrice       Int
-  cleaningFee     Int       @default(0)
-  serviceFee      Int       @default(0)
-  taxes           Int       @default(0)
-  discountAmount  Int       @default(0)
-  totalPrice      Int
-  
-  // Promo Code
-  promoCode       String?
-  promoDiscount   Int       @default(0)
-  
-  // Guest Info
-  guestName       String
-  guestPhone      String
-  guestEmail      String
-  guestCount      Int
-  specialRequests String?   @db.Text
-  
-  // Status
-  status          BookingStatus @default(PENDING)
-  
-  // Payment
-  paymentStatus   PaymentStatus @default(UNPAID)
-  paymentMethod   String?
-  paidAmount      Int           @default(0)
-  
-  // Cancellation
-  cancelledAt     DateTime?
-  cancelledBy     String?       // USER or OWNER
-  cancellationReason String?    @db.Text
-  refundAmount    Int?
-  
-  // Communication
-  whatsappSent    Boolean       @default(false)
-  emailSent       Boolean       @default(false)
-  smsSent         Boolean       @default(false)
-  
-  // Relations
-  propertyId String
-  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  userId     String?
-  user       User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
-  // Timestamps
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  confirmedAt DateTime?
-  completedAt DateTime?
-  
-  @@index([propertyId])
-  @@index([userId])
-  @@index([status])
-  @@index([checkIn, checkOut])
-  @@index([bookingNumber])
-  @@index([createdAt])
-  @@map("bookings")
-}
-
-// ============================================
-// REVIEW SYSTEM
-// ============================================
-
-model Review {
-  id         String   @id @default(cuid())
-  
-  // Ratings (1-5)
-  overallRating    Int
-  cleanlinessRating Int
-  accuracyRating   Int
-  locationRating   Int
-  valueRating      Int
+model reviews {
+  id                  String     @id
+  comment             String
+  propertyId          String
+  userId              String
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime
+  accuracyRating      Int
+  cleanlinessRating   Int
   communicationRating Int
-  
-  // Review Content
-  comment    String   @db.Text
-  pros       String?  @db.Text
-  cons       String?  @db.Text
-  
-  // Media
-  images     String[] @default([])
-  
-  // Status
-  isVerified Boolean  @default(false)
-  isPublished Boolean @default(true)
-  
-  // Owner Response
-  ownerResponse String? @db.Text
-  ownerRespondedAt DateTime?
-  
-  // Relations
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
+  cons                String?
+  images              String[]   @default([])
+  isPublished         Boolean    @default(true)
+  isVerified          Boolean    @default(false)
+  locationRating      Int
+  overallRating       Int
+  ownerRespondedAt    DateTime?
+  ownerResponse       String?
+  pros                String?
+  valueRating         Int
+  properties          properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  users               users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([propertyId, userId])
+  @@index([isPublished])
+  @@index([overallRating])
   @@index([propertyId])
   @@index([userId])
-  @@index([overallRating])
-  @@index([isPublished])
-  @@map("reviews")
 }
 
-// ============================================
-// FAVORITES
-// ============================================
+model users {
+  id               String          @id
+  name             String
+  email            String          @unique
+  phone            String?         @unique
+  password         String
+  role             UserRole        @default(USER)
+  emailVerified    DateTime?
+  image            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime
+  bannedAt         DateTime?
+  bannedReason     String?
+  bio              String?
+  isActive         Boolean         @default(true)
+  isBanned         Boolean         @default(false)
+  language         String          @default("az")
+  lastLoginAt      DateTime?
+  lastLoginIp      String?
+  phoneVerified    DateTime?
+  timezone         String          @default("Asia/Baku")
+  twoFactorEnabled Boolean         @default(false)
+  audit_logs       audit_logs[]
+  bookings         bookings[]
+  favorites        favorites[]
+  notifications    notifications[]
+  properties       properties[]
+  reviews          reviews[]
 
-model Favorite {
-  id         String   @id @default(cuid())
-  
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt  DateTime @default(now())
-  
-  @@unique([propertyId, userId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("favorites")
+  @@index([email])
+  @@index([isActive])
+  @@index([phone])
+  @@index([role])
 }
 
-// ============================================
-// NOTIFICATION SYSTEM
-// ============================================
-
-model Notification {
-  id        String   @id @default(cuid())
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type      NotificationType
-  title     String
-  message   String   @db.Text
-  data      Json?    // Additional data
-  
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
-  
-  createdAt DateTime @default(now())
-  
-  @@index([userId, isRead])
-  @@index([createdAt])
-  @@map("notifications")
+enum AdjustmentType {
+  PERCENTAGE
+  FIXED
 }
 
-// ============================================
-// AUDIT LOG (SECURITY & COMPLIANCE)
-// ============================================
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
-  action    String   // CREATE, UPDATE, DELETE, LOGIN, etc
-  entity    String   // Property, Booking, User, etc
-  entityId  String?
-  
-  changes   Json?    // Before/after values
-  ipAddress String?
-  userAgent String?
-  
-  createdAt DateTime @default(now())
-  
-  @@index([userId])
-  @@index([entity, entityId])
-  @@index([createdAt])
-  @@map("audit_logs")
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  CHECKED_IN
+  CHECKED_OUT
 }
 
-// ============================================
-// ENUMS
-// ============================================
+enum NotificationType {
+  BOOKING_REQUEST
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_RECEIVED
+  REVIEW_RECEIVED
+  MESSAGE_RECEIVED
+  SYSTEM_ALERT
+}
 
-enum UserRole {
-  USER
-  OWNER
-  ADMIN
-  SUPER_ADMIN
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum PricingRuleType {
+  SEASONAL
+  WEEKEND
+  HOLIDAY
+  EARLY_BIRD
+  LAST_MINUTE
+  LONG_STAY
+}
+
+enum PropertyStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  MAINTENANCE
+  SUSPENDED
 }
 
 enum PropertyType {
@@ -482,51 +361,9 @@ enum PropertyType {
   LOFT
 }
 
-enum PropertyStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-  MAINTENANCE
-  SUSPENDED
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CHECKED_IN
-  CHECKED_OUT
-  CANCELLED
-  COMPLETED
-}
-
-enum PaymentStatus {
-  UNPAID
-  PARTIALLY_PAID
-  PAID
-  REFUNDED
-  FAILED
-}
-
-enum PricingRuleType {
-  SEASONAL      // Summer, winter pricing
-  WEEKEND       // Friday-Sunday
-  HOLIDAY       // Special dates
-  EARLY_BIRD    // Book X days in advance
-  LAST_MINUTE   // Book within X days
-  LONG_STAY     // Stay X+ nights
-}
-
-enum AdjustmentType {
-  PERCENTAGE
-  FIXED
-}
-
-enum NotificationType {
-  BOOKING_REQUEST
-  BOOKING_CONFIRMED
-  BOOKING_CANCELLED
-  PAYMENT_RECEIVED
-  REVIEW_RECEIVED
-  MESSAGE_RECEIVED
-  SYSTEM_ALERT
+enum UserRole {
+  USER
+  ADMIN
+  OWNER
+  SUPER_ADMIN
 }

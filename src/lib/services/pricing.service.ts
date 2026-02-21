@@ -1,29 +1,40 @@
 import { prisma } from '@/lib/prisma';
-import { differenceInDays, eachDayOfInterval, isWeekend } from 'date-fns';
+import { differenceInDays, eachDayOfInterval, getDay, isWeekend } from 'date-fns';
 import type { PriceCalculation } from '@/types/property';
 
 /**
  * Enterprise Pricing Service
- * Handles dynamic pricing with multiple rules
+ * Dynamic pricing with weekend, seasonal, and discount rules
  */
 
 export class PricingService {
-  private static readonly SERVICE_FEE_PERCENTAGE = 10; // 10%
-  private static readonly TAX_PERCENTAGE = 18; // 18% VAT
+  private static readonly SERVICE_FEE_PERCENTAGE = 10;
+  private static readonly TAX_PERCENTAGE = 18;
 
   /**
-   * Calculate total price for a booking
+   * Calculate comprehensive price breakdown
    */
   static async calculatePrice(
     propertyId: string,
     checkIn: Date,
     checkOut: Date,
+    guestCount: number,
     promoCode?: string
   ): Promise<PriceCalculation> {
-    const property = await prisma.property.findUnique({
+    const property = await prisma.properties.findUnique({
       where: { id: propertyId },
-      include: {
-        pricingRules: {
+      select: {
+        basePricePerNight: true,
+        cleaningFee: true,
+        securityDeposit: true,
+        extraGuestFee: true,
+        maxGuests: true,
+        minNights: true,
+        maxNights: true,
+        weeklyDiscount: true,
+        monthlyDiscount: true,
+        weekendPriceMultiplier: true,
+        pricing_rules: {
           where: {
             isActive: true,
             startDate: { lte: checkOut },
@@ -31,27 +42,26 @@ export class PricingService {
           },
           orderBy: { priority: 'desc' },
         },
-        availability: {
-          where: {
-            startDate: { lte: checkOut },
-            endDate: { gte: checkIn },
-          },
-        },
       },
     });
 
     if (!property) throw new Error('Property not found');
 
     const nights = differenceInDays(checkOut, checkIn);
+    
+    // Validate
     if (nights < property.minNights) {
-      throw new Error(`Minimum stay is ${property.minNights} nights`);
+      throw new Error(`Minimum ${property.minNights} nights required`);
     }
     if (nights > property.maxNights) {
-      throw new Error(`Maximum stay is ${property.maxNights} nights`);
+      throw new Error(`Maximum ${property.maxNights} nights allowed`);
+    }
+    if (guestCount > property.maxGuests) {
+      throw new Error(`Maximum ${property.maxGuests} guests allowed`);
     }
 
-    // Calculate base price for each night
-    const days = eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) });
+    // Calculate nightly prices with dynamic rules
+    const days = eachDayOfInterval({ start: checkIn, end: checkOut });
     let totalBasePrice = 0;
     let weekendSurcharge = 0;
     let seasonalAdjustment = 0;
@@ -59,85 +69,69 @@ export class PricingService {
     for (const day of days) {
       let dayPrice = property.basePricePerNight;
 
-      // Check for custom pricing in availability
-      const customPricing = property.availability.find(
-        (av) => day >= av.startDate && day <= av.endDate && av.customPrice
-      );
+      // Weekend pricing
+      if (isWeekend(day) && property.weekendPriceMultiplier > 1) {
+        const surcharge = Math.round(
+          dayPrice * (property.weekendPriceMultiplier - 1)
+        );
+        weekendSurcharge += surcharge;
+        dayPrice += surcharge;
+      }
 
-      if (customPricing?.customPrice) {
-        dayPrice = customPricing.customPrice;
-      } else {
-        // Apply weekend multiplier
-        if (isWeekend(day)) {
-          const weekendExtra = Math.round(
-            dayPrice * (property.weekendPriceMultiplier - 1)
-          );
-          weekendSurcharge += weekendExtra;
-          dayPrice += weekendExtra;
-        }
-
-        // Apply pricing rules
-        for (const rule of property.pricingRules) {
-          if (day >= rule.startDate && day <= rule.endDate) {
-            // Check day of week for weekend rules
-            if (rule.daysOfWeek.length > 0) {
-              const dayOfWeek = day.getDay();
-              if (!rule.daysOfWeek.includes(dayOfWeek)) continue;
-            }
-
-            let adjustment = 0;
-            if (rule.adjustmentType === 'PERCENTAGE') {
-              adjustment = Math.round(dayPrice * (rule.adjustmentValue / 100));
-            } else {
-              adjustment = rule.adjustmentValue;
-            }
-
+      // Seasonal pricing rules
+      for (const rule of property.pricing_rules) {
+        if (day >= rule.startDate && day <= rule.endDate) {
+          if (rule.adjustmentType === 'PERCENTAGE') {
+            const adjustment = Math.round(dayPrice * (rule.adjustmentValue / 100));
             seasonalAdjustment += adjustment;
             dayPrice += adjustment;
+          } else {
+            seasonalAdjustment += rule.adjustmentValue;
+            dayPrice += rule.adjustmentValue;
           }
+          break; // Use highest priority rule only
         }
       }
 
       totalBasePrice += dayPrice;
     }
 
-    // Calculate discounts
+    // Extra guest fee
+    const extraGuests = Math.max(0, guestCount - 2);
+    const extraGuestTotal = extraGuests * property.extraGuestFee * nights;
+
+    // Discounts
     const discounts: PriceCalculation['discounts'] = {};
 
-    // Weekly discount (7+ nights)
     if (nights >= 7 && property.weeklyDiscount > 0) {
-      discounts.weekly = Math.round(
-        totalBasePrice * (property.weeklyDiscount / 100)
-      );
+      discounts.weekly = Math.round(totalBasePrice * (property.weeklyDiscount / 100));
     }
 
-    // Monthly discount (30+ nights)
     if (nights >= 30 && property.monthlyDiscount > 0) {
-      discounts.monthly = Math.round(
-        totalBasePrice * (property.monthlyDiscount / 100)
-      );
+      discounts.monthly = Math.round(totalBasePrice * (property.monthlyDiscount / 100));
     }
 
-    // Promo code discount
+    // Promo code (placeholder)
     if (promoCode) {
-      // TODO: Implement promo code validation
-      discounts.promo = 0;
+      const promo = await this.validatePromoCode(promoCode, propertyId);
+      if (promo) {
+        discounts.promo = promo.discountAmount;
+      }
     }
 
     const totalDiscounts = Object.values(discounts).reduce((a, b) => a + b, 0);
-    const subtotal = totalBasePrice - totalDiscounts;
+    const subtotal = totalBasePrice + extraGuestTotal - totalDiscounts;
 
     // Fees
     const cleaningFee = property.cleaningFee;
     const serviceFee = Math.round(subtotal * (this.SERVICE_FEE_PERCENTAGE / 100));
     const taxes = Math.round((subtotal + serviceFee) * (this.TAX_PERCENTAGE / 100));
-
     const total = subtotal + cleaningFee + serviceFee + taxes;
 
     // Build breakdown
     const breakdown: PriceCalculation['breakdown'] = [
       {
-        label: `${nights} nights × base rate`,
+        label: `${nights} gecə × ${property.basePricePerNight}₼`,
         amount: property.basePricePerNight * nights,
         type: 'charge',
       },
@@ -145,7 +139,7 @@ export class PricingService {
 
     if (weekendSurcharge > 0) {
       breakdown.push({
-        label: 'Weekend surcharge',
+        label: 'Həftəsonu əlavəsi',
         amount: weekendSurcharge,
         type: 'charge',
       });
@@ -153,15 +147,23 @@ export class PricingService {
 
     if (seasonalAdjustment > 0) {
       breakdown.push({
-        label: 'Seasonal adjustment',
+        label: 'Mövsümi qiymət',
         amount: seasonalAdjustment,
+        type: 'charge',
+      });
+    }
+
+    if (extraGuestTotal > 0) {
+      breakdown.push({
+        label: `Əlavə qonaq (${extraGuests} nəfər)`,
+        amount: extraGuestTotal,
         type: 'charge',
       });
     }
 
     if (discounts.weekly) {
       breakdown.push({
-        label: `Weekly discount (${property.weeklyDiscount}%)`,
+        label: `Həftəlik endirim (${property.weeklyDiscount}%)`,
         amount: -discounts.weekly,
         type: 'discount',
       });
@@ -169,28 +171,36 @@ export class PricingService {
 
     if (discounts.monthly) {
       breakdown.push({
-        label: `Monthly discount (${property.monthlyDiscount}%)`,
+        label: `Aylıq endirim (${property.monthlyDiscount}%)`,
         amount: -discounts.monthly,
+        type: 'discount',
+      });
+    }
+
+    if (discounts.promo) {
+      breakdown.push({
+        label: `Promo kod: ${promoCode}`,
+        amount: -discounts.promo,
         type: 'discount',
       });
     }
 
     if (cleaningFee > 0) {
       breakdown.push({
-        label: 'Cleaning fee',
+        label: 'Təmizlik haqqı',
         amount: cleaningFee,
         type: 'charge',
       });
     }
 
     breakdown.push({
-      label: `Service fee (${this.SERVICE_FEE_PERCENTAGE}%)`,
+      label: `Xidmət haqqı (${this.SERVICE_FEE_PERCENTAGE}%)`,
       amount: serviceFee,
       type: 'charge',
     });
 
     breakdown.push({
-      label: `Taxes (${this.TAX_PERCENTAGE}%)`,
+      label: `ƏDV (${this.TAX_PERCENTAGE}%)`,
       amount: taxes,
       type: 'tax',
     });
@@ -211,20 +221,13 @@ export class PricingService {
   }
 
   /**
-   * Get average nightly rate for a property
+   * Validate promo code
    */
-  static async getAverageNightlyRate(
-    propertyId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<number> {
-    const calculation = await this.calculatePrice(propertyId, startDate, endDate);
-    return Math.round(calculation.subtotal / calculation.nights);
+  private static async validatePromoCode(
+    code: string,
+    propertyId: string
+  ): Promise<{ discountAmount: number } | null> {
+    // TODO: Implement promo code table and validation
+    return null;
   }
-}
-
-function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
 }

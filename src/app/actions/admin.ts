@@ -1,7 +1,7 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
-import { authenticateUser, createSessionToken } from '@/lib/auth';
+import { prisma, checkDatabaseConnection } from '@/lib/prisma';
+import { authenticateUser, createSessionToken, verifySessionToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { AnalyticsService } from '@/lib/services/analytics.service';
@@ -9,14 +9,45 @@ import { AnalyticsService } from '@/lib/services/analytics.service';
 const SESSION_COOKIE = 'bronev_session';
 
 /**
- * Admin login action
+ * Safe wrapper for server actions
+ * Catches errors and returns standardized responses
+ */
+async function safeServerAction<T>(
+  action: () => Promise<T>,
+  errorMessage: string = 'Xəta baş verdi'
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  try {
+    const data = await action();
+    return { success: true, data };
+  } catch (error) {
+    console.error(`Server action error: ${errorMessage}`, error);
+    return { 
+      success: false, 
+      error: errorMessage,
+    };
+  }
+}
+
+/**
+ * Admin login action with comprehensive error handling
  */
 export async function loginAdmin(email: string, password: string) {
-  try {
+  return safeServerAction(async () => {
+    // Validate inputs
+    if (!email || !password) {
+      throw new Error('Email və parol tələb olunur');
+    }
+
+    // Check database connection
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
     const user = await authenticateUser(email, password);
 
     if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
-      return { success: false, error: 'Email və ya parol səhvdir' };
+      throw new Error('Email və ya parol səhvdir');
     }
 
     // Create session
@@ -26,37 +57,54 @@ export async function loginAdmin(email: string, password: string) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
     });
 
-    return { success: true, user };
-  } catch (error) {
-    console.error('Login error:', error);
-    return { success: false, error: 'Giriş zamanı xəta baş verdi' };
-  }
+    return { user };
+  }, 'Giriş zamanı xəta baş verdi').then(result => {
+    if (result.success && result.data) {
+      return { success: true, user: result.data.user };
+    }
+    return { success: false, error: result.error };
+  });
 }
 
 /**
  * Admin logout action
  */
 export async function logoutAdmin() {
-  cookies().delete(SESSION_COOKIE);
-  revalidatePath('/admin');
-  return { success: true };
+  try {
+    cookies().delete(SESSION_COOKIE);
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error('Logout error:', error);
+    return { success: false, error: 'Çıxış zamanı xəta baş verdi' };
+  }
 }
 
 /**
- * Get current admin user
+ * Get current admin user with validation
  */
 export async function getCurrentAdmin() {
   try {
     const token = cookies().get(SESSION_COOKIE)?.value;
     if (!token) return null;
 
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const user = JSON.parse(decoded);
+    const user = verifySessionToken(token);
+    if (!user) {
+      cookies().delete(SESSION_COOKIE);
+      return null;
+    }
 
     // Verify user still exists and is active
-    const dbUser = await prisma.user.findUnique({
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      console.error('Database unavailable during auth check');
+      return null;
+    }
+
+    const dbUser = await prisma.users.findUnique({
       where: { id: user.id },
       select: {
         id: true,
@@ -74,32 +122,40 @@ export async function getCurrentAdmin() {
     }
 
     return user;
-  } catch {
+  } catch (error) {
+    console.error('Get current admin error:', error);
     return null;
   }
 }
 
 /**
- * Get dashboard metrics
+ * Get dashboard metrics with error handling
  */
 export async function getDashboardMetrics() {
-  try {
+  return safeServerAction(async () => {
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
     const metrics = await AnalyticsService.getDashboardMetrics();
-    return { success: true, data: metrics };
-  } catch (error) {
-    console.error('Dashboard metrics error:', error);
-    return { success: false, error: 'Statistika yüklənərkən xəta baş verdi' };
-  }
+    return metrics;
+  }, 'Statistika yüklənərkən xəta baş verdi');
 }
 
 /**
  * Get all properties for admin
  */
 export async function getAdminProperties() {
-  try {
-    const properties = await prisma.property.findMany({
+  return safeServerAction(async () => {
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
+    const properties = await prisma.properties.findMany({
       include: {
-        images: {
+        property_images: {
           orderBy: { order: 'asc' },
           take: 1,
         },
@@ -113,30 +169,28 @@ export async function getAdminProperties() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return { success: true, data: properties };
-  } catch (error) {
-    console.error('Get properties error:', error);
-    return { success: false, error: 'Evlər yüklənərkən xəta baş verdi' };
-  }
+    return properties;
+  }, 'Evlər yüklənərkən xəta baş verdi');
 }
 
 /**
  * Delete property
  */
 export async function deleteProperty(propertyId: string) {
-  try {
-    await prisma.property.delete({
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    await prisma.properties.delete({
       where: { id: propertyId },
     });
 
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Delete property error:', error);
-    return { success: false, error: 'Ev silinərkən xəta baş verdi' };
-  }
+    return true;
+  }, 'Ev silinərkən xəta baş verdi');
 }
 
 /**
@@ -146,8 +200,12 @@ export async function updatePropertyStatus(
   propertyId: string,
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'MAINTENANCE' | 'SUSPENDED'
 ) {
-  try {
-    await prisma.property.update({
+  return safeServerAction(async () => {
+    if (!propertyId || !status) {
+      throw new Error('Property ID və status tələb olunur');
+    }
+
+    await prisma.properties.update({
       where: { id: propertyId },
       data: { 
         status,
@@ -159,28 +217,29 @@ export async function updatePropertyStatus(
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Update status error:', error);
-    return { success: false, error: 'Status yenilənərkən xəta baş verdi' };
-  }
+    return true;
+  }, 'Status yenilənərkən xəta baş verdi');
 }
 
 /**
  * Toggle property featured
  */
 export async function togglePropertyFeatured(propertyId: string) {
-  try {
-    const property = await prisma.property.findUnique({
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    const property = await prisma.properties.findUnique({
       where: { id: propertyId },
       select: { featured: true },
     });
 
     if (!property) {
-      return { success: false, error: 'Ev tapılmadı' };
+      throw new Error('Ev tapılmadı');
     }
 
-    await prisma.property.update({
+    await prisma.properties.update({
       where: { id: propertyId },
       data: { featured: !property.featured },
     });
@@ -188,21 +247,23 @@ export async function togglePropertyFeatured(propertyId: string) {
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Toggle featured error:', error);
-    return { success: false, error: 'Xəta baş verdi' };
-  }
+    return true;
+  }, 'Xəta baş verdi');
 }
 
 /**
  * Get all bookings for admin
  */
 export async function getAdminBookings() {
-  try {
-    const bookings = await prisma.booking.findMany({
+  return safeServerAction(async () => {
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
+    const bookings = await prisma.bookings.findMany({
       include: {
-        property: {
+        properties: {
           select: {
             id: true,
             title: true,
@@ -213,11 +274,8 @@ export async function getAdminBookings() {
       take: 50,
     });
 
-    return { success: true, data: bookings };
-  } catch (error) {
-    console.error('Get bookings error:', error);
-    return { success: false, error: 'Bronlar yüklənərkən xəta baş verdi' };
-  }
+    return bookings;
+  }, 'Bronlar yüklənərkən xəta baş verdi');
 }
 
 /**
@@ -227,8 +285,12 @@ export async function updateBookingStatus(
   bookingId: string,
   status: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'COMPLETED'
 ) {
-  try {
-    await prisma.booking.update({
+  return safeServerAction(async () => {
+    if (!bookingId || !status) {
+      throw new Error('Booking ID və status tələb olunur');
+    }
+
+    await prisma.bookings.update({
       where: { id: bookingId },
       data: { 
         status,
@@ -239,34 +301,58 @@ export async function updateBookingStatus(
 
     revalidatePath('/admin');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Update booking status error:', error);
-    return { success: false, error: 'Status yenilənərkən xəta baş verdi' };
-  }
+    return true;
+  }, 'Status yenilənərkən xəta baş verdi');
 }
 
 /**
  * Get revenue chart data
  */
 export async function getRevenueChartData(months: number = 12) {
-  try {
-    const data = await AnalyticsService.getRevenueChartData(undefined, months);
-    return { success: true, data };
-  } catch (error) {
-    console.error('Revenue chart error:', error);
-    return { success: false, error: 'Gəlir məlumatları yüklənərkən xəta baş verdi' };
-  }
+  return safeServerAction(async () => {
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - months);
+
+    const bookings = await prisma.bookings.findMany({
+      where: {
+        status: { in: ['CONFIRMED', 'COMPLETED'] },
+        createdAt: { gte: startDate },
+      },
+      select: {
+        createdAt: true,
+        totalPrice: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Group by month
+    const monthlyData = bookings.reduce((acc: any, booking: any) => {
+      const month = booking.createdAt.toISOString().slice(0, 7);
+      if (!acc[month]) {
+        acc[month] = { month, revenue: 0, count: 0 };
+      }
+      acc[month].revenue += booking.totalPrice;
+      acc[month].count += 1;
+      return acc;
+    }, {});
+
+    return Object.values(monthlyData);
+  }, 'Gəlir məlumatları yüklənərkən xəta baş verdi');
 }
 
 /**
  * Create new property
  */
 export async function createProperty(data: any) {
-  try {
+  return safeServerAction(async () => {
     const currentUser = await getCurrentAdmin();
     if (!currentUser) {
-      return { success: false, error: 'Giriş tələb olunur' };
+      throw new Error('Giriş tələb olunur');
     }
 
     // Generate slug from title
@@ -275,7 +361,7 @@ export async function createProperty(data: any) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    const property = await prisma.property.create({
+    const property = await prisma.properties.create({
       data: {
         ...data,
         slug: `${slug}-${Date.now()}`,
@@ -286,19 +372,20 @@ export async function createProperty(data: any) {
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true, data: property };
-  } catch (error) {
-    console.error('Create property error:', error);
-    return { success: false, error: 'Ev əlavə edilərkən xəta baş verdi' };
-  }
+    return property;
+  }, 'Ev əlavə edilərkən xəta baş verdi');
 }
 
 /**
  * Update property
  */
 export async function updateProperty(propertyId: string, data: any) {
-  try {
-    const property = await prisma.property.update({
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    const property = await prisma.properties.update({
       where: { id: propertyId },
       data,
     });
@@ -306,11 +393,8 @@ export async function updateProperty(propertyId: string, data: any) {
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true, data: property };
-  } catch (error) {
-    console.error('Update property error:', error);
-    return { success: false, error: 'Ev yenilənərkən xəta baş verdi' };
-  }
+    return property;
+  }, 'Ev yenilənərkən xəta baş verdi');
 }
 
 /**
@@ -320,9 +404,13 @@ export async function addPropertyImages(
   propertyId: string,
   images: Array<{ url: string; alt?: string; order: number }>
 ) {
-  try {
-    await prisma.propertyImage.createMany({
-      data: images.map((img) => ({
+  return safeServerAction(async () => {
+    if (!propertyId || !images || images.length === 0) {
+      throw new Error('Property ID və şəkillər tələb olunur');
+    }
+
+    await prisma.property_images.createMany({
+      data: images.map((img: any) => ({
         ...img,
         propertyId,
       })),
@@ -331,53 +419,57 @@ export async function addPropertyImages(
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Add images error:', error);
-    return { success: false, error: 'Şəkillər əlavə edilərkən xəta baş verdi' };
-  }
+    return true;
+  }, 'Şəkillər əlavə edilərkən xəta baş verdi');
 }
 
 /**
  * Delete property image
  */
 export async function deletePropertyImage(imageId: string) {
-  try {
-    await prisma.propertyImage.delete({
+  return safeServerAction(async () => {
+    if (!imageId) {
+      throw new Error('Image ID tələb olunur');
+    }
+
+    await prisma.property_images.delete({
       where: { id: imageId },
     });
 
     revalidatePath('/admin');
     revalidatePath('/');
 
-    return { success: true };
-  } catch (error) {
-    console.error('Delete image error:', error);
-    return { success: false, error: 'Şəkil silinərkən xəta baş verdi' };
-  }
+    return true;
+  }, 'Şəkil silinərkən xəta baş verdi');
 }
 
 /**
  * Get single property for editing
  */
 export async function getPropertyForEdit(propertyId: string) {
-  try {
-    const property = await prisma.property.findUnique({
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error('Verilənlər bazası əlçatan deyil');
+    }
+
+    const property = await prisma.properties.findUnique({
       where: { id: propertyId },
       include: {
-        images: {
+        property_images: {
           orderBy: { order: 'asc' },
         },
       },
     });
 
     if (!property) {
-      return { success: false, error: 'Ev tapılmadı' };
+      throw new Error('Ev tapılmadı');
     }
 
-    return { success: true, data: property };
-  } catch (error) {
-    console.error('Get property error:', error);
-    return { success: false, error: 'Ev yüklənərkən xəta baş verdi' };
-  }
+    return property;
+  }, 'Ev yüklənərkən xəta baş verdi');
 }
