@@ -1,9 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
+// Initialize Prisma Client
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🔄 Creating admin user...');
+  
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
   const admin = await prisma.users.upsert({
@@ -21,14 +24,14 @@ async function main() {
     },
   });
 
-  console.log('✅ Admin user created:', admin.email);
+  console.log('✅ Admin user created successfully!');
   console.log('📧 Email: admin@bronev.com');
   console.log('🔑 Password: admin123');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Error:', e);
     process.exit(1);
   })
   .finally(async () => {
