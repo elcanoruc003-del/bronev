@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 /**
  * Production-Safe Middleware
+ * No Buffer usage - Edge Runtime compatible
  */
 
 export function middleware(request: NextRequest) {
@@ -12,37 +13,16 @@ export function middleware(request: NextRequest) {
   // If accessing /admin (login page)
   if (pathname === '/admin') {
     // If already logged in, redirect to dashboard
-    if (session) {
-      try {
-        const decoded = Buffer.from(session.value, 'base64').toString('utf-8');
-        const user = JSON.parse(decoded);
-        
-        if (user.role && ['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
-          return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
-      } catch {
-        // Invalid session, continue to login page
-      }
+    if (session?.value) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
-    // No session or invalid, show login page
+    // No session, show login page
     return NextResponse.next();
   }
 
   // Protect /admin/dashboard and deeper routes
   if (pathname.startsWith('/admin/dashboard')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-
-    // Basic session validation
-    try {
-      const decoded = Buffer.from(session.value, 'base64').toString('utf-8');
-      const user = JSON.parse(decoded);
-      
-      if (!user.role || !['ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
-        return NextResponse.redirect(new URL('/admin', request.url));
-      }
-    } catch {
+    if (!session?.value) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
   }
