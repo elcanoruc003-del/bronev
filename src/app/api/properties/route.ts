@@ -53,7 +53,6 @@ export async function GET(request: NextRequest) {
         where,
         include: { property_images: {
             orderBy: { order: 'asc' },
-            take: 1,
           },
           _count: {
             select: { reviews: true },
@@ -69,8 +68,14 @@ export async function GET(request: NextRequest) {
       prisma.properties.count({ where }),
     ])
 
+    // Map property_images to images for frontend compatibility
+    const mappedProperties = properties.map((property: any) => ({
+      ...property,
+      images: property.property_images || [],
+    }))
+
     return NextResponse.json({
-      properties,
+      properties: mappedProperties,
       pagination: {
         page,
         limit,
