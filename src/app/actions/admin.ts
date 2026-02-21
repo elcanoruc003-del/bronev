@@ -258,3 +258,126 @@ export async function getRevenueChartData(months: number = 12) {
     return { success: false, error: 'Gəlir məlumatları yüklənərkən xəta baş verdi' };
   }
 }
+
+/**
+ * Create new property
+ */
+export async function createProperty(data: any) {
+  try {
+    const currentUser = await getCurrentAdmin();
+    if (!currentUser) {
+      return { success: false, error: 'Giriş tələb olunur' };
+    }
+
+    // Generate slug from title
+    const slug = data.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    const property = await prisma.property.create({
+      data: {
+        ...data,
+        slug: `${slug}-${Date.now()}`,
+        ownerId: currentUser.id,
+      },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return { success: true, data: property };
+  } catch (error) {
+    console.error('Create property error:', error);
+    return { success: false, error: 'Ev əlavə edilərkən xəta baş verdi' };
+  }
+}
+
+/**
+ * Update property
+ */
+export async function updateProperty(propertyId: string, data: any) {
+  try {
+    const property = await prisma.property.update({
+      where: { id: propertyId },
+      data,
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return { success: true, data: property };
+  } catch (error) {
+    console.error('Update property error:', error);
+    return { success: false, error: 'Ev yenilənərkən xəta baş verdi' };
+  }
+}
+
+/**
+ * Add images to property
+ */
+export async function addPropertyImages(
+  propertyId: string,
+  images: Array<{ url: string; alt?: string; order: number }>
+) {
+  try {
+    await prisma.propertyImage.createMany({
+      data: images.map((img) => ({
+        ...img,
+        propertyId,
+      })),
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Add images error:', error);
+    return { success: false, error: 'Şəkillər əlavə edilərkən xəta baş verdi' };
+  }
+}
+
+/**
+ * Delete property image
+ */
+export async function deletePropertyImage(imageId: string) {
+  try {
+    await prisma.propertyImage.delete({
+      where: { id: imageId },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Delete image error:', error);
+    return { success: false, error: 'Şəkil silinərkən xəta baş verdi' };
+  }
+}
+
+/**
+ * Get single property for editing
+ */
+export async function getPropertyForEdit(propertyId: string) {
+  try {
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      include: {
+        images: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!property) {
+      return { success: false, error: 'Ev tapılmadı' };
+    }
+
+    return { success: true, data: property };
+  } catch (error) {
+    console.error('Get property error:', error);
+    return { success: false, error: 'Ev yüklənərkən xəta baş verdi' };
+  }
+}
