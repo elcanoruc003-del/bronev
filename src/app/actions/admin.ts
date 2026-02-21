@@ -32,23 +32,39 @@ async function safeServerAction<T>(
  * Admin login action with comprehensive error handling
  */
 export async function loginAdmin(email: string, password: string) {
-  return safeServerAction(async () => {
+  try {
+    console.log('[LOGIN] Starting login attempt for:', email);
+    
     // Validate inputs
     if (!email || !password) {
-      throw new Error('Email və parol tələb olunur');
+      console.log('[LOGIN] Missing credentials');
+      return { success: false, error: 'Email və parol tələb olunur' };
     }
 
     // Check database connection
+    console.log('[LOGIN] Checking database connection...');
     const isConnected = await checkDatabaseConnection();
     if (!isConnected) {
-      throw new Error('Verilənlər bazası əlçatan deyil');
+      console.error('[LOGIN] Database connection failed');
+      return { success: false, error: 'Verilənlər bazası əlçatan deyil' };
     }
+    console.log('[LOGIN] Database connected');
 
+    // Authenticate user
+    console.log('[LOGIN] Authenticating user...');
     const user = await authenticateUser(email, password);
-
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
-      throw new Error('Email və ya parol səhvdir');
+    
+    if (!user) {
+      console.log('[LOGIN] User not found or invalid credentials');
+      return { success: false, error: 'Email və ya parol səhvdir' };
     }
+
+    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
+      console.log('[LOGIN] User is not admin:', user.role);
+      return { success: false, error: 'Admin icazəsi yoxdur' };
+    }
+
+    console.log('[LOGIN] User authenticated:', user.email);
 
     // Create session
     const token = createSessionToken(user);
@@ -60,13 +76,15 @@ export async function loginAdmin(email: string, password: string) {
       path: '/',
     });
 
-    return { user };
-  }, 'Giriş zamanı xəta baş verdi').then(result => {
-    if (result.success && result.data) {
-      return { success: true, user: result.data.user };
-    }
-    return { success: false, error: result.error };
-  });
+    console.log('[LOGIN] Session created successfully');
+    return { success: true, user };
+  } catch (error: any) {
+    console.error('[LOGIN] Error:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Giriş zamanı xəta baş verdi'
+    };
+  }
 }
 
 /**
