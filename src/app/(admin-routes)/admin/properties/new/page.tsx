@@ -74,12 +74,32 @@ export default function NewPropertyPage() {
       {
         cloudName: 'dyfuasdbm',
         uploadPreset: 'bronev_preset',
+        apiKey: '526295514959981',
         multiple: true,
         maxFiles: 30,
         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
         maxFileSize: 10000000,
         sources: ['local', 'camera'],
         folder: 'bronev/properties',
+        cropping: false,
+        showSkipCropButton: true,
+        styles: {
+          palette: {
+            window: '#FFFFFF',
+            windowBorder: '#8B7355',
+            tabIcon: '#8B7355',
+            menuIcons: '#5A616A',
+            textDark: '#000000',
+            textLight: '#FFFFFF',
+            link: '#8B7355',
+            action: '#8B7355',
+            inactiveTabIcon: '#C19A6B',
+            error: '#F44235',
+            inProgress: '#8B7355',
+            complete: '#20B832',
+            sourceBg: '#FAF8F5'
+          }
+        }
       },
       (error: any, result: any) => {
         if (error) {
