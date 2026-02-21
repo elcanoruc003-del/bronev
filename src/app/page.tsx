@@ -1,21 +1,13 @@
-'use client'
-
-import Header from '@/components/Header'
-import HeroSection from '@/components/HeroSection'
-import FeaturedProperties from '@/components/FeaturedProperties'
-import TrustBadges from '@/components/TrustBadges'
-import ContactSection from '@/components/ContactSection'
-import Footer from '@/components/Footer'
+import MobileHeader from '@/components/MobileHeader'
+import MobilePropertyList from '@/components/MobilePropertyList'
+import MobileFooter from '@/components/MobileFooter'
 
 export default function Page() {
   return (
-    <main className="min-h-screen">
-      <Header />
-      <HeroSection />
-      <FeaturedProperties />
-      <TrustBadges />
-      <ContactSection />
-      <Footer />
+    <main className="min-h-screen bg-white">
+      <MobileHeader />
+      <MobilePropertyList />
+      <MobileFooter />
     </main>
   )
 }
