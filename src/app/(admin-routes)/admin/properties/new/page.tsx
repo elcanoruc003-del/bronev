@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
 import { createProperty, addPropertyImages } from '@/app/actions/admin';
@@ -43,18 +43,9 @@ export default function NewPropertyPage() {
     'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
   ];
 
-  // Load Cloudinary widget script
+  // Empty useEffect to prevent hydration issues
   useEffect(() => {
-    if (!document.getElementById('cloudinary-upload-widget')) {
-      const script = document.createElement('script');
-      script.id = 'cloudinary-upload-widget';
-      script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-      script.async = true;
-      script.onload = () => setWidgetLoaded(true);
-      document.body.appendChild(script);
-    } else {
-      setWidgetLoaded(true);
-    }
+    // Component mounted
   }, []);
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -66,12 +57,12 @@ export default function NewPropertyPage() {
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
 
         const response = await fetch('/api/upload-image', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         });
 
         if (!response.ok) {
