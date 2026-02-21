@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaSpinner } from 'react-icons/fa';
-import { createProperty } from '@/app/actions/admin';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
+import { createProperty, addPropertyImages } from '@/app/actions/admin';
+import { CldUploadWidget } from 'next-cloudinary';
 
 export default function NewPropertyPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; alt: string }>>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -18,6 +20,7 @@ export default function NewPropertyPage() {
     type: 'VILLA' as const,
     bedrooms: 1,
     bathrooms: 1,
+    beds: 1,
     area: 50,
     maxGuests: 2,
     basePricePerNight: 50,
@@ -25,7 +28,60 @@ export default function NewPropertyPage() {
     longDescription: '',
     latitude: 40.4093,
     longitude: 49.8671,
+    amenities: [] as string[],
+    features: [] as string[],
   });
+
+  const amenitiesList = [
+    'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
+    'Pulsuz parkinq', 'TV', 'Paltaryuyan', 'Quruducu', 'Dəmir',
+    'Saç quruducu', 'Şampun', 'Bədən sabunu', 'Isti su',
+  ];
+
+  const featuresList = [
+    'Dəniz mənzərəsi', 'Dağ mənzərəsi', 'Şəhər mənzərəsi', 'Balkon',
+    'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
+  ];
+
+  function handleImageUpload(result: any) {
+    const newImage = {
+      url: result.info.secure_url,
+      alt: formData.title || 'Property image',
+    };
+    setUploadedImages([...uploadedImages, newImage]);
+  }
+
+  function removeImage(index: number) {
+    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+  }
+
+  function toggleAmenity(amenity: string) {
+    if (formData.amenities.includes(amenity)) {
+      setFormData({
+        ...formData,
+        amenities: formData.amenities.filter(a => a !== amenity),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        amenities: [...formData.amenities, amenity],
+      });
+    }
+  }
+
+  function toggleFeature(feature: string) {
+    if (formData.features.includes(feature)) {
+      setFormData({
+        ...formData,
+        features: formData.features.filter(f => f !== feature),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        features: [...formData.features, feature],
+      });
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,17 +89,30 @@ export default function NewPropertyPage() {
     setIsSubmitting(true);
 
     try {
+      // Create property
       const result = await createProperty(formData);
       
-      if (result.success) {
-        alert('Ev uğurla əlavə edildi!');
-        router.push('/admin/dashboard');
-      } else {
+      if (!result.success || !result.data) {
         setError(result.error || 'Xəta baş verdi');
+        setIsSubmitting(false);
+        return;
       }
+
+      // Upload images if any
+      if (uploadedImages.length > 0) {
+        const imagesWithOrder = uploadedImages.map((img, index) => ({
+          url: img.url,
+          alt: img.alt,
+          order: index,
+        }));
+
+        await addPropertyImages(result.data.id, imagesWithOrder);
+      }
+
+      alert('Ev uğurla əlavə edildi!');
+      router.push('/admin/dashboard');
     } catch (error) {
       setError('Xəta baş verdi');
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -145,13 +214,27 @@ export default function NewPropertyPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                  Otaq sayı *
+                  Yataq otağı *
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={formData.bedrooms}
                   onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) })}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Yataq sayı *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.beds}
+                  onChange={(e) => setFormData({ ...formData, beds: parseInt(e.target.value) })}
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 />
@@ -174,20 +257,6 @@ export default function NewPropertyPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                  Sahə (m²) *
-                </label>
-                <input
-                  type="number"
-                  min="10"
-                  value={formData.area}
-                  onChange={(e) => setFormData({ ...formData, area: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Max qonaq *
                 </label>
                 <input
@@ -199,6 +268,20 @@ export default function NewPropertyPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                Sahə (m²) *
+              </label>
+              <input
+                type="number"
+                min="10"
+                value={formData.area}
+                onChange={(e) => setFormData({ ...formData, area: parseInt(e.target.value) })}
+                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                required
+              />
             </div>
 
             {/* Qiymət */}
@@ -214,6 +297,103 @@ export default function NewPropertyPage() {
                 className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                 required
               />
+            </div>
+
+            {/* Şəkillər */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                Şəkillər
+              </label>
+              
+              <CldUploadWidget
+                uploadPreset="bronev_preset"
+                cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
+                onSuccess={handleImageUpload}
+                options={{
+                  multiple: true,
+                  maxFiles: 10,
+                  resourceType: 'image',
+                }}
+              >
+                {({ open }) => (
+                  <button
+                    type="button"
+                    onClick={() => open()}
+                    className="w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2"
+                  >
+                    <FaUpload className="text-3xl text-[#8B7355]" />
+                    <span className="text-[#6B5D4F]">Şəkil yüklə</span>
+                    <span className="text-xs text-[#8B7355]">Çoxlu şəkil seçə bilərsiniz</span>
+                  </button>
+                )}
+              </CldUploadWidget>
+
+              {uploadedImages.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image.url}
+                        alt={image.alt}
+                        className="w-full h-32 object-cover rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Amenities */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                İmkanlar
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {amenitiesList.map((amenity) => (
+                  <button
+                    key={amenity}
+                    type="button"
+                    onClick={() => toggleAmenity(amenity)}
+                    className={`px-4 py-2 rounded-xl border transition-all ${
+                      formData.amenities.includes(amenity)
+                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    {amenity}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Features */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                Xüsusiyyətlər
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {featuresList.map((feature) => (
+                  <button
+                    key={feature}
+                    type="button"
+                    onClick={() => toggleFeature(feature)}
+                    className={`px-4 py-2 rounded-xl border transition-all ${
+                      formData.features.includes(feature)
+                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    {feature}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Təsvir */}

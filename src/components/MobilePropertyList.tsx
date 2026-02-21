@@ -18,7 +18,11 @@ interface Property {
   images: Array<{ url: string; alt?: string }>;
 }
 
-export default function MobilePropertyList() {
+interface MobilePropertyListProps {
+  filters?: any;
+}
+
+export default function MobilePropertyList({ filters = {} }: MobilePropertyListProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -52,11 +56,23 @@ export default function MobilePropertyList() {
     return () => {
       elements.forEach(el => observer.unobserve(el));
     };
-  }, []);
+  }, [filters]);
 
   async function fetchProperties() {
     try {
-      const res = await fetch('/api/properties');
+      setLoading(true);
+      
+      // Build query params from filters
+      const params = new URLSearchParams();
+      if (filters.city) params.append('city', filters.city);
+      if (filters.guests) params.append('guests', filters.guests);
+      if (filters.bedrooms) params.append('bedrooms', filters.bedrooms);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.hasPool) params.append('hasPool', 'true');
+      if (filters.propertyType) params.append('type', filters.propertyType);
+
+      const res = await fetch(`/api/properties?${params.toString()}`);
       const data = await res.json();
       setProperties(data.properties || []);
     } catch (error) {
