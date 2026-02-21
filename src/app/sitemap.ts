@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Database varsa, dynamic sitemap
     const { prisma } = await import('@/lib/prisma')
     const properties = await prisma.property.findMany({
-      where: { status: 'AVAILABLE' },
+      where: { status: 'PUBLISHED' },
       select: { slug: true, updatedAt: true },
     })
 

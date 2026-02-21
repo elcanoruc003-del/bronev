@@ -2,6 +2,8 @@ import MobileHeader from '@/components/MobileHeader'
 import MobilePropertyList from '@/components/MobilePropertyList'
 import MobileFooter from '@/components/MobileFooter'
 
+export const dynamic = 'force-dynamic';
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-white">
