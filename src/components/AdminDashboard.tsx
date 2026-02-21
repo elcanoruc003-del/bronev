@@ -379,7 +379,12 @@ export default function AdminDashboard() {
           <div>
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-bold text-[#2C2416]">Evlər</h1>
-              <button className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95">+ Yeni Ev</button>
+              <button 
+                onClick={() => router.push('/admin/properties/new')}
+                className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95"
+              >
+                + Yeni Ev
+              </button>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
