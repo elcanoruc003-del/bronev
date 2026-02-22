@@ -239,13 +239,23 @@ export default function NewPropertyPage() {
 
       // Upload images if any
       if (uploadedImages.length > 0) {
+        console.log('Uploading images:', uploadedImages.length);
         const imagesWithOrder = uploadedImages.map((img, index) => ({
           url: img.url,
           alt: img.alt,
           order: index,
         }));
 
-        await addPropertyImages(result.data.id, imagesWithOrder);
+        console.log('Images with order:', imagesWithOrder);
+        const imageResult = await addPropertyImages(result.data.id, imagesWithOrder);
+        console.log('Add images result:', imageResult);
+        
+        if (!imageResult.success) {
+          console.error('Image upload failed:', imageResult.error);
+          setError('Ev əlavə edildi, amma şəkillər yüklənmədi: ' + imageResult.error);
+        }
+      } else {
+        console.log('No images to upload');
       }
 
       alert('Ev uğurla əlavə edildi!');

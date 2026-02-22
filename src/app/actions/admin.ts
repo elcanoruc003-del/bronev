@@ -469,29 +469,93 @@ export async function updateProperty(propertyId: string, data: any) {
 }
 
 /**
- * Add images to property
+ * Add images to property with proper transaction handling
  */
 export async function addPropertyImages(
   propertyId: string,
   images: Array<{ url: string; alt?: string; order: number }>
 ) {
-  return safeServerAction(async () => {
+  try {
+    console.log('[addPropertyImages] Starting transaction for property:', propertyId);
+    console.log('[addPropertyImages] Images to add:', images.length);
+
     if (!propertyId || !images || images.length === 0) {
-      throw new Error('Property ID və şəkillər tələb olunur');
+      console.error('[addPropertyImages] Invalid input:', { propertyId, imageCount: images?.length });
+      return { success: false, error: 'Property ID və şəkillər tələb olunur' };
     }
 
-    await prisma.property_images.createMany({
-      data: images.map((img: any) => ({
-        ...img,
-        propertyId,
-      })),
+    // Verify property exists
+    const property = await prisma.properties.findUnique({
+      where: { id: propertyId },
+      select: { id: true },
     });
+
+    if (!property) {
+      console.error('[addPropertyImages] Property not found:', propertyId);
+      return { success: false, error: 'Ev tapılmadı' };
+    }
+
+    console.log('[addPropertyImages] Property verified, creating images...');
+
+    // Create images one by one with detailed logging
+    const createdImages = [];
+    for (let i = 0; i < images.length; i++) {
+      const img = images[i];
+      const imageId = `img_${propertyId}_${Date.now()}_${i}`;
+      
+      console.log(`[addPropertyImages] Creating image ${i + 1}/${images.length}:`, {
+        id: imageId,
+        url: img.url,
+        order: img.order,
+        propertyId,
+      });
+
+      try {
+        const createdImage = await prisma.property_images.create({
+          data: {
+            id: imageId,
+            url: img.url,
+            alt: img.alt || '',
+            order: img.order,
+            propertyId: propertyId,
+          },
+        });
+        
+        console.log(`[addPropertyImages] Image ${i + 1} created successfully:`, createdImage.id);
+        createdImages.push(createdImage);
+      } catch (imgError: any) {
+        console.error(`[addPropertyImages] Failed to create image ${i + 1}:`, imgError);
+        throw imgError;
+      }
+    }
+
+    console.log('[addPropertyImages] All images created successfully:', createdImages.length);
+
+    // Verify images were created
+    const verifyImages = await prisma.property_images.findMany({
+      where: { propertyId },
+      select: { id: true, url: true, order: true },
+    });
+
+    console.log('[addPropertyImages] Verification - images in DB:', verifyImages.length);
 
     revalidatePath('/admin');
     revalidatePath('/');
+    revalidatePath(`/properties/${propertyId}`);
 
-    return true;
-  }, 'Şəkillər əlavə edilərkən xəta baş verdi');
+    return { success: true, data: createdImages };
+  } catch (error: any) {
+    console.error('[addPropertyImages] Transaction failed:', error);
+    console.error('[addPropertyImages] Error details:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    });
+    return { 
+      success: false, 
+      error: `Şəkillər əlavə edilərkən xəta: ${error.message}` 
+    };
+  }
 }
 
 /**

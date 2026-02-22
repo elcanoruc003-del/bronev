@@ -68,11 +68,18 @@ export async function GET(request: NextRequest) {
       prisma.properties.count({ where }),
     ])
 
+    console.log('[API] Found properties:', properties.length);
+    properties.forEach((prop: any) => {
+      console.log(`[API] Property ${prop.id}: ${prop.property_images?.length || 0} images`);
+    });
+
     // Map property_images to images for frontend compatibility
     const mappedProperties = properties.map((property: any) => ({
       ...property,
       images: property.property_images || [],
     }))
+
+    console.log('[API] Mapped properties with images');
 
     return NextResponse.json({
       properties: mappedProperties,

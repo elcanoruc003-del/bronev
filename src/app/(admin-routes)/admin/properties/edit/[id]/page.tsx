@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { FaArrowLeft, FaSpinner } from 'react-icons/fa';
-import { getPropertyForEdit, updateProperty } from '@/app/actions/admin';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
+import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage } from '@/app/actions/admin';
+import Image from 'next/image';
 
 export default function EditPropertyPage() {
   const router = useRouter();
@@ -12,8 +13,22 @@ export default function EditPropertyPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [property, setProperty] = useState<any>(null);
+  const [newImages, setNewImages] = useState<Array<{ url: string; alt: string }>>([]);
+  const [customAmenity, setCustomAmenity] = useState('');
+
+  const amenitiesList = [
+    'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
+    'Pulsuz parkinq', 'TV', 'Paltaryuyan', 'Quruducu', 'Dəmir',
+    'Saç quruducu', 'Şampun', 'Bədən sabunu', 'Isti su',
+  ];
+
+  const featuresList = [
+    'Dəniz mənzərəsi', 'Dağ mənzərəsi', 'Şəhər mənzərəsi', 'Balkon',
+    'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
+  ];
 
   useEffect(() => {
     loadProperty();
@@ -23,7 +38,11 @@ export default function EditPropertyPage() {
     try {
       const result = await getPropertyForEdit(propertyId);
       if (result.success && result.data) {
-        setProperty(result.data);
+        const prop = result.data;
+        // Ensure amenities and features are arrays
+        prop.amenities = Array.isArray(prop.amenities) ? prop.amenities : [];
+        prop.features = Array.isArray(prop.features) ? prop.features : [];
+        setProperty(prop);
       } else {
         setError('Ev tapılmadı');
       }
@@ -31,6 +50,119 @@ export default function EditPropertyPage() {
       setError('Yükləmə xətası');
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentImageCount = (property.property_images?.length || 0) + newImages.length;
+    if (currentImageCount + files.length > 30) {
+      setError(`Maksimum 30 şəkil yükləyə bilərsiniz. Hazırda ${currentImageCount} şəkil var.`);
+      return;
+    }
+
+    setIsUploading(true);
+    setError('');
+
+    const successfulUploads: Array<{ url: string; alt: string }> = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        if (file.size > 10 * 1024 * 1024) continue;
+        if (!file.type.startsWith('image/')) continue;
+
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          successfulUploads.push({
+            url: data.url,
+            alt: property.title || 'Property image',
+          });
+        }
+      }
+
+      if (successfulUploads.length > 0) {
+        setNewImages([...newImages, ...successfulUploads]);
+      }
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      setError('Şəkil yükləmə xətası');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  }
+
+  async function handleDeleteImage(imageId: string) {
+    if (!confirm('Bu şəkli silmək istədiyinizdən əminsiniz?')) return;
+
+    try {
+      const result = await deletePropertyImage(imageId);
+      if (result.success) {
+        setProperty({
+          ...property,
+          property_images: property.property_images.filter((img: any) => img.id !== imageId)
+        });
+      }
+    } catch (error) {
+      setError('Şəkil silinərkən xəta baş verdi');
+    }
+  }
+
+  function removeNewImage(index: number) {
+    setNewImages(newImages.filter((_, i) => i !== index));
+  }
+
+  function addCustomAmenity() {
+    if (customAmenity.trim() && !property.amenities.includes(customAmenity.trim())) {
+      setProperty({
+        ...property,
+        amenities: [...property.amenities, customAmenity.trim()],
+      });
+      setCustomAmenity('');
+    }
+  }
+
+  function removeAmenity(amenity: string) {
+    setProperty({
+      ...property,
+      amenities: property.amenities.filter((a: string) => a !== amenity),
+    });
+  }
+
+  function toggleAmenity(amenity: string) {
+    if (property.amenities.includes(amenity)) {
+      removeAmenity(amenity);
+    } else {
+      setProperty({
+        ...property,
+        amenities: [...property.amenities, amenity],
+      });
+    }
+  }
+
+  function toggleFeature(feature: string) {
+    if (property.features.includes(feature)) {
+      setProperty({
+        ...property,
+        features: property.features.filter((f: string) => f !== feature),
+      });
+    } else {
+      setProperty({
+        ...property,
+        features: [...property.features, feature],
+      });
     }
   }
 
@@ -42,15 +174,28 @@ export default function EditPropertyPage() {
     try {
       const result = await updateProperty(propertyId, property);
       
-      if (result.success) {
-        alert('Ev uğurla yeniləndi!');
-        router.push('/admin/dashboard');
-      } else {
+      if (!result.success) {
         setError(result.error || 'Xəta baş verdi');
+        setIsSubmitting(false);
+        return;
       }
+
+      // Upload new images if any
+      if (newImages.length > 0) {
+        const currentImageCount = property.property_images?.length || 0;
+        const imagesWithOrder = newImages.map((img, index) => ({
+          url: img.url,
+          alt: img.alt,
+          order: currentImageCount + index,
+        }));
+
+        await addPropertyImages(propertyId, imagesWithOrder);
+      }
+
+      alert('Ev uğurla yeniləndi!');
+      router.push('/admin/dashboard');
     } catch (error) {
       setError('Xəta baş verdi');
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -102,6 +247,7 @@ export default function EditPropertyPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Əsas Məlumatlar */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
@@ -114,6 +260,23 @@ export default function EditPropertyPage() {
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Növ *
+                </label>
+                <select
+                  value={property.type}
+                  onChange={(e) => setProperty({ ...property, type: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                  required
+                >
+                  <option value="VILLA">Villa</option>
+                  <option value="APARTMENT">Mənzil</option>
+                  <option value="HOUSE">Ev</option>
+                  <option value="COTTAGE">Bağ evi</option>
+                </select>
               </div>
 
               <div>
@@ -143,7 +306,8 @@ export default function EditPropertyPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {/* Xüsusiyyətlər */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Yataq otağı *
@@ -186,8 +350,23 @@ export default function EditPropertyPage() {
                   required
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Sahə (m²) *
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  value={property.area}
+                  onChange={(e) => setProperty({ ...property, area: parseInt(e.target.value) })}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                  required
+                />
+              </div>
             </div>
 
+            {/* Qiymət */}
             <div>
               <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                 Gecəlik qiymət (₼) *
@@ -202,6 +381,181 @@ export default function EditPropertyPage() {
               />
             </div>
 
+            {/* Mövcud Şəkillər */}
+            {property.property_images && property.property_images.length > 0 && (
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Mövcud Şəkillər
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {property.property_images.map((image: any) => (
+                    <div key={image.id} className="relative group">
+                      <Image
+                        src={image.url}
+                        alt={image.alt || ''}
+                        width={200}
+                        height={150}
+                        className="w-full h-32 object-cover rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(image.id)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Yeni Şəkillər */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                Yeni Şəkillər Əlavə Et
+              </label>
+              
+              <input
+                type="file"
+                id="image-upload"
+                multiple
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileSelect}
+                disabled={isUploading}
+                className="hidden"
+              />
+              
+              <label
+                htmlFor="image-upload"
+                className={`w-full px-4 py-8 rounded-xl border-2 border-dashed border-[#E5DDD5] hover:border-[#8B7355] transition-colors flex flex-col items-center justify-center space-y-2 cursor-pointer ${
+                  isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isUploading ? (
+                  <>
+                    <FaSpinner className="text-3xl text-[#8B7355] animate-spin" />
+                    <span className="text-[#6B5D4F] font-semibold">Yüklənir...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaUpload className="text-3xl text-[#8B7355]" />
+                    <span className="text-[#6B5D4F] font-semibold">Şəkilləri seçin</span>
+                    <span className="text-xs text-[#8B7355]">JPG, PNG, WEBP - Max 10MB</span>
+                  </>
+                )}
+              </label>
+
+              {newImages.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  {newImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <Image
+                        src={image.url}
+                        alt={image.alt}
+                        width={200}
+                        height={150}
+                        className="w-full h-32 object-cover rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Amenities */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                İmkanlar
+              </label>
+              
+              <div className="flex space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={customAmenity}
+                  onChange={(e) => setCustomAmenity(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
+                  placeholder="Öz imkanınızı əlavə edin"
+                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomAmenity}
+                  className="px-6 py-2 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-medium"
+                >
+                  Əlavə et
+                </button>
+              </div>
+
+              {property.amenities.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3 p-3 bg-[#FAF8F5] rounded-xl">
+                  {property.amenities.map((amenity: string) => (
+                    <span
+                      key={amenity}
+                      className="inline-flex items-center space-x-1 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
+                    >
+                      <span>{amenity}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAmenity(amenity)}
+                        className="hover:text-red-200"
+                      >
+                        <FaTimes className="text-xs" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {amenitiesList.map((amenity) => (
+                  <button
+                    key={amenity}
+                    type="button"
+                    onClick={() => toggleAmenity(amenity)}
+                    className={`px-4 py-2 rounded-xl border transition-all ${
+                      property.amenities.includes(amenity)
+                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    {amenity}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Features */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                Xüsusiyyətlər
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {featuresList.map((feature) => (
+                  <button
+                    key={feature}
+                    type="button"
+                    onClick={() => toggleFeature(feature)}
+                    className={`px-4 py-2 rounded-xl border transition-all ${
+                      property.features.includes(feature)
+                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    {feature}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Təsvir */}
             <div>
               <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                 Təsvir *
@@ -214,11 +568,13 @@ export default function EditPropertyPage() {
                   shortDescription: e.target.value.substring(0, 150)
                 })}
                 rows={4}
+                placeholder="Ev haqqında ətraflı məlumat yazın..."
                 className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                 required
               />
             </div>
 
+            {/* Premium */}
             <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -231,6 +587,7 @@ export default function EditPropertyPage() {
               </label>
             </div>
 
+            {/* Submit */}
             <div className="flex space-x-4">
               <button
                 type="submit"

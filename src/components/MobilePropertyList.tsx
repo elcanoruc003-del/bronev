@@ -16,6 +16,7 @@ interface Property {
   area: number;
   featured: boolean;
   images: Array<{ url: string; alt?: string }>;
+  property_images?: Array<{ url: string; alt?: string }>; // Fallback
 }
 
 interface MobilePropertyListProps {
@@ -175,12 +176,16 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                 {/* Image Container */}
                 <div className="card-image-container relative">
                   <Image
-                    src={property.images[0]?.url || '/placeholder.jpg'}
+                    src={property.images[0]?.url || property.property_images?.[0]?.url || '/placeholder.jpg'}
                     alt={property.title}
                     fill
                     sizes="(max-width: 640px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     loading={index < 4 ? 'eager' : 'lazy'}
+                    onError={(e) => {
+                      console.error('Image load error for property:', property.id);
+                      e.currentTarget.src = '/placeholder.jpg';
+                    }}
                   />
                   
                   {/* Top Badges Container - Compact */}
