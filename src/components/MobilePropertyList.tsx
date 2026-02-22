@@ -240,10 +240,10 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           />
           
           {/* Top Badges Container - Fixed Layout */}
-          <div className="absolute top-2 left-2 right-2 z-10">
+          <div className="absolute top-1.5 left-1.5 right-1.5 z-10">
             {/* VIP Badge - Top Left */}
             {property.featured && (
-              <div className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg mb-1">
+              <div className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-lg mb-0.5">
                 ⭐ VIP
               </div>
             )}
@@ -251,15 +251,15 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             {/* Price and New Badge Row */}
             <div className="flex items-start justify-between">
               {/* Price Badge */}
-              <div className="badge-premium backdrop-blur-md text-xs px-2 py-1">
+              <div className="badge-premium backdrop-blur-md text-[10px] px-1.5 py-0.5">
                 <span className="font-bold">{property.basePricePerNight}₼</span>
-                <span className="text-[9px] opacity-90">/gecə</span>
+                <span className="text-[8px] opacity-90">/gecə</span>
               </div>
 
               {/* Featured Badge */}
               {property.featured && (
-                <div className="badge-new backdrop-blur-md pulse-soft text-[10px] px-1.5 py-0.5">
-                  <FaStar className="inline text-[8px] mr-0.5" />
+                <div className="badge-new backdrop-blur-md pulse-soft text-[8px] px-1 py-0.5">
+                  <FaStar className="inline text-[6px] mr-0.5" />
                   <span>Yeni</span>
                 </div>
               )}
@@ -273,8 +273,8 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
               toggleFavorite(property.id);
             }}
             className="
-              absolute bottom-2 right-2 z-10
-              w-8 h-8 rounded-full
+              absolute bottom-1.5 right-1.5 z-10
+              w-7 h-7 rounded-full
               glass-effect shadow-lg
               flex items-center justify-center
               transition-all duration-300
@@ -285,7 +285,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           >
             <FaHeart
               className={`
-                text-sm transition-all duration-300
+                text-xs transition-all duration-300
                 ${favorites.has(property.id) 
                   ? 'text-red-500 scale-110' 
                   : 'text-white/80'
