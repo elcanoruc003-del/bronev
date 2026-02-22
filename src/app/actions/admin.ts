@@ -379,12 +379,38 @@ export async function createProperty(data: any) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
+    const now = new Date();
+
+    // Prepare property data with proper types
+    const propertyData = {
+      id: data.id,
+      title: data.title,
+      slug: `${slug}-${Date.now()}`,
+      city: data.city,
+      district: data.district,
+      address: data.address,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      type: data.type,
+      bedrooms: data.bedrooms,
+      beds: data.beds,
+      bathrooms: data.bathrooms,
+      area: data.area,
+      maxGuests: data.maxGuests,
+      basePricePerNight: data.basePricePerNight,
+      shortDescription: data.shortDescription,
+      longDescription: data.longDescription,
+      featured: data.featured || false,
+      amenities: data.amenities || [],
+      features: data.features || [],
+      ownerId: currentUser.id,
+      updatedAt: now,
+    };
+
+    console.log('Creating property with data:', JSON.stringify(propertyData, null, 2));
+
     const property = await prisma.properties.create({
-      data: {
-        ...data,
-        slug: `${slug}-${Date.now()}`,
-        ownerId: currentUser.id,
-      },
+      data: propertyData,
     });
 
     revalidatePath('/admin');

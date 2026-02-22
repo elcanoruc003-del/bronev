@@ -224,9 +224,13 @@ export default function NewPropertyPage() {
         featured: Boolean(formData.featured),
       };
 
+      console.log('Submitting property data:', propertyData);
+
       // Create property
       const result = await createProperty(propertyData);
       
+      console.log('Create property result:', result);
+
       if (!result.success || !result.data) {
         setError(result.error || 'Xəta baş verdi');
         setIsSubmitting(false);
@@ -248,7 +252,7 @@ export default function NewPropertyPage() {
       router.push('/admin/dashboard');
     } catch (error) {
       console.error('Submit error:', error);
-      setError('Xəta baş verdi');
+      setError('Xəta baş verdi: ' + (error as Error).message);
       setIsSubmitting(false);
     }
   }
