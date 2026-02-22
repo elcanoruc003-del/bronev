@@ -44,13 +44,17 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
         {/* City */}
         <div className="relative col-span-3 md:col-span-2">
           <FaMapMarkerAlt className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
-          <input
-            type="text"
-            placeholder="Şəhər"
+          <select
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            className="w-full pl-8 pr-2 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-xs bg-white"
-          />
+            className="w-full pl-8 pr-2 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-xs bg-white appearance-none"
+          >
+            <option value="">Şəhər seçin</option>
+            <option value="İsmayıllı">İsmayıllı</option>
+            <option value="Qəbələ">Qəbələ</option>
+            <option value="Quba">Quba</option>
+            <option value="Bakı">Bakı</option>
+          </select>
         </div>
 
         {/* Guests */}

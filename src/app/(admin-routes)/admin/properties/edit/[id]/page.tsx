@@ -315,13 +315,18 @@ export default function EditPropertyPage() {
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Şəhər *
                 </label>
-                <input
-                  type="text"
+                <select
                   value={property.city}
                   onChange={(e) => setProperty({ ...property, city: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
-                />
+                >
+                  <option value="">Şəhər seçin</option>
+                  <option value="İsmayıllı">İsmayıllı</option>
+                  <option value="Qəbələ">Qəbələ</option>
+                  <option value="Quba">Quba</option>
+                  <option value="Bakı">Bakı</option>
+                </select>
               </div>
             </div>
 
