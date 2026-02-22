@@ -1,58 +1,64 @@
-export interface Property {
-  id: string
-  slug: string
-  title: string
-  description: string
-  basePricePerNight: number
-  city: string
-  district: string
-  address?: string
-  type: PropertyType
-  bedrooms: number
-  bathrooms: number
-  area: number
-  features: string[]
-  amenities: string[]
-  status: PropertyStatus
-  featured: boolean
-  views: number
-  inquiries: number
-  images: PropertyImage[]
-  createdAt: Date
-  updatedAt: Date
+﻿export type PropertyType = 'VILLA' | 'APARTMENT' | 'HOUSE' | 'PENTHOUSE' | 'COTTAGE' | 'STUDIO' | 'LOFT';
+export type PropertyStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'MAINTENANCE' | 'SUSPENDED';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'CHECKED_IN' | 'CHECKED_OUT';
+export type PaymentStatus = 'UNPAID' | 'PARTIALLY_PAID' | 'PAID' | 'REFUNDED' | 'FAILED';
+export type UserRole = 'USER' | 'ADMIN' | 'OWNER' | 'SUPER_ADMIN';
+
+export interface DashboardMetrics {
+  totalProperties: number;
+  activeProperties: number;
+  totalBookings: number;
+  pendingBookings: number;
+  confirmedBookings: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  occupancyRate: number;
+  averageRating: number;
+  totalReviews: number;
+  topPerformingProperty: {
+    id: string;
+    title: string;
+    revenue: number;
+    bookings: number;
+  };
+  recentActivity: any[];
+  upcomingBookings: any[];
 }
 
-export interface PropertyImage {
-  id: string
-  url: string
-  alt?: string
-  order: number
+export interface PropertyStatistics {
+  propertyId: string;
+  period: 'day' | 'week' | 'month' | 'year';
+  views: number;
+  inquiries: number;
+  bookings: number;
+  revenue: number;
+  occupancyRate: number;
+  averageNightlyRate: number;
+  conversionRate: number;
+  responseRate: number;
+  averageResponseTime: number;
 }
 
-export interface Booking {
-  id: string
-  checkIn: Date
-  checkOut: Date
-  totalDays: number
-  totalPrice: number
-  status: BookingStatus
-  guestName: string
-  guestPhone: string
-  guestEmail?: string
-  message?: string
+export interface PriceCalculation {
+  basePrice: number;
+  nights: number;
+  subtotal: number;
+  cleaningFee: number;
+  serviceFee: number;
+  weekendSurcharge: number;
+  seasonalAdjustment: number;
+  discounts: {
+    weekly?: number;
+    monthly?: number;
+    promo?: number;
+  };
+  taxes: number;
+  total: number;
+  breakdown: PriceBreakdownItem[];
 }
 
-export interface Review {
-  id: string
-  rating: number
-  comment: string
-  user: {
-    name: string
-  }
-  createdAt: Date
+export interface PriceBreakdownItem {
+  label: string;
+  amount: number;
+  type: 'charge' | 'discount' | 'tax';
 }
-
-export type PropertyType = 'VILLA' | 'APARTMENT' | 'HOUSE' | 'PENTHOUSE' | 'COTTAGE'
-export type PropertyStatus = 'AVAILABLE' | 'BOOKED' | 'MAINTENANCE' | 'INACTIVE'
-export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
-export type UserRole = 'USER' | 'ADMIN' | 'OWNER'

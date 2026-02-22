@@ -25,7 +25,7 @@ import {
   togglePropertyFeatured,
   getAdminBookings,
 } from '../app/actions/admin';
-import type { DashboardMetrics } from '@/types/property';
+import type { DashboardMetrics } from '@/types/index';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -50,6 +50,7 @@ export default function AdminDashboard() {
     if (isLoggedIn) {
       loadDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn, activeTab]);
 
   async function checkAuth() {

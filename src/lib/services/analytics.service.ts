@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { startOfDay, subDays, subMonths, startOfMonth, endOfMonth } from 'date-fns';
-import type { DashboardMetrics, PropertyStatistics } from '@/types/property';
+import type { DashboardMetrics, PropertyStatistics } from '@/types/index';
 
 /**
  * Enterprise Analytics Service
@@ -93,7 +93,7 @@ export class AnalyticsService {
         FROM properties p
         LEFT JOIN bookings b ON b.propertyId = p.id
         LEFT JOIN reviews r ON r.propertyId = p.id
-        ${ownerId ? prisma.Prisma.sql`WHERE p.ownerId = ${ownerId}` : prisma.Prisma.empty}
+        ${ownerId ? `WHERE p.ownerId = '${ownerId}'` : ''}
       `,
 
       // Revenue calculation

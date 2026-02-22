@@ -56,6 +56,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
     return () => {
       elements.forEach(el => observer.unobserve(el));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   async function fetchProperties() {
@@ -98,14 +99,14 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-[120px] px-4 pb-24">
-        {/* Skeleton Loading */}
-        <div className="grid grid-cols-2 gap-4">
+      <div className="min-h-screen pt-[120px] px-3 pb-20">
+        {/* Skeleton Loading - Compact */}
+        <div className="grid grid-cols-2 gap-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="space-y-3">
-              <div className="skeleton rounded-[18px] aspect-[4/5]"></div>
-              <div className="skeleton h-4 w-3/4 rounded"></div>
-              <div className="skeleton h-3 w-1/2 rounded"></div>
+            <div key={i} className="space-y-2">
+              <div className="skeleton rounded-xl aspect-[4/5]"></div>
+              <div className="skeleton h-3 w-3/4 rounded"></div>
+              <div className="skeleton h-2 w-1/2 rounded"></div>
             </div>
           ))}
         </div>
@@ -114,12 +115,12 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
   }
 
   return (
-    <div className="min-h-screen px-4 pb-24">
-      {/* Results Count */}
-      <div className="mb-6 flex items-center justify-between max-w-7xl mx-auto">
-        <p className="text-sm font-medium text-[#3E2723]">
-          <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-[#8B7355] to-[#C19A6B] bg-clip-text text-transparent">{properties.length}</span>
-          <span className="ml-2">ev tapıldı</span>
+    <div className="min-h-screen px-3 pb-20">
+      {/* Results Count - Compact */}
+      <div className="mb-3 flex items-center justify-between max-w-7xl mx-auto">
+        <p className="text-xs font-medium text-[#3E2723]">
+          <span className="text-lg font-bold text-gradient bg-gradient-to-r from-[#8B7355] to-[#C19A6B] bg-clip-text text-transparent">{properties.length}</span>
+          <span className="ml-1.5">ev</span>
         </p>
       </div>
 
@@ -147,7 +148,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
           </a>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
           {properties.map((property, index) => (
             <div
               key={property.id}
@@ -167,32 +168,32 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                     loading={index < 4 ? 'eager' : 'lazy'}
                   />
                   
-                  {/* Top Badges Container */}
-                  <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
-                    {/* Price Badge */}
-                    <div className="badge-premium backdrop-blur-md">
+                  {/* Top Badges Container - Compact */}
+                  <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
+                    {/* Price Badge - Smaller */}
+                    <div className="badge-premium backdrop-blur-md text-xs px-2 py-1">
                       <span className="font-bold">{property.basePricePerNight}₼</span>
-                      <span className="text-[10px] opacity-90">/gecə</span>
+                      <span className="text-[9px] opacity-90">/gecə</span>
                     </div>
 
-                    {/* Featured Badge */}
+                    {/* Featured Badge - Smaller */}
                     {property.featured && (
-                      <div className="badge-new backdrop-blur-md pulse-soft">
-                        <FaStar className="inline text-[10px] mr-1" />
+                      <div className="badge-new backdrop-blur-md pulse-soft text-[10px] px-1.5 py-0.5">
+                        <FaStar className="inline text-[8px] mr-0.5" />
                         <span>Yeni</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Favorite Button */}
+                  {/* Favorite Button - Smaller */}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       toggleFavorite(property.id);
                     }}
                     className="
-                      absolute bottom-3 right-3 z-10
-                      w-10 h-10 rounded-full
+                      absolute bottom-2 right-2 z-10
+                      w-8 h-8 rounded-full
                       glass-effect shadow-lg
                       flex items-center justify-center
                       transition-all duration-300
@@ -203,7 +204,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                   >
                     <FaHeart
                       className={`
-                        text-base transition-all duration-300
+                        text-sm transition-all duration-300
                         ${favorites.has(property.id) 
                           ? 'text-red-500 scale-110' 
                           : 'text-white/80'
@@ -213,79 +214,79 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                   </button>
                 </div>
 
-                {/* Content */}
-                <div className="p-3.5 space-y-2.5">
-                  {/* Title */}
-                  <h3 className="font-semibold text-[15px] leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
+                {/* Content - Compact */}
+                <div className="p-2.5 space-y-1.5">
+                  {/* Title - Smaller */}
+                  <h3 className="font-semibold text-xs leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
                     {property.title}
                   </h3>
                   
-                  {/* Location */}
-                  <div className="flex items-center gap-1.5 text-xs text-[#8B7E74]">
-                    <FaMapMarkerAlt className="text-[11px] text-[#C19A6B]" />
-                    <span className="line-clamp-1 font-medium">{property.city}, {property.district}</span>
+                  {/* Location - Smaller */}
+                  <div className="flex items-center gap-1 text-[10px] text-[#8B7E74]">
+                    <FaMapMarkerAlt className="text-[9px] text-[#C19A6B]" />
+                    <span className="line-clamp-1 font-medium">{property.city}</span>
                   </div>
 
-                  {/* Features */}
-                  <div className="flex items-center gap-3 text-xs text-[#8B7E74]">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-lg bg-[#FAF8F5] flex items-center justify-center">
-                        <FaBed className="text-[10px] text-[#8B7355]" />
+                  {/* Features - Compact */}
+                  <div className="flex items-center gap-2 text-[10px] text-[#8B7E74]">
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
+                        <FaBed className="text-[8px] text-[#8B7355]" />
                       </div>
                       <span className="font-medium">{property.bedrooms}</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-lg bg-[#FAF8F5] flex items-center justify-center">
-                        <FaBath className="text-[10px] text-[#8B7355]" />
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
+                        <FaBath className="text-[8px] text-[#8B7355]" />
                       </div>
                       <span className="font-medium">{property.bathrooms}</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-lg bg-[#FAF8F5] flex items-center justify-center">
-                        <FaRulerCombined className="text-[10px] text-[#8B7355]" />
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
+                        <FaRulerCombined className="text-[8px] text-[#8B7355]" />
                       </div>
                       <span className="font-medium">{property.area}m²</span>
                     </div>
                   </div>
 
-                  {/* WhatsApp CTA Button */}
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* CTA Buttons - Compact */}
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
                     <a
                       href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} haqqında məlumat almaq istəyirəm.`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
-                        flex items-center justify-center gap-1.5
-                        py-2.5 rounded-full
+                        flex items-center justify-center gap-1
+                        py-1.5 rounded-lg
                         bg-gradient-to-r from-[#25D366] to-[#20BA5A]
-                        text-white text-xs font-semibold
-                        shadow-md hover:shadow-lg
+                        text-white text-[10px] font-semibold
+                        shadow-sm hover:shadow-md
                         transition-all duration-300
                         hover:scale-[1.02] active:scale-95
                         tap-scale
                       "
                     >
-                      <FaWhatsapp className="text-base" />
+                      <FaWhatsapp className="text-xs" />
                       <span>WhatsApp</span>
                     </a>
 
                     <a
                       href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
                       className="
-                        flex items-center justify-center gap-1.5
-                        py-2.5 rounded-full
+                        flex items-center justify-center gap-1
+                        py-1.5 rounded-lg
                         bg-gradient-to-r from-[#4CAF50] to-[#388E3C]
-                        text-white text-xs font-semibold
-                        shadow-md hover:shadow-lg
+                        text-white text-[10px] font-semibold
+                        shadow-sm hover:shadow-md
                         transition-all duration-300
                         hover:scale-[1.02] active:scale-95
                         tap-scale
                       "
                     >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                       </svg>
-                      <span>Zəng et</span>
+                      <span>Zəng</span>
                     </a>
                   </div>
                 </div>

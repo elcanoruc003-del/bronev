@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { differenceInDays, eachDayOfInterval, getDay, isWeekend } from 'date-fns';
-import type { PriceCalculation } from '@/types/property';
+import type { PriceCalculation } from '@/types/index';
 
 /**
  * Enterprise Pricing Service
@@ -119,7 +119,7 @@ export class PricingService {
       }
     }
 
-    const totalDiscounts = Object.values(discounts).reduce((a, b) => a + b, 0);
+    const totalDiscounts = (discounts.weekly || 0) + (discounts.monthly || 0) + (discounts.promo || 0);
     const subtotal = totalBasePrice + extraGuestTotal - totalDiscounts;
 
     // Fees

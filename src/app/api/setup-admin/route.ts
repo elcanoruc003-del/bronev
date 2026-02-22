@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * Setup Admin User API
@@ -8,9 +10,9 @@ import * as bcrypt from 'bcryptjs';
  * 
  * Usage: GET https://bron-ev.com/api/setup-admin?secret=SETUP_SECRET_2024
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const secret = searchParams.get('secret');
 
     // Simple security check

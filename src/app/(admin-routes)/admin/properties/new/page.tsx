@@ -52,39 +52,77 @@ export default function NewPropertyPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Check total images limit
+    if (uploadedImages.length + files.length > 30) {
+      setError(`Maksimum 30 şəkil yükləyə bilərsiniz. Hazırda ${uploadedImages.length} şəkil var.`);
+      return;
+    }
+
     setIsUploading(true);
     setError('');
 
+    const successfulUploads: Array<{ url: string; alt: string }> = [];
+    const failedUploads: string[] = [];
+
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', file);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        try {
+          // Validate file size
+          if (file.size > 10 * 1024 * 1024) {
+            failedUploads.push(`${file.name} (10MB-dan böyük)`);
+            continue;
+          }
 
-        const response = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: uploadFormData,
-        });
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            failedUploads.push(`${file.name} (şəkil deyil)`);
+            continue;
+          }
 
-        const data = await response.json();
+          const uploadFormData = new FormData();
+          uploadFormData.append('file', file);
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Şəkil yükləmə xətası');
+          const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: uploadFormData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            failedUploads.push(`${file.name} (${data.error || 'xəta'})`);
+            continue;
+          }
+
+          successfulUploads.push({
+            url: data.url,
+            alt: formData.title || 'Property image',
+          });
+        } catch (err) {
+          failedUploads.push(`${file.name} (server xətası)`);
         }
+      }
 
-        return {
-          url: data.url,
-          alt: formData.title || 'Property image',
-        };
-      });
+      // Add successful uploads
+      if (successfulUploads.length > 0) {
+        setUploadedImages([...uploadedImages, ...successfulUploads]);
+      }
 
-      const newImages = await Promise.all(uploadPromises);
-      setUploadedImages([...uploadedImages, ...newImages]);
-      setError(''); // Clear any previous errors
+      // Show results
+      if (failedUploads.length > 0) {
+        setError(`${successfulUploads.length} şəkil yükləndi. Uğursuz: ${failedUploads.join(', ')}`);
+      } else {
+        setError('');
+      }
     } catch (error: any) {
       console.error('Upload error:', error);
-      setError(error.message || 'Şəkil yükləmə xətası. Zəhmət olmasa yenidən cəhd edin.');
+      setError('Şəkil yükləmə xətası. Zəhmət olmasa yenidən cəhd edin.');
     } finally {
       setIsUploading(false);
+      // Reset file input
+      e.target.value = '';
     }
   }
 

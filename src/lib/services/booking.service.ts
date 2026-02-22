@@ -85,7 +85,7 @@ export class BookingService {
             specialRequests: input.specialRequests,
             promoCode: input.promoCode,
             promoDiscount: pricing.discounts.promo || 0,
-            discountAmount: Object.values(pricing.discounts).reduce((a, b) => a + b, 0),
+            discountAmount: (pricing.discounts.weekly || 0) + (pricing.discounts.monthly || 0) + (pricing.discounts.promo || 0),
             createdAt: new Date(),
             updatedAt: new Date(),
           },

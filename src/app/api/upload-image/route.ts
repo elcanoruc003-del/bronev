@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Cloudinary credentials
     const cloudName = 'dyfuasdbm';
     const apiKey = '526295514959981';
-    const apiSecret = process.env.CLOUDINARY_API_SECRET || 'your_api_secret_here';
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || 'JoV-VfaQi9m3TyZRoJtcJP8Vemo';
     
     // Generate timestamp
     const timestamp = Math.round(Date.now() / 1000);
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     const folder = 'bronev/properties';
     const stringToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
     const signature = crypto
-      .createHash('sha256')
+      .createHash('sha1')
       .update(stringToSign)
       .digest('hex');
 
