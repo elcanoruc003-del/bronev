@@ -2,7 +2,7 @@
 
 import MobileHeader from '@/components/MobileHeader';
 import MobileFooter from '@/components/MobileFooter';
-import { FaWhatsapp, FaInstagram, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaWhatsapp, FaInstagram, FaPhone } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 export default function ContactPage() {
@@ -86,19 +86,6 @@ export default function ContactPage() {
               </div>
             </div>
           </a>
-
-          {/* Location */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#8B7355] to-[#C19A6B] flex items-center justify-center">
-                <FaMapMarkerAlt className="text-white text-xl" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-[#2C2416]">Ünvan</p>
-                <p className="text-sm text-[#6B5D4F]">İsmayıllı, Azərbaycan</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
