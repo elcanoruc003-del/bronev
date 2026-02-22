@@ -10,7 +10,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "tsx scripts/create-admin.ts"
+    "db:seed": "tsx scripts/create-admin.ts",
+    "db:publish-all": "tsx scripts/publish-all-properties.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.3",
