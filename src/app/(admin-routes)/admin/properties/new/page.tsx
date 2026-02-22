@@ -193,13 +193,35 @@ export default function NewPropertyPage() {
     setIsSubmitting(true);
 
     try {
-      // Prepare data with required fields
+      // Validate required fields
+      if (!formData.id || !formData.title || !formData.city || !formData.address || !formData.description) {
+        setError('Bütün tələb olunan sahələri doldurun');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prepare data with required fields and proper number parsing
       const propertyData = {
-        ...formData,
-        district: formData.city, // Use city as district
-        beds: formData.bedrooms, // Use bedrooms count as beds
-        shortDescription: formData.description.substring(0, 150), // First 150 chars
-        longDescription: formData.description, // Full description
+        id: formData.id.trim(),
+        title: formData.title.trim(),
+        city: formData.city.trim(),
+        district: formData.city.trim(), // Use city as district
+        address: formData.address.trim(),
+        type: formData.type,
+        bedrooms: Number(formData.bedrooms) || 1,
+        beds: Number(formData.bedrooms) || 1, // Use bedrooms count as beds
+        bathrooms: Number(formData.bathrooms) || 1,
+        area: Number(formData.area) || 50,
+        maxGuests: Number(formData.maxGuests) || 2,
+        basePricePerNight: Number(formData.basePricePerNight) || 50,
+        description: formData.description.trim(),
+        shortDescription: formData.description.substring(0, 150).trim(), // First 150 chars
+        longDescription: formData.description.trim(), // Full description
+        latitude: Number(formData.latitude) || 40.4093,
+        longitude: Number(formData.longitude) || 49.8671,
+        amenities: formData.amenities,
+        features: formData.features,
+        featured: Boolean(formData.featured),
       };
 
       // Create property
@@ -225,6 +247,7 @@ export default function NewPropertyPage() {
       alert('Ev uğurla əlavə edildi!');
       router.push('/admin/dashboard');
     } catch (error) {
+      console.error('Submit error:', error);
       setError('Xəta baş verdi');
       setIsSubmitting(false);
     }
