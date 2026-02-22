@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -44,26 +45,39 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64');
     const dataURI = `data:${file.type};base64,${base64}`;
 
-    console.log('[UPLOAD] File converted to base64, size:', base64.length);
+    console.log('[UPLOAD] File converted to base64');
 
-    // Upload to Cloudinary using unsigned preset
+    // Cloudinary credentials
     const cloudName = 'dyfuasdbm';
-    const uploadPreset = 'bronev_preset';
+    const apiKey = '526295514959981';
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || 'your_api_secret_here';
+    
+    // Generate timestamp
+    const timestamp = Math.round(Date.now() / 1000);
+    
+    // Create signature
+    const folder = 'bronev/properties';
+    const stringToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    const signature = crypto
+      .createHash('sha256')
+      .update(stringToSign)
+      .digest('hex');
 
-    console.log('[UPLOAD] Uploading to Cloudinary...');
+    console.log('[UPLOAD] Uploading to Cloudinary with signature...');
+
+    // Upload with signature
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', dataURI);
+    uploadFormData.append('api_key', apiKey);
+    uploadFormData.append('timestamp', timestamp.toString());
+    uploadFormData.append('signature', signature);
+    uploadFormData.append('folder', folder);
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          file: dataURI,
-          upload_preset: uploadPreset,
-          folder: 'bronev/properties',
-        }),
+        body: uploadFormData,
       }
     );
 
