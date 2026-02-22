@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import MobileHeader from '@/components/MobileHeader';
 import MobileFooter from '@/components/MobileFooter';
+import AuthModal from '@/components/AuthModal';
 import { FaUser, FaHeart, FaCalendarAlt, FaSpinner, FaSignOutAlt } from 'react-icons/fa';
 import { getCurrentUser, logoutUser } from '@/app/actions/auth';
 import { getUserFavorites } from '@/app/actions/favorites';
@@ -17,6 +18,7 @@ export default function ProfilePage() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'bookings' | 'favorites'>('bookings');
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -27,7 +29,8 @@ export default function ProfilePage() {
       const currentUser = await getCurrentUser();
       
       if (!currentUser) {
-        router.push('/');
+        setShowAuthModal(true);
+        setLoading(false);
         return;
       }
 
@@ -54,8 +57,14 @@ export default function ProfilePage() {
   async function handleLogout() {
     if (confirm('Çıxış etmək istədiyinizdən əminsiniz?')) {
       await logoutUser();
-      router.push('/');
+      setUser(null);
+      setShowAuthModal(true);
     }
+  }
+
+  function handleAuthSuccess() {
+    setShowAuthModal(false);
+    loadUserData();
   }
 
   if (loading) {
@@ -71,7 +80,17 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    return null;
+    return (
+      <main className="min-h-screen bg-[#FAF8F5]">
+        <MobileHeader />
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => router.push('/')}
+          onSuccess={handleAuthSuccess}
+        />
+        <MobileFooter />
+      </main>
+    );
   }
 
   return (
