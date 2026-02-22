@@ -59,7 +59,7 @@ export default function FavoritesPage() {
     <main className="min-h-screen bg-[#FAF8F5]">
       <MobileHeader />
       
-      <div className="px-4 py-8 pb-24">
+      <div className="px-4 py-8 pb-24 pt-24">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#8B7355] to-[#C19A6B] flex items-center justify-center">
             <FaHeart className="text-white text-xl" />

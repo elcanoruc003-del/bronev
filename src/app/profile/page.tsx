@@ -78,7 +78,7 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-[#FAF8F5]">
       <MobileHeader />
       
-      <div className="px-4 py-8 pb-24 pt-20">
+      <div className="px-4 py-8 pb-24 pt-24">
         {/* User Info Card */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <div className="flex items-center gap-4 mb-4">

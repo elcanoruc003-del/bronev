@@ -10,7 +10,7 @@ export default function ContactPage() {
     <main className="min-h-screen bg-[#FAF8F5]">
       <MobileHeader />
       
-      <div className="px-4 py-8 pb-24">
+      <div className="px-4 py-8 pb-24 pt-24">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#2C2416] mb-2">Bizimlə Əlaqə</h1>
           <p className="text-[#6B5D4F]">Hər hansı sualınız varsa, bizimlə əlaqə saxlayın</p>
