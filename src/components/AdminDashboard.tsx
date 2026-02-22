@@ -33,6 +33,7 @@ export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'bookings' | 'settings'>('dashboard');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const [metrics, setMetrics] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
@@ -238,7 +239,30 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5DDD5] z-50">
+      {/* Mobile Menu Toggle */}
+      <button
+        onClick={() => setShowMobileMenu(!showMobileMenu)}
+        className="lg:hidden fixed top-4 left-4 z-50 w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center"
+      >
+        <div className="space-y-1.5">
+          <div className="w-6 h-0.5 bg-[#8B7355]"></div>
+          <div className="w-6 h-0.5 bg-[#8B7355]"></div>
+          <div className="w-6 h-0.5 bg-[#8B7355]"></div>
+        </div>
+      </button>
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5DDD5] z-50 transition-transform duration-300
+        ${showMobileMenu ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Close button for mobile */}
+        <button
+          onClick={() => setShowMobileMenu(false)}
+          className="lg:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-[#6B5D4F]"
+        >
+          ✕
+        </button>
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
             <div className="bg-gradient-to-br from-[#D4AF37] to-[#C19A6B] p-3 rounded-xl">
@@ -264,7 +288,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('properties')}
+              onClick={() => { setActiveTab('properties'); setShowMobileMenu(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'properties'
                   ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
@@ -276,7 +300,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('bookings')}
+              onClick={() => { setActiveTab('bookings'); setShowMobileMenu(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'bookings'
                   ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
@@ -288,7 +312,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('settings')}
+              onClick={() => { setActiveTab('settings'); setShowMobileMenu(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                 activeTab === 'settings'
                   ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white font-semibold'
@@ -318,13 +342,21 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="ml-64 p-8">
+      {/* Mobile Overlay */}
+      {showMobileMenu && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setShowMobileMenu(false)}
+        />
+      )}
+
+      <main className="lg:ml-64 p-4 md:p-8">
         {activeTab === 'dashboard' && metrics && (
           <div>
             <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Dashboard</h1>
             
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
               <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -379,7 +411,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Revenue Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
               <div className="bg-gradient-to-br from-[#8B7355] to-[#C19A6B] rounded-2xl shadow-lg p-6 text-white">
                 <p className="text-white/80 text-sm font-semibold mb-1">Ümumi Gəlir</p>
                 <p className="text-4xl font-bold">{metrics.revenue.total.toLocaleString()} ₼</p>
@@ -443,46 +475,48 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent Bookings */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-[#2C2416] mb-4">Son Bronlar</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-[#FAF8F5]">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Ev</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">İstifadəçi</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Tarix</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Qiymət</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E5DDD5]">
-                    {metrics.recentBookings.map((booking: any) => (
-                      <tr key={booking.id} className="hover:bg-[#FAF8F5]">
-                        <td className="px-4 py-3 text-sm">{booking.propertyTitle}</td>
-                        <td className="px-4 py-3 text-sm">
-                          <div>
-                            <p className="font-semibold">{booking.userName}</p>
-                            <p className="text-xs text-[#6B5D4F]">{booking.userPhone}</p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-xs">
-                          {new Date(booking.checkIn).toLocaleDateString('az-AZ')} - {new Date(booking.checkOut).toLocaleDateString('az-AZ')}
-                        </td>
-                        <td className="px-4 py-3 text-sm font-bold">{booking.totalPrice.toLocaleString()} ₼</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                            booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {booking.status}
-                          </span>
-                        </td>
+            <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-bold text-[#2C2416] mb-4">Son Bronlar</h3>
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full">
+                    <thead className="bg-[#FAF8F5]">
+                      <tr>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Ev</th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-bold text-[#2C2416]">İstifadəçi</th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-bold text-[#2C2416] hidden sm:table-cell">Tarix</th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Qiymət</th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-[#E5DDD5]">
+                      {metrics.recentBookings.map((booking: any) => (
+                        <tr key={booking.id} className="hover:bg-[#FAF8F5]">
+                          <td className="px-3 md:px-4 py-3 text-xs md:text-sm">{booking.propertyTitle}</td>
+                          <td className="px-3 md:px-4 py-3 text-xs md:text-sm">
+                            <div>
+                              <p className="font-semibold">{booking.userName}</p>
+                              <p className="text-xs text-[#6B5D4F] hidden md:block">{booking.userPhone}</p>
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-4 py-3 text-xs hidden sm:table-cell">
+                            {new Date(booking.checkIn).toLocaleDateString('az-AZ')} - {new Date(booking.checkOut).toLocaleDateString('az-AZ')}
+                          </td>
+                          <td className="px-3 md:px-4 py-3 text-xs md:text-sm font-bold">{booking.totalPrice.toLocaleString()} ₼</td>
+                          <td className="px-3 md:px-4 py-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -490,76 +524,80 @@ export default function AdminDashboard() {
 
         {activeTab === 'properties' && (
           <div>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-bold text-[#2C2416]">Evlər</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#2C2416]">Evlər</h1>
               <button 
                 onClick={() => router.push('/admin/properties/new')}
-                className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95"
+                className="w-full sm:w-auto px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white shadow-lg hover:shadow-xl active:scale-95"
               >
                 + Yeni Ev
               </button>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Ev</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qiymət</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Baxış</th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Əməliyyat</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E5DDD5]">
-                  {properties.map((property) => (
-                    <tr key={property.id} className="hover:bg-[#FAF8F5]">
-                      <td className="px-6 py-4">
-                        <p className="font-semibold text-[#2C2416]">{property.title}</p>
-                        <p className="text-sm text-[#6B5D4F]">{property.city}</p>
-                      </td>
-                      <td className="px-6 py-4 font-bold">{property.basePricePerNight} ₼</td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={property.status}
-                          onChange={(e) => handleStatusChange(property.id, e.target.value)}
-                          className="text-sm border border-[#E5DDD5] rounded px-2 py-1"
-                        >
-                          <option value="DRAFT">Draft</option>
-                          <option value="PUBLISHED">Published</option>
-                          <option value="ARCHIVED">Archived</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">{property.views}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleToggleFeatured(property.id)}
-                            className={`p-2 rounded ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
-                            title={property.featured ? 'VIP-dən çıxart' : 'VIP et'}
-                          >
-                            <FaStar />
-                          </button>
-                          <button 
-                            onClick={() => router.push(`/admin/properties/edit/${property.id}`)}
-                            className="p-2 bg-blue-50 text-blue-600 rounded"
-                            title="Redaktə et"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProperty(property.id)}
-                            className="p-2 bg-red-50 text-red-600 rounded"
-                            title="Sil"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full">
+                    <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
+                      <tr>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Ev</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Qiymət</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416] hidden sm:table-cell">Status</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416] hidden lg:table-cell">Baxış</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Əməliyyat</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E5DDD5]">
+                      {properties.map((property) => (
+                        <tr key={property.id} className="hover:bg-[#FAF8F5]">
+                          <td className="px-3 md:px-6 py-4">
+                            <p className="font-semibold text-[#2C2416] text-xs md:text-sm">{property.title}</p>
+                            <p className="text-xs text-[#6B5D4F]">{property.city}</p>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 font-bold text-xs md:text-sm">{property.basePricePerNight} ₼</td>
+                          <td className="px-3 md:px-6 py-4 hidden sm:table-cell">
+                            <select
+                              value={property.status}
+                              onChange={(e) => handleStatusChange(property.id, e.target.value)}
+                              className="text-xs md:text-sm border border-[#E5DDD5] rounded px-2 py-1"
+                            >
+                              <option value="DRAFT">Draft</option>
+                              <option value="PUBLISHED">Published</option>
+                              <option value="ARCHIVED">Archived</option>
+                            </select>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 hidden lg:table-cell text-xs md:text-sm">{property.views}</td>
+                          <td className="px-3 md:px-6 py-4">
+                            <div className="flex space-x-1 md:space-x-2">
+                              <button
+                                onClick={() => handleToggleFeatured(property.id)}
+                                className={`p-1.5 md:p-2 rounded text-xs md:text-sm ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
+                                title={property.featured ? 'VIP-dən çıxart' : 'VIP et'}
+                              >
+                                <FaStar />
+                              </button>
+                              <button 
+                                onClick={() => router.push(`/admin/properties/edit/${property.id}`)}
+                                className="p-1.5 md:p-2 bg-blue-50 text-blue-600 rounded text-xs md:text-sm"
+                                title="Redaktə et"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProperty(property.id)}
+                                className="p-1.5 md:p-2 bg-red-50 text-red-600 rounded text-xs md:text-sm"
+                                title="Sil"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
