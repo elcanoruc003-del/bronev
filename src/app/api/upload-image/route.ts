@@ -1,15 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[UPLOAD] Starting image upload...');
+    
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
+      console.error('[UPLOAD] No file provided');
       return NextResponse.json(
         { error: 'Fayl tapılmadı' },
+        { status: 400 }
+      );
+    }
+
+    console.log('[UPLOAD] File received:', file.name, file.type, file.size);
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.error('[UPLOAD] Invalid file type:', file.type);
+      return NextResponse.json(
+        { error: 'Yalnız şəkil faylları yükləyə bilərsiniz' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      console.error('[UPLOAD] File too large:', file.size);
+      return NextResponse.json(
+        { error: 'Fayl ölçüsü 10MB-dan çox ola bilməz' },
         { status: 400 }
       );
     }
@@ -20,9 +44,13 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64');
     const dataURI = `data:${file.type};base64,${base64}`;
 
+    console.log('[UPLOAD] File converted to base64, size:', base64.length);
+
     // Upload to Cloudinary using unsigned preset
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm';
-    const uploadPreset = 'bronev_preset'; // Your unsigned preset
+    const cloudName = 'dyfuasdbm';
+    const uploadPreset = 'bronev_preset';
+
+    console.log('[UPLOAD] Uploading to Cloudinary...');
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
@@ -39,13 +67,18 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    const result = await cloudinaryResponse.json();
+    console.log('[UPLOAD] Cloudinary response status:', cloudinaryResponse.status);
+
     if (!cloudinaryResponse.ok) {
-      const errorData = await cloudinaryResponse.json();
-      console.error('Cloudinary error:', errorData);
-      throw new Error(errorData.error?.message || 'Cloudinary yükləmə xətası');
+      console.error('[UPLOAD] Cloudinary error:', result);
+      return NextResponse.json(
+        { error: result.error?.message || 'Cloudinary yükləmə xətası' },
+        { status: cloudinaryResponse.status }
+      );
     }
 
-    const result = await cloudinaryResponse.json();
+    console.log('[UPLOAD] Upload successful:', result.secure_url);
 
     return NextResponse.json({
       success: true,
@@ -53,9 +86,9 @@ export async function POST(request: NextRequest) {
       publicId: result.public_id,
     });
   } catch (error: any) {
-    console.error('Upload error:', error);
+    console.error('[UPLOAD] Server error:', error);
     return NextResponse.json(
-      { error: error.message || 'Yükləmə xətası' },
+      { error: error.message || 'Server xətası' },
       { status: 500 }
     );
   }

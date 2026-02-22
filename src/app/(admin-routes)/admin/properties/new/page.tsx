@@ -65,11 +65,12 @@ export default function NewPropertyPage() {
           body: uploadFormData,
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-          throw new Error('Şəkil yükləmə xətası');
+          throw new Error(data.error || 'Şəkil yükləmə xətası');
         }
 
-        const data = await response.json();
         return {
           url: data.url,
           alt: formData.title || 'Property image',
@@ -78,8 +79,10 @@ export default function NewPropertyPage() {
 
       const newImages = await Promise.all(uploadPromises);
       setUploadedImages([...uploadedImages, ...newImages]);
+      setError(''); // Clear any previous errors
     } catch (error: any) {
-      setError(error.message || 'Şəkil yükləmə xətası');
+      console.error('Upload error:', error);
+      setError(error.message || 'Şəkil yükləmə xətası. Zəhmət olmasa yenidən cəhd edin.');
     } finally {
       setIsUploading(false);
     }
