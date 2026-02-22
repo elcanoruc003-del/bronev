@@ -16,23 +16,22 @@ export default function NewPropertyPage() {
     id: '',
     title: '',
     city: '',
-    district: '',
     address: '',
     type: 'VILLA' as const,
     bedrooms: 1,
     bathrooms: 1,
-    beds: 1,
     area: 50,
     maxGuests: 2,
     basePricePerNight: 50,
-    shortDescription: '',
-    longDescription: '',
+    description: '',
     latitude: 40.4093,
     longitude: 49.8671,
     amenities: [] as string[],
     features: [] as string[],
     featured: false,
   });
+
+  const [customAmenity, setCustomAmenity] = useState('');
 
   const amenitiesList = [
     'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
@@ -132,12 +131,40 @@ export default function NewPropertyPage() {
     setUploadedImages(uploadedImages.filter((_, i) => i !== index));
   }
 
-  function toggleAmenity(amenity: string) {
-    if (formData.amenities.includes(amenity)) {
+  function moveImageUp(index: number) {
+    if (index === 0) return;
+    const newImages = [...uploadedImages];
+    [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+    setUploadedImages(newImages);
+  }
+
+  function moveImageDown(index: number) {
+    if (index === uploadedImages.length - 1) return;
+    const newImages = [...uploadedImages];
+    [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+    setUploadedImages(newImages);
+  }
+
+  function addCustomAmenity() {
+    if (customAmenity.trim() && !formData.amenities.includes(customAmenity.trim())) {
       setFormData({
         ...formData,
-        amenities: formData.amenities.filter(a => a !== amenity),
+        amenities: [...formData.amenities, customAmenity.trim()],
       });
+      setCustomAmenity('');
+    }
+  }
+
+  function removeAmenity(amenity: string) {
+    setFormData({
+      ...formData,
+      amenities: formData.amenities.filter(a => a !== amenity),
+    });
+  }
+
+  function toggleAmenity(amenity: string) {
+    if (formData.amenities.includes(amenity)) {
+      removeAmenity(amenity);
     } else {
       setFormData({
         ...formData,
@@ -292,19 +319,6 @@ export default function NewPropertyPage() {
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                  Rayon *
-                </label>
-                <input
-                  type="text"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                  required
-                />
-              </div>
             </div>
 
             <div>
@@ -321,7 +335,7 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Xüsusiyyətlər */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Yataq otağı *
@@ -331,20 +345,6 @@ export default function NewPropertyPage() {
                   min="1"
                   value={formData.bedrooms}
                   onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                  Yataq sayı *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.beds}
-                  onChange={(e) => setFormData({ ...formData, beds: parseInt(e.target.value) })}
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 />
@@ -455,13 +455,37 @@ export default function NewPropertyPage() {
                         alt={image.alt}
                         className="w-full h-32 object-cover rounded-xl"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <FaTimes />
-                      </button>
+                      <div className="absolute top-2 right-2 flex space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => moveImageUp(index)}
+                          disabled={index === 0}
+                          className="bg-white text-[#8B7355] p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Yuxarı"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImageDown(index)}
+                          disabled={index === uploadedImages.length - 1}
+                          className="bg-white text-[#8B7355] p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Aşağı"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Sil"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {index + 1}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -473,6 +497,48 @@ export default function NewPropertyPage() {
               <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                 İmkanlar
               </label>
+              
+              {/* Custom Amenity Input */}
+              <div className="flex space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={customAmenity}
+                  onChange={(e) => setCustomAmenity(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
+                  placeholder="Öz imkanınızı əlavə edin"
+                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomAmenity}
+                  className="px-6 py-2 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-medium"
+                >
+                  Əlavə et
+                </button>
+              </div>
+
+              {/* Selected Amenities */}
+              {formData.amenities.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3 p-3 bg-[#FAF8F5] rounded-xl">
+                  {formData.amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="inline-flex items-center space-x-1 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
+                    >
+                      <span>{amenity}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAmenity(amenity)}
+                        className="hover:text-red-200"
+                      >
+                        <FaTimes className="text-xs" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Predefined Amenities */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {amenitiesList.map((amenity) => (
                   <button
@@ -517,25 +583,13 @@ export default function NewPropertyPage() {
             {/* Təsvir */}
             <div>
               <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Qısa təsvir *
+                Təsvir *
               </label>
               <textarea
-                value={formData.shortDescription}
-                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                rows={2}
-                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Ətraflı təsvir *
-              </label>
-              <textarea
-                value={formData.longDescription}
-                onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
+                placeholder="Ev haqqında ətraflı məlumat yazın..."
                 className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                 required
               />
