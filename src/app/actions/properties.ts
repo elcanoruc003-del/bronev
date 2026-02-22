@@ -21,7 +21,7 @@ export async function getProperties(filters?: {
     const skip = (page - 1) * limit
 
     const where: any = {
-      status: 'AVAILABLE',
+      status: 'PUBLISHED', // Show only published properties
     }
 
     if (filters?.city && filters.city !== 'Hamısı') {

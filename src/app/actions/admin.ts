@@ -401,6 +401,8 @@ export async function createProperty(data: any) {
       shortDescription: data.shortDescription,
       longDescription: data.longDescription,
       featured: data.featured || false,
+      status: 'PUBLISHED' as const, // Publish immediately
+      publishedAt: now,
       amenities: data.amenities || [],
       features: data.features || [],
       ownerId: currentUser.id,
@@ -429,9 +431,34 @@ export async function updateProperty(propertyId: string, data: any) {
       throw new Error('Property ID tələb olunur');
     }
 
+    const now = new Date();
+
+    // Prepare update data
+    const updateData: any = {
+      title: data.title,
+      city: data.city,
+      district: data.district || data.city,
+      address: data.address,
+      type: data.type,
+      bedrooms: Number(data.bedrooms),
+      beds: Number(data.beds || data.bedrooms),
+      bathrooms: Number(data.bathrooms),
+      area: Number(data.area),
+      maxGuests: Number(data.maxGuests),
+      basePricePerNight: Number(data.basePricePerNight),
+      shortDescription: data.shortDescription || data.longDescription?.substring(0, 150),
+      longDescription: data.longDescription || data.shortDescription,
+      featured: Boolean(data.featured),
+      updatedAt: now,
+    };
+
+    // Only update amenities and features if provided
+    if (data.amenities) updateData.amenities = data.amenities;
+    if (data.features) updateData.features = data.features;
+
     const property = await prisma.properties.update({
       where: { id: propertyId },
-      data,
+      data: updateData,
     });
 
     revalidatePath('/admin');

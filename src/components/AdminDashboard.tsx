@@ -424,15 +424,21 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleToggleFeatured(property.id)}
                             className={`p-2 rounded ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
+                            title={property.featured ? 'VIP-dən çıxart' : 'VIP et'}
                           >
                             <FaStar />
                           </button>
-                          <button className="p-2 bg-blue-50 text-blue-600 rounded">
+                          <button 
+                            onClick={() => router.push(`/admin/properties/edit/${property.id}`)}
+                            className="p-2 bg-blue-50 text-blue-600 rounded"
+                            title="Redaktə et"
+                          >
                             <FaEdit />
                           </button>
                           <button
                             onClick={() => handleDeleteProperty(property.id)}
                             className="p-2 bg-red-50 text-red-600 rounded"
+                            title="Sil"
                           >
                             <FaTrash />
                           </button>
