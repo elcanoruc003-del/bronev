@@ -182,34 +182,34 @@ export default function PropertyDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Images Gallery */}
+        {/* Images Gallery - Professional Grid Layout */}
         <div className="mb-6">
-          {/* Main Image */}
           {property.images.length > 0 && (
-            <div className="relative h-96 rounded-xl overflow-hidden mb-4">
-              <Image
-                src={property.images[0].url}
-                alt={property.images[0].alt || property.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          
-          {/* All Other Images */}
-          {property.images.length > 1 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {property.images.slice(1).map((image, index) => (
-                <div
-                  key={index}
-                  className="relative h-48 rounded-xl overflow-hidden"
-                >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              {/* First image - larger on desktop */}
+              <div className="col-span-2 md:col-span-2 md:row-span-2">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
                   <Image
-                    src={image.url}
-                    alt={image.alt || property.title}
+                    src={property.images[0].url}
+                    alt={property.images[0].alt || property.title}
                     fill
-                    className="object-cover"
+                    className="object-cover hover:scale-105 transition-transform duration-300"
+                    priority
                   />
+                </div>
+              </div>
+              
+              {/* All other images - uniform size */}
+              {property.images.slice(1).map((image, index) => (
+                <div key={index} className="col-span-1">
+                  <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                    <Image
+                      src={image.url}
+                      alt={image.alt || property.title}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
