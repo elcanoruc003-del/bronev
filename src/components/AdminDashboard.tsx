@@ -13,6 +13,8 @@ import {
   FaStar,
   FaCheckCircle,
   FaSpinner,
+  FaPlus,
+  FaTimes,
 } from 'react-icons/fa';
 import {
   loginAdmin,
@@ -44,6 +46,19 @@ export default function AdminDashboard() {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Booking modal state
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingForm, setBookingForm] = useState({
+    userId: '',
+    propertyId: '',
+    checkIn: '',
+    checkOut: '',
+    guests: 2,
+    totalPrice: 0,
+    status: 'CONFIRMED' as const,
+  });
+  const [bookingError, setBookingError] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -157,6 +172,36 @@ export default function AdminDashboard() {
       setProperties(properties.map(p => 
         p.id === id ? { ...p, status } : p
       ));
+    }
+  }
+
+  async function handleCreateBooking(e: React.FormEvent) {
+    e.preventDefault();
+    setBookingError('');
+
+    try {
+      const { createAdminBooking } = await import('@/app/actions/admin');
+      const result = await createAdminBooking(bookingForm);
+
+      if (result.success) {
+        setShowBookingModal(false);
+        setBookingForm({
+          userId: '',
+          propertyId: '',
+          checkIn: '',
+          checkOut: '',
+          guests: 2,
+          totalPrice: 0,
+          status: 'CONFIRMED',
+        });
+        // Refresh bookings
+        loadDashboardData();
+        alert('Bron uğurla yaradıldı');
+      } else {
+        setBookingError(result.error || 'Xəta baş verdi');
+      }
+    } catch (error: any) {
+      setBookingError(error.message || 'Xəta baş verdi');
     }
   }
 
@@ -604,7 +649,16 @@ export default function AdminDashboard() {
 
         {activeTab === 'bookings' && (
           <div>
-            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Bronlar</h1>
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-bold text-[#2C2416]">Bronlar</h1>
+              <button
+                onClick={() => setShowBookingModal(true)}
+                className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <FaPlus />
+                Yeni Bron
+              </button>
+            </div>
             {bookings.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
                 <FaCalendarAlt className="text-6xl text-[#C19A6B] mx-auto mb-4" />
@@ -612,47 +666,49 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Ev</th>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">İstifadəçi</th>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Tarixlər</th>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qonaq</th>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qiymət</th>
-                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E5DDD5]">
-                    {bookings.map((booking: any) => (
-                      <tr key={booking.id} className="hover:bg-[#FAF8F5]">
-                        <td className="px-6 py-4">
-                          <p className="font-semibold text-[#2C2416]">{booking.properties?.title}</p>
-                          <p className="text-sm text-[#6B5D4F]">{booking.properties?.city}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="font-semibold text-[#2C2416]">{booking.users?.name}</p>
-                          <p className="text-sm text-[#6B5D4F]">{booking.users?.phone}</p>
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <p>{new Date(booking.checkIn).toLocaleDateString('az-AZ')}</p>
-                          <p className="text-[#6B5D4F]">{new Date(booking.checkOut).toLocaleDateString('az-AZ')}</p>
-                        </td>
-                        <td className="px-6 py-4">{booking.guests} nəfər</td>
-                        <td className="px-6 py-4 font-bold">{booking.totalPrice?.toLocaleString()} ₼</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                            booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {booking.status}
-                          </span>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
+                      <tr>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Ev</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">İstifadəçi</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Tarixlər</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Qonaq</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Qiymət</th>
+                        <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-[#E5DDD5]">
+                      {bookings.map((booking: any) => (
+                        <tr key={booking.id} className="hover:bg-[#FAF8F5]">
+                          <td className="px-3 md:px-6 py-4">
+                            <p className="font-semibold text-[#2C2416] text-xs md:text-base">{booking.properties?.title}</p>
+                            <p className="text-xs md:text-sm text-[#6B5D4F]">{booking.properties?.city}</p>
+                          </td>
+                          <td className="px-3 md:px-6 py-4">
+                            <p className="font-semibold text-[#2C2416] text-xs md:text-base">{booking.users?.name}</p>
+                            <p className="text-xs md:text-sm text-[#6B5D4F]">{booking.users?.phone}</p>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 text-xs md:text-sm">
+                            <p>{new Date(booking.checkIn).toLocaleDateString('az-AZ')}</p>
+                            <p className="text-[#6B5D4F]">{new Date(booking.checkOut).toLocaleDateString('az-AZ')}</p>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 text-xs md:text-base">{booking.guests} nəfər</td>
+                          <td className="px-3 md:px-6 py-4 font-bold text-xs md:text-base">{booking.totalPrice?.toLocaleString()} ₼</td>
+                          <td className="px-3 md:px-6 py-4">
+                            <span className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold ${
+                              booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
@@ -709,6 +765,175 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-[#2C2416]">Yeni Bron</h2>
+                <button
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingError('');
+                  }}
+                  className="text-[#6B5D4F] hover:text-[#2C2416]"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </div>
+
+              {bookingError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                  {bookingError}
+                </div>
+              )}
+
+              <form onSubmit={handleCreateBooking} className="space-y-4">
+                {/* User Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    İstifadəçi *
+                  </label>
+                  <select
+                    value={bookingForm.userId}
+                    onChange={(e) => setBookingForm({ ...bookingForm, userId: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  >
+                    <option value="">İstifadəçi seçin</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} - {user.phone || user.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Property Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Ev *
+                  </label>
+                  <select
+                    value={bookingForm.propertyId}
+                    onChange={(e) => setBookingForm({ ...bookingForm, propertyId: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  >
+                    <option value="">Ev seçin</option>
+                    {properties.map((property) => (
+                      <option key={property.id} value={property.id}>
+                        {property.title} - {property.city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Check-in Date */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Giriş tarixi *
+                  </label>
+                  <input
+                    type="date"
+                    value={bookingForm.checkIn}
+                    onChange={(e) => setBookingForm({ ...bookingForm, checkIn: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Check-out Date */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Çıxış tarixi *
+                  </label>
+                  <input
+                    type="date"
+                    value={bookingForm.checkOut}
+                    onChange={(e) => setBookingForm({ ...bookingForm, checkOut: e.target.value })}
+                    min={bookingForm.checkIn || new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Guests */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Qonaq sayı *
+                  </label>
+                  <input
+                    type="number"
+                    value={bookingForm.guests}
+                    onChange={(e) => setBookingForm({ ...bookingForm, guests: parseInt(e.target.value) })}
+                    min={1}
+                    max={20}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Total Price */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Ümumi qiymət (₼) *
+                  </label>
+                  <input
+                    type="number"
+                    value={bookingForm.totalPrice}
+                    onChange={(e) => setBookingForm({ ...bookingForm, totalPrice: parseFloat(e.target.value) })}
+                    min={0}
+                    step={0.01}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Status *
+                  </label>
+                  <select
+                    value={bookingForm.status}
+                    onChange={(e) => setBookingForm({ ...bookingForm, status: e.target.value as any })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  >
+                    <option value="PENDING">Gözləyir</option>
+                    <option value="CONFIRMED">Təsdiqləndi</option>
+                    <option value="CANCELLED">Ləğv edildi</option>
+                  </select>
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowBookingModal(false);
+                      setBookingError('');
+                    }}
+                    className="flex-1 px-6 py-3 border border-[#E5DDD5] text-[#6B5D4F] rounded-xl hover:bg-[#FAF8F5] transition-colors"
+                  >
+                    Ləğv et
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                  >
+                    Bron yarat
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

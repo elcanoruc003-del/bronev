@@ -777,3 +777,86 @@ export async function getComprehensiveDashboardStats() {
     };
   }, 'Statistikalar yüklənərkən xəta');
 }
+
+
+/**
+ * Create admin booking
+ */
+export async function createAdminBooking(data: {
+  userId: string;
+  propertyId: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+}) {
+  return safeServerAction(async () => {
+    // Verify admin session
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get(SESSION_COOKIE)?.value;
+    
+    if (!sessionToken) {
+      throw new Error('Giriş tələb olunur');
+    }
+
+    const session = await verifySessionToken(sessionToken);
+    if (!session || session.role !== 'ADMIN') {
+      throw new Error('Admin icazəsi tələb olunur');
+    }
+
+    // Validate dates
+    const checkInDate = new Date(data.checkIn);
+    const checkOutDate = new Date(data.checkOut);
+    
+    if (checkInDate >= checkOutDate) {
+      throw new Error('Çıxış tarixi giriş tarixindən sonra olmalıdır');
+    }
+
+    // Calculate nights
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Create booking
+    const bookingId = `BRN${Date.now()}`;
+    const booking = await prisma.bookings.create({
+      data: {
+        id: bookingId,
+        userId: data.userId,
+        propertyId: data.propertyId,
+        checkIn: checkInDate,
+        checkOut: checkOutDate,
+        guestCount: data.guests,
+        totalNights: nights,
+        totalPrice: data.totalPrice,
+        status: data.status,
+        guestName: '', // Will be filled from user
+        guestPhone: '', // Will be filled from user
+        guestEmail: '', // Will be filled from user
+        basePrice: Math.floor(data.totalPrice / nights),
+        bookingNumber: bookingId,
+        updatedAt: new Date(),
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        properties: {
+          select: {
+            id: true,
+            title: true,
+            city: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath('/admin/dashboard');
+    
+    return booking;
+  }, 'Bron yaradılarkən xəta baş verdi');
+}

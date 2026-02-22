@@ -32,6 +32,7 @@ export default function NewPropertyPage() {
   });
 
   const [customAmenity, setCustomAmenity] = useState('');
+  const [customFeature, setCustomFeature] = useState('');
 
   const amenitiesList = [
     'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
@@ -185,6 +186,23 @@ export default function NewPropertyPage() {
         features: [...formData.features, feature],
       });
     }
+  }
+
+  function addCustomFeature() {
+    if (customFeature.trim() && !formData.features.includes(customFeature.trim())) {
+      setFormData({
+        ...formData,
+        features: [...formData.features, customFeature.trim()],
+      });
+      setCustomFeature('');
+    }
+  }
+
+  function removeFeature(feature: string) {
+    setFormData({
+      ...formData,
+      features: formData.features.filter(f => f !== feature),
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -613,7 +631,7 @@ export default function NewPropertyPage() {
               <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                 Xüsusiyyətlər
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                 {featuresList.map((feature) => (
                   <button
                     key={feature}
@@ -629,6 +647,51 @@ export default function NewPropertyPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Custom Feature Input */}
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={customFeature}
+                  onChange={(e) => setCustomFeature(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomFeature();
+                    }
+                  }}
+                  placeholder="Özünüzdən xüsusiyyət əlavə edin..."
+                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomFeature}
+                  className="px-6 py-2 bg-[#8B7355] text-white rounded-xl hover:bg-[#6B5D4F] transition-colors"
+                >
+                  Əlavə et
+                </button>
+              </div>
+
+              {/* Selected Features */}
+              {formData.features.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.features.map((feature) => (
+                    <span
+                      key={feature}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
+                    >
+                      {feature}
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(feature)}
+                        className="hover:text-red-300 transition-colors"
+                      >
+                        <FaTimes className="text-xs" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Təsvir */}
