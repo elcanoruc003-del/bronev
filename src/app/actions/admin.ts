@@ -628,3 +628,152 @@ export async function getPropertyForEdit(propertyId: string) {
     return property;
   }, 'Ev yüklənərkən xəta baş verdi');
 }
+
+
+/**
+ * Get all users for admin
+ */
+export async function getAdminUsers() {
+  return safeServerAction(async () => {
+    const users = await prisma.users.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        _count: {
+          select: {
+            bookings: true,
+            favorites: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return users;
+  }, 'İstifadəçilər yüklənərkən xəta');
+}
+
+/**
+ * Get comprehensive dashboard statistics
+ */
+export async function getComprehensiveDashboardStats() {
+  return safeServerAction(async () => {
+    // Get all properties
+    const allProperties = await prisma.properties.findMany({
+      include: {
+        property_images: true,
+      },
+    });
+
+    // Get all bookings
+    const allBookings = await prisma.bookings.findMany({
+      include: {
+        properties: true,
+        users: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Get all users
+    const allUsers = await prisma.users.findMany();
+
+    // Calculate statistics
+    const totalProperties = allProperties.length;
+    const publishedProperties = allProperties.filter(p => p.status === 'PUBLISHED').length;
+    const featuredProperties = allProperties.filter(p => p.featured).length;
+    const totalViews = allProperties.reduce((sum, p) => sum + (p.views || 0), 0);
+
+    const totalBookings = allBookings.length;
+    const confirmedBookings = allBookings.filter(b => b.status === 'CONFIRMED').length;
+    const pendingBookings = allBookings.filter(b => b.status === 'PENDING').length;
+    const cancelledBookings = allBookings.filter(b => b.status === 'CANCELLED').length;
+
+    const totalRevenue = allBookings
+      .filter(b => b.status === 'CONFIRMED')
+      .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+    // Monthly revenue (current month)
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthlyRevenue = allBookings
+      .filter(b => b.status === 'CONFIRMED' && new Date(b.createdAt) >= monthStart)
+      .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+    // Weekly revenue
+    const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const weeklyRevenue = allBookings
+      .filter(b => b.status === 'CONFIRMED' && new Date(b.createdAt) >= weekStart)
+      .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+    // Average booking value
+    const avgBookingValue = confirmedBookings > 0 ? totalRevenue / confirmedBookings : 0;
+
+    // Most popular properties
+    const propertyBookingCounts = allProperties.map(p => ({
+      id: p.id,
+      title: p.title,
+      city: p.city,
+      bookingCount: allBookings.filter(b => b.propertyId === p.id).length,
+      revenue: allBookings
+        .filter(b => b.propertyId === p.id && b.status === 'CONFIRMED')
+        .reduce((sum, b) => sum + (b.totalPrice || 0), 0),
+    }));
+    const topProperties = propertyBookingCounts
+      .sort((a, b) => b.bookingCount - a.bookingCount)
+      .slice(0, 5);
+
+    // City statistics
+    const cityStats = allProperties.reduce((acc: any, p) => {
+      if (!acc[p.city]) {
+        acc[p.city] = { count: 0, bookings: 0, revenue: 0 };
+      }
+      acc[p.city].count++;
+      const cityBookings = allBookings.filter(b => b.propertyId === p.id);
+      acc[p.city].bookings += cityBookings.length;
+      acc[p.city].revenue += cityBookings
+        .filter(b => b.status === 'CONFIRMED')
+        .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+      return acc;
+    }, {});
+
+    // Recent bookings
+    const recentBookings = allBookings.slice(0, 10).map(b => ({
+      id: b.id,
+      propertyTitle: b.properties?.title || 'N/A',
+      userName: b.users?.name || 'N/A',
+      userPhone: b.users?.phone || 'N/A',
+      checkIn: b.checkIn,
+      checkOut: b.checkOut,
+      totalPrice: b.totalPrice,
+      status: b.status,
+      createdAt: b.createdAt,
+    }));
+
+    return {
+      overview: {
+        totalProperties,
+        publishedProperties,
+        featuredProperties,
+        totalViews,
+        totalBookings,
+        confirmedBookings,
+        pendingBookings,
+        cancelledBookings,
+        totalUsers: allUsers.length,
+      },
+      revenue: {
+        total: totalRevenue,
+        monthly: monthlyRevenue,
+        weekly: weeklyRevenue,
+        average: avgBookingValue,
+      },
+      topProperties,
+      cityStats,
+      recentBookings,
+    };
+  }, 'Statistikalar yüklənərkən xəta');
+}

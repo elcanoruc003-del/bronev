@@ -34,8 +34,10 @@ export default function AdminDashboard() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'bookings' | 'settings'>('dashboard');
   
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [metrics, setMetrics] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -100,9 +102,10 @@ export default function AdminDashboard() {
   async function loadDashboardData() {
     try {
       if (activeTab === 'dashboard') {
-        const metricsResult = await getDashboardMetrics();
-        if (metricsResult.success && metricsResult.data) {
-          setMetrics(metricsResult.data);
+        const { getComprehensiveDashboardStats } = await import('@/app/actions/admin');
+        const statsResult = await getComprehensiveDashboardStats();
+        if (statsResult.success && statsResult.data) {
+          setMetrics(statsResult.data);
         }
       } else if (activeTab === 'properties') {
         const propertiesResult = await getAdminProperties();
@@ -112,7 +115,13 @@ export default function AdminDashboard() {
       } else if (activeTab === 'bookings') {
         const bookingsResult = await getAdminBookings();
         if (bookingsResult.success && bookingsResult.data) {
-          // Handle bookings data
+          setBookings(bookingsResult.data);
+        }
+      } else if (activeTab === 'settings') {
+        const { getAdminUsers } = await import('@/app/actions/admin');
+        const usersResult = await getAdminUsers();
+        if (usersResult.success && usersResult.data) {
+          setUsers(usersResult.data);
         }
       }
     } catch (error) {
@@ -287,7 +296,7 @@ export default function AdminDashboard() {
               }`}
             >
               <FaCog />
-              <span>Parametrlər</span>
+              <span>İstifadəçilər</span>
             </button>
           </nav>
         </div>
@@ -313,12 +322,15 @@ export default function AdminDashboard() {
         {activeTab === 'dashboard' && metrics && (
           <div>
             <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Dashboard</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl shadow-sm p-6">
+            
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Cəmi Evlər</p>
-                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.totalProperties}</p>
+                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.overview.totalProperties}</p>
+                    <p className="text-xs text-green-600 mt-1">✓ {metrics.overview.publishedProperties} aktiv</p>
                   </div>
                   <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white text-2xl">
                     <FaHome />
@@ -326,23 +338,12 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="card-premium p-6">
+              <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-purple-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-neutral-600 text-sm font-semibold mb-1">Aktiv</p>
-                    <p className="text-3xl font-bold text-brand-navy">{metrics.activeProperties}</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center text-white text-2xl">
-                    <FaCheckCircle />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-premium p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-neutral-600 text-sm font-semibold mb-1">Bronlar</p>
-                    <p className="text-3xl font-bold text-brand-navy">{metrics.totalBookings}</p>
+                    <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Cəmi Bronlar</p>
+                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.overview.totalBookings}</p>
+                    <p className="text-xs text-amber-600 mt-1">⏳ {metrics.overview.pendingBookings} gözləyir</p>
                   </div>
                   <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center text-white text-2xl">
                     <FaCalendarAlt />
@@ -350,27 +351,138 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="card-premium p-6">
+              <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-neutral-600 text-sm font-semibold mb-1">Gözləyən</p>
-                    <p className="text-3xl font-bold text-brand-navy">{metrics.pendingBookings}</p>
+                    <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Təsdiqlənmiş</p>
+                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.overview.confirmedBookings}</p>
+                    <p className="text-xs text-red-600 mt-1">✗ {metrics.overview.cancelledBookings} ləğv</p>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center text-white text-2xl">
+                    <FaCheckCircle />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-amber-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[#6B5D4F] text-sm font-semibold mb-1">İstifadəçilər</p>
+                    <p className="text-3xl font-bold text-[#2C2416]">{metrics.overview.totalUsers}</p>
+                    <p className="text-xs text-blue-600 mt-1">👁 {metrics.overview.totalViews} baxış</p>
                   </div>
                   <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center text-white text-2xl">
-                    <FaSpinner />
+                    <FaChartLine />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <div className="card-premium p-6">
-                <p className="text-neutral-600 text-sm font-semibold mb-1">Ümumi Gəlir</p>
-                <p className="text-4xl font-bold text-brand-navy">{metrics.totalRevenue.toLocaleString()} ₼</p>
+            {/* Revenue Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-[#8B7355] to-[#C19A6B] rounded-2xl shadow-lg p-6 text-white">
+                <p className="text-white/80 text-sm font-semibold mb-1">Ümumi Gəlir</p>
+                <p className="text-4xl font-bold">{metrics.revenue.total.toLocaleString()} ₼</p>
               </div>
-              <div className="card-premium p-6">
-                <p className="text-neutral-600 text-sm font-semibold mb-1">Aylıq Gəlir</p>
-                <p className="text-4xl font-bold text-brand-navy">{metrics.monthlyRevenue.toLocaleString()} ₼</p>
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Aylıq Gəlir</p>
+                <p className="text-3xl font-bold text-[#2C2416]">{metrics.revenue.monthly.toLocaleString()} ₼</p>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Həftəlik Gəlir</p>
+                <p className="text-3xl font-bold text-[#2C2416]">{metrics.revenue.weekly.toLocaleString()} ₼</p>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <p className="text-[#6B5D4F] text-sm font-semibold mb-1">Orta Bron</p>
+                <p className="text-3xl font-bold text-[#2C2416]">{Math.round(metrics.revenue.average).toLocaleString()} ₼</p>
+              </div>
+            </div>
+
+            {/* Top Properties & City Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-xl font-bold text-[#2C2416] mb-4">Ən Populyar Evlər</h3>
+                <div className="space-y-3">
+                  {metrics.topProperties.map((prop: any, index: number) => (
+                    <div key={prop.id} className="flex items-center justify-between p-3 bg-[#FAF8F5] rounded-xl">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B7355] to-[#C19A6B] flex items-center justify-center text-white font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-[#2C2416] text-sm">{prop.title}</p>
+                          <p className="text-xs text-[#6B5D4F]">{prop.city}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-[#2C2416]">{prop.bookingCount} bron</p>
+                        <p className="text-xs text-[#6B5D4F]">{prop.revenue.toLocaleString()} ₼</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm p-6">
+                <h3 className="text-xl font-bold text-[#2C2416] mb-4">Şəhər Statistikaları</h3>
+                <div className="space-y-3">
+                  {Object.entries(metrics.cityStats).map(([city, stats]: [string, any]) => (
+                    <div key={city} className="p-3 bg-[#FAF8F5] rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-semibold text-[#2C2416]">{city}</p>
+                        <p className="text-sm font-bold text-[#8B7355]">{stats.count} ev</p>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-[#6B5D4F]">
+                        <span>{stats.bookings} bron</span>
+                        <span className="font-semibold">{stats.revenue.toLocaleString()} ₼</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Bookings */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h3 className="text-xl font-bold text-[#2C2416] mb-4">Son Bronlar</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-[#FAF8F5]">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Ev</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">İstifadəçi</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Tarix</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Qiymət</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#2C2416]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5DDD5]">
+                    {metrics.recentBookings.map((booking: any) => (
+                      <tr key={booking.id} className="hover:bg-[#FAF8F5]">
+                        <td className="px-4 py-3 text-sm">{booking.propertyTitle}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <div>
+                            <p className="font-semibold">{booking.userName}</p>
+                            <p className="text-xs text-[#6B5D4F]">{booking.userPhone}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-xs">
+                          {new Date(booking.checkIn).toLocaleDateString('az-AZ')} - {new Date(booking.checkOut).toLocaleDateString('az-AZ')}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-bold">{booking.totalPrice.toLocaleString()} ₼</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
+                            booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -455,18 +567,107 @@ export default function AdminDashboard() {
         {activeTab === 'bookings' && (
           <div>
             <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Bronlar</h1>
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <p className="text-[#6B5D4F]">Bronlar yüklənir...</p>
-            </div>
+            {bookings.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <FaCalendarAlt className="text-6xl text-[#C19A6B] mx-auto mb-4" />
+                <p className="text-xl text-[#6B5D4F]">Hələ bron yoxdur</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Ev</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">İstifadəçi</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Tarixlər</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qonaq</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qiymət</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5DDD5]">
+                    {bookings.map((booking: any) => (
+                      <tr key={booking.id} className="hover:bg-[#FAF8F5]">
+                        <td className="px-6 py-4">
+                          <p className="font-semibold text-[#2C2416]">{booking.properties?.title}</p>
+                          <p className="text-sm text-[#6B5D4F]">{booking.properties?.city}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-semibold text-[#2C2416]">{booking.users?.name}</p>
+                          <p className="text-sm text-[#6B5D4F]">{booking.users?.phone}</p>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <p>{new Date(booking.checkIn).toLocaleDateString('az-AZ')}</p>
+                          <p className="text-[#6B5D4F]">{new Date(booking.checkOut).toLocaleDateString('az-AZ')}</p>
+                        </td>
+                        <td className="px-6 py-4">{booking.guests} nəfər</td>
+                        <td className="px-6 py-4 font-bold">{booking.totalPrice?.toLocaleString()} ₼</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
+                            booking.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'settings' && (
           <div>
-            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">Parametrlər</h1>
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <p className="text-[#6B5D4F]">Parametrlər bölməsi hazırlanır...</p>
-            </div>
+            <h1 className="text-3xl font-bold text-[#2C2416] mb-8">İstifadəçilər</h1>
+            {users.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <FaChartLine className="text-6xl text-[#C19A6B] mx-auto mb-4" />
+                <p className="text-xl text-[#6B5D4F]">Hələ istifadəçi yoxdur</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Ad</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Email</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Telefon</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Rol</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Bronlar</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Sevimlilər</th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-[#2C2416]">Qeydiyyat</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5DDD5]">
+                    {users.map((user: any) => (
+                      <tr key={user.id} className="hover:bg-[#FAF8F5]">
+                        <td className="px-6 py-4 font-semibold text-[#2C2416]">{user.name}</td>
+                        <td className="px-6 py-4 text-sm text-[#6B5D4F]">{user.email}</td>
+                        <td className="px-6 py-4 text-sm">{user.phone}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' 
+                              ? 'bg-purple-100 text-purple-700' 
+                              : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center font-bold">{user._count.bookings}</td>
+                        <td className="px-6 py-4 text-center font-bold">{user._count.favorites}</td>
+                        <td className="px-6 py-4 text-sm text-[#6B5D4F]">
+                          {new Date(user.createdAt).toLocaleDateString('az-AZ')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </main>
