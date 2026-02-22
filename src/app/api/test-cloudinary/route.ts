@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    const cloudName = 'dyfaasdbm';
+    const cloudName = 'dyfaadbtm';
     const apiKey = '526295514959981';
     const apiSecret = process.env.CLOUDINARY_API_SECRET || 'JoV-VfaQi9m3TyZRoJtcJP8Vemo';
     
