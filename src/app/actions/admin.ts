@@ -559,6 +559,26 @@ export async function addPropertyImages(
 }
 
 /**
+ * Update image order
+ */
+export async function updateImageOrder(imageId: string, newOrder: number) {
+  try {
+    await prisma.property_images.update({
+      where: { id: imageId },
+      data: { order: newOrder },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[updateImageOrder] Error:', error);
+    return { success: false, error: 'Şəkil sırası yenilənə bilmədi' };
+  }
+}
+
+/**
  * Delete property image
  */
 export async function deletePropertyImage(imageId: string) {

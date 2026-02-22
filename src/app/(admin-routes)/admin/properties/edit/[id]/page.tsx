@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
-import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage } from '@/app/actions/admin';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage, updateImageOrder } from '@/app/actions/admin';
 import Image from 'next/image';
 
 export default function EditPropertyPage() {
@@ -118,6 +118,38 @@ export default function EditPropertyPage() {
     } catch (error) {
       setError('Şəkil silinərkən xəta baş verdi');
     }
+  }
+
+  async function moveImageUp(index: number) {
+    if (index === 0) return;
+    
+    const images = [...property.property_images];
+    const currentImage = images[index];
+    const previousImage = images[index - 1];
+
+    // Swap orders
+    await updateImageOrder(currentImage.id, index - 1);
+    await updateImageOrder(previousImage.id, index);
+
+    // Update local state
+    [images[index - 1], images[index]] = [images[index], images[index - 1]];
+    setProperty({ ...property, property_images: images });
+  }
+
+  async function moveImageDown(index: number) {
+    if (index === property.property_images.length - 1) return;
+    
+    const images = [...property.property_images];
+    const currentImage = images[index];
+    const nextImage = images[index + 1];
+
+    // Swap orders
+    await updateImageOrder(currentImage.id, index + 1);
+    await updateImageOrder(nextImage.id, index);
+
+    // Update local state
+    [images[index], images[index + 1]] = [images[index + 1], images[index]];
+    setProperty({ ...property, property_images: images });
   }
 
   function removeNewImage(index: number) {
@@ -388,8 +420,11 @@ export default function EditPropertyPage() {
                   Mövcud Şəkillər
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {property.property_images.map((image: any) => (
+                  {property.property_images.map((image: any, index: number) => (
                     <div key={image.id} className="relative group">
+                      <div className="absolute top-2 left-2 bg-[#8B7355] text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                        #{index + 1}
+                      </div>
                       <Image
                         src={image.url}
                         alt={image.alt || ''}
@@ -397,13 +432,36 @@ export default function EditPropertyPage() {
                         height={150}
                         className="w-full h-32 object-cover rounded-xl"
                       />
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteImage(image.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <FaTimes />
-                      </button>
+                      <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImageUp(index)}
+                            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                            title="Yuxarı"
+                          >
+                            <FaArrowUp />
+                          </button>
+                        )}
+                        {index < property.property_images.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImageDown(index)}
+                            className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                            title="Aşağı"
+                          >
+                            <FaArrowDown />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteImage(image.id)}
+                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                          title="Sil"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -481,7 +539,7 @@ export default function EditPropertyPage() {
                   type="text"
                   value={customAmenity}
                   onChange={(e) => setCustomAmenity(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
                   placeholder="Öz imkanınızı əlavə edin"
                   className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
                 />

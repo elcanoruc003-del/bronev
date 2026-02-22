@@ -167,12 +167,6 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
             >
               {/* Premium Property Card */}
               <div className="card-premium tap-scale group relative">
-                {/* Premium Badge */}
-                {property.featured && (
-                  <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
-                    ⭐ VIP
-                  </div>
-                )}
                 {/* Image Container */}
                 <div className="card-image-container relative">
                   <Image
@@ -188,21 +182,31 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                     }}
                   />
                   
-                  {/* Top Badges Container - Compact */}
-                  <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
-                    {/* Price Badge - Smaller */}
-                    <div className="badge-premium backdrop-blur-md text-xs px-2 py-1">
-                      <span className="font-bold">{property.basePricePerNight}₼</span>
-                      <span className="text-[9px] opacity-90">/gecə</span>
-                    </div>
-
-                    {/* Featured Badge - Smaller */}
+                  {/* Top Badges Container - Fixed Layout */}
+                  <div className="absolute top-2 left-2 right-2 z-10">
+                    {/* VIP Badge - Top Left */}
                     {property.featured && (
-                      <div className="badge-new backdrop-blur-md pulse-soft text-[10px] px-1.5 py-0.5">
-                        <FaStar className="inline text-[8px] mr-0.5" />
-                        <span>Yeni</span>
+                      <div className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg mb-1">
+                        ⭐ VIP
                       </div>
                     )}
+                    
+                    {/* Price and New Badge Row */}
+                    <div className="flex items-start justify-between">
+                      {/* Price Badge */}
+                      <div className="badge-premium backdrop-blur-md text-xs px-2 py-1">
+                        <span className="font-bold">{property.basePricePerNight}₼</span>
+                        <span className="text-[9px] opacity-90">/gecə</span>
+                      </div>
+
+                      {/* Featured Badge */}
+                      {property.featured && (
+                        <div className="badge-new backdrop-blur-md pulse-soft text-[10px] px-1.5 py-0.5">
+                          <FaStar className="inline text-[8px] mr-0.5" />
+                          <span>Yeni</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Favorite Button - Smaller */}
