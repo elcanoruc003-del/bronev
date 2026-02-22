@@ -92,18 +92,25 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
     }
   }
 
-  const toggleFavorite = (id: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(id)) {
-        newFavorites.delete(id);
-      } else {
-        newFavorites.add(id);
-      }
-      // Save to localStorage
-      localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
-      return newFavorites;
-    });
+  const toggleFavorite = async (id: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(id)) {
+      newFavorites.delete(id);
+    } else {
+      newFavorites.add(id);
+    }
+    setFavorites(newFavorites);
+    
+    // Save to localStorage
+    localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
+    
+    // Try to save to backend (requires phone number)
+    try {
+      const { toggleFavorite: toggleFavoriteAction } = await import('@/app/actions/favorites');
+      await toggleFavoriteAction(id);
+    } catch (error) {
+      console.log('Backend save skipped - user not logged in');
+    }
   };
 
   if (loading) {

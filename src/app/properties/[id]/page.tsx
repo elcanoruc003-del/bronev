@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart } from 'react-icons/fa';
 
 interface Property {
   id: string;
@@ -28,6 +28,7 @@ export default function PropertyDetailPage() {
   const router = useRouter();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
   
   // Booking form
   const [checkIn, setCheckIn] = useState('');
@@ -38,11 +39,42 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     fetchProperty();
+    checkFavoriteStatus();
   }, [params.id]);
 
   useEffect(() => {
     calculateNights();
   }, [checkIn, checkOut]);
+
+  function checkFavoriteStatus() {
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      const favs = JSON.parse(savedFavorites);
+      setIsFavorite(favs.includes(params.id));
+    }
+  }
+
+  async function toggleFavorite() {
+    const savedFavorites = localStorage.getItem('favorites');
+    let favs = savedFavorites ? JSON.parse(savedFavorites) : [];
+    
+    if (isFavorite) {
+      favs = favs.filter((id: string) => id !== params.id);
+    } else {
+      favs.push(params.id);
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    setIsFavorite(!isFavorite);
+    
+    // Try to save to backend
+    try {
+      const { toggleFavorite: toggleFavoriteAction } = await import('@/app/actions/favorites');
+      await toggleFavoriteAction(params.id as string);
+    } catch (error) {
+      console.log('Backend save skipped - user not logged in');
+    }
+  }
 
   async function fetchProperty() {
     try {
@@ -131,7 +163,7 @@ export default function PropertyDetailPage() {
     <div className="min-h-screen bg-[#FAF8F5]">
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
             className="flex items-center space-x-2 text-[#6B5D4F] hover:text-[#2C2416]"
@@ -139,25 +171,49 @@ export default function PropertyDetailPage() {
             <FaArrowLeft />
             <span>Geri</span>
           </button>
+          
+          <button
+            onClick={toggleFavorite}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
+          >
+            <FaHeart className={`text-xl ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
+          </button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Images */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {property.images.slice(0, 4).map((image, index) => (
-            <div
-              key={index}
-              className={`relative ${index === 0 ? 'md:col-span-2 h-96' : 'h-48'} rounded-xl overflow-hidden`}
-            >
+        {/* Images Gallery */}
+        <div className="mb-6">
+          {/* Main Image */}
+          {property.images.length > 0 && (
+            <div className="relative h-96 rounded-xl overflow-hidden mb-4">
               <Image
-                src={image.url}
-                alt={image.alt || property.title}
+                src={property.images[0].url}
+                alt={property.images[0].alt || property.title}
                 fill
                 className="object-cover"
               />
             </div>
-          ))}
+          )}
+          
+          {/* All Other Images */}
+          {property.images.length > 1 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {property.images.slice(1).map((image, index) => (
+                <div
+                  key={index}
+                  className="relative h-48 rounded-xl overflow-hidden"
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt || property.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
