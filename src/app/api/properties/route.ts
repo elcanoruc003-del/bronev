@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     const where: any = {
-      status: 'AVAILABLE',
+      status: 'PUBLISHED', // Show only published properties
     }
 
     if (city && city !== 'Hamısı' && city.trim()) {
