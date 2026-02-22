@@ -75,7 +75,15 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
 
       const res = await fetch(`/api/properties?${params.toString()}`);
       const data = await res.json();
-      setProperties(data.properties || []);
+      
+      // Sort: featured first, then by createdAt
+      const sorted = (data.properties || []).sort((a: Property, b: Property) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return 0;
+      });
+      
+      setProperties(sorted);
     } catch (error) {
       console.error('Error fetching properties:', error);
     } finally {
@@ -150,13 +158,20 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-7xl mx-auto">
           {properties.map((property, index) => (
-            <div
+            <a
               key={property.id}
-              className="stagger-item scroll-reveal"
+              href={`/properties/${property.id}`}
+              className="stagger-item scroll-reveal block"
               style={{ animationDelay: `${index * 0.08}s` }}
             >
               {/* Premium Property Card */}
-              <div className="card-premium tap-scale group">
+              <div className="card-premium tap-scale group relative">
+                {/* Premium Badge */}
+                {property.featured && (
+                  <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+                    ⭐ VIP
+                  </div>
+                )}
                 {/* Image Container */}
                 <div className="card-image-container relative">
                   <Image
@@ -291,7 +306,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                   </div>
                 </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       )}
