@@ -114,9 +114,9 @@ export default function PropertyDetailPage() {
 
     const message = `Salam! Ev haqqında məlumat almaq istəyirəm:
 
-🏠 Ev: ${property.title}
+🏠 *${property.title}*
 🆔 ID: ${property.id}
-📍 Ünvan: ${property.city}, ${property.district}
+📍 Ünvan: ${property.city}, ${property.address}
 
 📅 Giriş: ${checkIn}
 📅 Çıxış: ${checkOut}
