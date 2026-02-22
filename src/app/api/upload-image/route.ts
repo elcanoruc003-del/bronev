@@ -48,22 +48,23 @@ export async function POST(request: NextRequest) {
     console.log('[UPLOAD] File converted to base64');
 
     // Cloudinary credentials
-    const cloudName = 'dyfuasdbm';
-    const apiKey = '526295514959981';
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm';
+    const apiKey = process.env.CLOUDINARY_API_KEY || '526295514959981';
     const apiSecret = process.env.CLOUDINARY_API_SECRET || 'JoV-VfaQi9m3TyZRoJtcJP8Vemo';
+    
+    console.log('[UPLOAD] Using cloud_name:', cloudName);
     
     // Generate timestamp
     const timestamp = Math.round(Date.now() / 1000);
     
-    // Create signature
-    const folder = 'bronev/properties';
-    const stringToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    // Create signature (without folder for simplicity)
+    const stringToSign = `timestamp=${timestamp}${apiSecret}`;
     const signature = crypto
       .createHash('sha1')
       .update(stringToSign)
       .digest('hex');
 
-    console.log('[UPLOAD] Uploading to Cloudinary with signature...');
+    console.log('[UPLOAD] Uploading to Cloudinary...');
 
     // Upload with signature
     const uploadFormData = new FormData();
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     uploadFormData.append('api_key', apiKey);
     uploadFormData.append('timestamp', timestamp.toString());
     uploadFormData.append('signature', signature);
-    uploadFormData.append('folder', folder);
+    uploadFormData.append('folder', 'bronev');
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     );
 
     const result = await cloudinaryResponse.json();
-    console.log('[UPLOAD] Cloudinary response status:', cloudinaryResponse.status);
+    console.log('[UPLOAD] Cloudinary response:', cloudinaryResponse.status, result);
 
     if (!cloudinaryResponse.ok) {
       console.error('[UPLOAD] Cloudinary error:', result);
