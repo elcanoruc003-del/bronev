@@ -114,11 +114,12 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
   }
 
   return (
-    <div className="min-h-screen pt-[120px] px-4 pb-24">
+    <div className="min-h-screen px-4 pb-24">
       {/* Results Count */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between max-w-7xl mx-auto">
         <p className="text-sm font-medium text-[#3E2723]">
-          <span className="text-lg font-semibold text-gradient">{properties.length}</span> ev tapıldı
+          <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-[#8B7355] to-[#C19A6B] bg-clip-text text-transparent">{properties.length}</span>
+          <span className="ml-2">ev tapıldı</span>
         </p>
       </div>
 
@@ -146,7 +147,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
           </a>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
           {properties.map((property, index) => (
             <div
               key={property.id}

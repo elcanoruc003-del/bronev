@@ -38,18 +38,18 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6">
+    <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-4 md:p-6 border border-[#E5DDD5]/50">
       {/* Basic Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
         {/* City */}
-        <div className="relative">
+        <div className="relative md:col-span-2">
           <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-sm" />
           <input
             type="text"
             placeholder="Şəhər"
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            className="w-full pl-10 pr-3 py-3 rounded-xl border-2 border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none transition-all text-sm"
+            className="w-full pl-10 pr-3 py-3 rounded-xl border-2 border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none transition-all text-sm bg-white"
           />
         </div>
 
@@ -61,13 +61,13 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
             onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
             className="w-full pl-10 pr-3 py-3 rounded-xl border-2 border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
           >
-            <option value="">Qonaq sayı</option>
-            <option value="1">1 nəfər</option>
-            <option value="2">2 nəfər</option>
-            <option value="3">3 nəfər</option>
-            <option value="4">4 nəfər</option>
-            <option value="5">5 nəfər</option>
-            <option value="6">6+ nəfər</option>
+            <option value="">Qonaq</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6+</option>
           </select>
         </div>
 
@@ -79,12 +79,12 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
             onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
             className="w-full pl-10 pr-3 py-3 rounded-xl border-2 border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
           >
-            <option value="">Yataq otağı</option>
-            <option value="1">1 otaq</option>
-            <option value="2">2 otaq</option>
-            <option value="3">3 otaq</option>
-            <option value="4">4 otaq</option>
-            <option value="5">5+ otaq</option>
+            <option value="">Otaq</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5+</option>
           </select>
         </div>
 
@@ -94,7 +94,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
           className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm"
         >
           <FaSearch />
-          <span>Axtar</span>
+          <span className="hidden md:inline">Axtar</span>
         </button>
       </div>
 

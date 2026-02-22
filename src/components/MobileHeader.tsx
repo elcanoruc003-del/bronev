@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
+import { SiTiktok } from 'react-icons/si';
 
 export default function MobileHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -47,29 +48,25 @@ export default function MobileHeader() {
             </h1>
           </Link>
           
-          {/* Contact Buttons - Glass Buttons */}
+          {/* Contact & Social Buttons */}
           <div className="flex items-center gap-2">
             {/* Phone Call */}
             <a
               href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
               className="
-                relative w-11 h-11 rounded-full 
+                relative w-10 h-10 rounded-full 
                 bg-gradient-to-br from-[#4CAF50] to-[#388E3C]
                 flex items-center justify-center text-white 
                 shadow-lg hover:shadow-xl
                 transition-all duration-300
                 hover:scale-110 active:scale-95
                 tap-scale
-                before:absolute before:inset-0 before:rounded-full
-                before:bg-white before:opacity-0 hover:before:opacity-20
-                before:transition-opacity before:duration-300
               "
               aria-label="Zəng et"
             >
-              <svg className="w-5 h-5 relative z-10" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 relative z-10" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
               </svg>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-50" />
             </a>
 
             {/* WhatsApp */}
@@ -78,21 +75,55 @@ export default function MobileHeader() {
               target="_blank"
               rel="noopener noreferrer"
               className="
-                relative w-11 h-11 rounded-full 
+                relative w-10 h-10 rounded-full 
                 bg-gradient-to-br from-[#25D366] to-[#128C7E]
                 flex items-center justify-center text-white 
                 shadow-lg hover:shadow-xl
                 transition-all duration-300
                 hover:scale-110 active:scale-95
                 tap-scale
-                before:absolute before:inset-0 before:rounded-full
-                before:bg-white before:opacity-0 hover:before:opacity-20
-                before:transition-opacity before:duration-300
               "
               aria-label="WhatsApp"
             >
-              <FaWhatsapp className="text-xl relative z-10" />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-50" />
+              <FaWhatsapp className="text-lg relative z-10" />
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://www.instagram.com/bronev.az/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                relative w-10 h-10 rounded-full 
+                bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]
+                flex items-center justify-center text-white 
+                shadow-lg hover:shadow-xl
+                transition-all duration-300
+                hover:scale-110 active:scale-95
+                tap-scale
+              "
+              aria-label="Instagram"
+            >
+              <FaInstagram className="text-lg relative z-10" />
+            </a>
+
+            {/* TikTok */}
+            <a
+              href="https://www.tiktok.com/@bronev.az"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                relative w-10 h-10 rounded-full 
+                bg-gradient-to-br from-[#000000] to-[#2C2C2C]
+                flex items-center justify-center text-white 
+                shadow-lg hover:shadow-xl
+                transition-all duration-300
+                hover:scale-110 active:scale-95
+                tap-scale
+              "
+              aria-label="TikTok"
+            >
+              <SiTiktok className="text-base relative z-10" />
             </a>
           </div>
         </div>
