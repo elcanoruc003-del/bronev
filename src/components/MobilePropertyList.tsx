@@ -147,11 +147,18 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
                 <FaStar className="text-white text-lg" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-[#2C2416]">VIP Evlər</h2>
-                <p className="text-xs text-[#6B5D4F]">Premium seçimlər</p>
+                <h2 
+                  className="text-xl font-bold text-[#2C2416]"
+                  style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.02em' }}
+                >
+                  VIP Evlər
+                </h2>
+                <p className="text-xs text-[#6B5D4F]" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  Premium seçimlər
+                </p>
               </div>
             </div>
-            <span className="text-sm font-semibold text-[#8B7355]">
+            <span className="text-sm font-semibold text-[#8B7355]" style={{ fontFamily: "'Poppins', sans-serif" }}>
               {properties.filter(p => p.featured).length} ev
             </span>
           </div>
@@ -274,7 +281,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
             className="
               absolute bottom-1.5 right-1.5 z-10
-              w-7 h-7 rounded-full
+              w-6 h-6 rounded-full
               glass-effect shadow-lg
               flex items-center justify-center
               transition-all duration-300
@@ -285,7 +292,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           >
             <FaHeart
               className={`
-                text-xs transition-all duration-300
+                text-[10px] transition-all duration-300
                 ${favorites.has(property.id) 
                   ? 'text-red-500 scale-110' 
                   : 'text-white/80'

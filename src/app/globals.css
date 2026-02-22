@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -30,7 +30,7 @@
 
   body {
     @apply antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #3E2723;
     background: linear-gradient(135deg, #FAF8F5 0%, #F5F1ED 50%, #F0EBE6 100%);
     background-attachment: fixed;
@@ -55,8 +55,9 @@
 
   h1, h2, h3 {
     font-family: 'Playfair Display', serif;
-    font-weight: 600;
+    font-weight: 700;
     color: #2C1810;
+    letter-spacing: -0.02em;
   }
 }
 

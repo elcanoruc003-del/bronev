@@ -29,18 +29,20 @@ export default function MobileHeader() {
     >
       <div className="px-3 max-w-screen-xl mx-auto">
         <div className="flex items-center justify-between">
-          {/* Logo - Compact */}
+          {/* Logo - Compact with Better Font */}
           <Link href="/" className="flex items-center group">
             <h1 
               className={`
-                font-display font-bold tracking-tight
+                font-bold tracking-tight
                 bg-gradient-to-r from-[#8B7355] via-[#A08770] to-[#C19A6B] 
                 bg-clip-text text-transparent
                 transition-all duration-500
-                ${scrolled ? 'text-xl' : 'text-2xl'}
+                ${scrolled ? 'text-lg' : 'text-xl'}
                 group-hover:scale-105 group-active:scale-95
               `}
               style={{
+                fontFamily: "'Playfair Display', serif",
+                letterSpacing: '-0.02em',
                 textShadow: '0 2px 10px rgba(139, 115, 85, 0.1)'
               }}
             >

@@ -37,18 +37,21 @@ export default function Page() {
         
         {/* Hero Content - Ultra Compact for Mobile */}
         <div className="relative z-10 max-w-7xl mx-auto text-center mb-2 md:mb-3">
-          <h1 className="text-base md:text-2xl font-bold text-[#2C2416] mb-0">
+          <h1 
+            className="text-base md:text-2xl font-bold text-[#2C2416] mb-0"
+            style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.02em' }}
+          >
             <span className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] bg-clip-text text-transparent">
               Günlük Kirayə Evləri
             </span>
           </h1>
-          <p className="text-[9px] md:text-xs text-[#6B5D4F] mt-0.5">
+          <p className="text-[9px] md:text-xs text-[#6B5D4F] mt-0.5" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Premium villa və mənzillər
           </p>
         </div>
 
-        {/* Search Filters - Compact */}
-        <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Search Filters - Narrower on Mobile */}
+        <div className="relative z-10 max-w-[95%] md:max-w-6xl mx-auto">
           <SearchFilters onSearch={handleSearch} />
         </div>
       </div>
