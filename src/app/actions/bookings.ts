@@ -100,13 +100,12 @@ export async function createBookingForUser(data: {
 }
 
 /**
- * Get user bookings by phone
+ * Get user bookings
  */
-export async function getUserBookings(phone: string) {
+export async function getUserBookings() {
   try {
-    const user = await prisma.users.findUnique({
-      where: { phone },
-    });
+    const { getCurrentUser } = await import('./auth');
+    const user = await getCurrentUser();
 
     if (!user) {
       return { success: true, bookings: [] };
