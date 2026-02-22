@@ -56,14 +56,27 @@ export async function POST(request: NextRequest) {
     
     // Generate timestamp
     const timestamp = Math.round(Date.now() / 1000);
+    const folder = 'bronev';
     
-    // Create signature (without folder for simplicity)
-    const stringToSign = `timestamp=${timestamp}${apiSecret}`;
+    // Create signature - Cloudinary requires alphabetically sorted parameters
+    const paramsToSign = {
+      folder: folder,
+      timestamp: timestamp.toString(),
+    };
+    
+    // Sort parameters alphabetically and create string
+    const sortedParams = Object.keys(paramsToSign)
+      .sort()
+      .map(key => `${key}=${paramsToSign[key as keyof typeof paramsToSign]}`)
+      .join('&');
+    
+    const stringToSign = `${sortedParams}${apiSecret}`;
     const signature = crypto
       .createHash('sha1')
       .update(stringToSign)
       .digest('hex');
 
+    console.log('[UPLOAD] Signature params:', sortedParams);
     console.log('[UPLOAD] Uploading to Cloudinary...');
 
     // Upload with signature
@@ -72,7 +85,7 @@ export async function POST(request: NextRequest) {
     uploadFormData.append('api_key', apiKey);
     uploadFormData.append('timestamp', timestamp.toString());
     uploadFormData.append('signature', signature);
-    uploadFormData.append('folder', 'bronev');
+    uploadFormData.append('folder', folder);
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
