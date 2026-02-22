@@ -161,34 +161,34 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
-      {/* Header */}
+      {/* Header - Mobile Optimized */}
       <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 md:px-4 py-2.5 md:py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-[#6B5D4F] hover:text-[#2C2416]"
+            className="flex items-center space-x-1.5 md:space-x-2 text-[#6B5D4F] hover:text-[#2C2416] text-xs md:text-base"
           >
-            <FaArrowLeft />
+            <FaArrowLeft className="text-xs md:text-base" />
             <span>Geri</span>
           </button>
           
           <button
             onClick={toggleFavorite}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
+            className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
           >
-            <FaHeart className={`text-xl ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
+            <FaHeart className={`text-base md:text-xl ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Images Gallery - Professional Grid Layout */}
-        <div className="mb-6">
+      <div className="max-w-7xl mx-auto px-2.5 md:px-4 py-3 md:py-6">
+        {/* Images Gallery - Mobile Optimized */}
+        <div className="mb-3 md:mb-6">
           {property.images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               {/* First image - larger on desktop */}
               <div className="col-span-2 md:col-span-2 md:row-span-2">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                <div className="relative w-full aspect-[4/3] rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
                   <Image
                     src={property.images[0].url}
                     alt={property.images[0].alt || property.title}
@@ -202,7 +202,7 @@ export default function PropertyDetailPage() {
               {/* All other images - uniform size */}
               {property.images.slice(1).map((image, index) => (
                 <div key={index} className="col-span-1">
-                  <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+                  <div className="relative w-full aspect-[4/3] rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
                     <Image
                       src={image.url}
                       alt={image.alt || property.title}
@@ -216,54 +216,56 @@ export default function PropertyDetailPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
           {/* Left: Property Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl font-bold text-[#2C2416] mb-2">{property.title}</h1>
-              <div className="flex items-center text-[#6B5D4F]">
-                <FaMapMarkerAlt className="mr-2" />
+          <div className="lg:col-span-2 space-y-3 md:space-y-6">
+            {/* Title - Mobile Optimized */}
+            <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-4">
+              <h1 className="text-lg md:text-3xl font-bold text-[#2C2416] mb-1.5 md:mb-2">{property.title}</h1>
+              <div className="flex items-center text-[#6B5D4F] text-xs md:text-base">
+                <FaMapMarkerAlt className="mr-1.5 md:mr-2 text-xs md:text-base" />
                 <span>{property.city}, {property.district}</span>
               </div>
-              <p className="text-sm text-[#8B7355] mt-1">ID: {property.id}</p>
+              <p className="text-[10px] md:text-sm text-[#8B7355] mt-1">ID: {property.id}</p>
             </div>
 
-            {/* Features */}
-            <div className="flex items-center gap-6 text-[#2C2416]">
-              <div className="flex items-center gap-2">
-                <FaBed className="text-[#8B7355]" />
-                <span>{property.bedrooms} otaq</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaBath className="text-[#8B7355]" />
-                <span>{property.bathrooms} vanna</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaRulerCombined className="text-[#8B7355]" />
-                <span>{property.area}m²</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaUsers className="text-[#8B7355]" />
-                <span>{property.maxGuests} qonaq</span>
+            {/* Features - Mobile Grid */}
+            <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-4">
+              <div className="grid grid-cols-2 gap-2.5 md:flex md:items-center md:gap-6 text-[#2C2416]">
+                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
+                  <FaBed className="text-[#8B7355] text-xs md:text-base" />
+                  <span>{property.bedrooms} otaq</span>
+                </div>
+                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
+                  <FaBath className="text-[#8B7355] text-xs md:text-base" />
+                  <span>{property.bathrooms} vanna</span>
+                </div>
+                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
+                  <FaRulerCombined className="text-[#8B7355] text-xs md:text-base" />
+                  <span>{property.area}m²</span>
+                </div>
+                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
+                  <FaUsers className="text-[#8B7355] text-xs md:text-base" />
+                  <span>{property.maxGuests} qonaq</span>
+                </div>
               </div>
             </div>
 
-            {/* Description */}
-            <div className="bg-white rounded-xl p-6">
-              <h2 className="text-xl font-bold text-[#2C2416] mb-4">Haqqında</h2>
-              <p className="text-[#6B5D4F] whitespace-pre-line">{property.longDescription}</p>
+            {/* Description - Mobile Optimized */}
+            <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-6">
+              <h2 className="text-base md:text-xl font-bold text-[#2C2416] mb-2 md:mb-4">Haqqında</h2>
+              <p className="text-[#6B5D4F] whitespace-pre-line text-xs md:text-base leading-relaxed">{property.longDescription}</p>
             </div>
 
-            {/* Amenities */}
+            {/* Amenities - Mobile Optimized */}
             {property.amenities && property.amenities.length > 0 && (
-              <div className="bg-white rounded-xl p-6">
-                <h2 className="text-xl font-bold text-[#2C2416] mb-4">İmkanlar</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-6">
+                <h2 className="text-base md:text-xl font-bold text-[#2C2416] mb-2 md:mb-4">İmkanlar</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                   {property.amenities.map((amenity, index) => (
-                    <div key={index} className="flex items-center gap-2 text-[#6B5D4F]">
-                      <div className="w-2 h-2 rounded-full bg-[#8B7355]"></div>
-                      <span>{amenity}</span>
+                    <div key={index} className="flex items-center gap-1.5 md:gap-2 text-[#6B5D4F] text-xs md:text-base">
+                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#8B7355] flex-shrink-0"></div>
+                      <span className="leading-tight">{amenity}</span>
                     </div>
                   ))}
                 </div>
@@ -271,19 +273,19 @@ export default function PropertyDetailPage() {
             )}
           </div>
 
-          {/* Right: Booking Card */}
+          {/* Right: Booking Card - Mobile Optimized */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-              <div className="text-center mb-6">
-                <p className="text-3xl font-bold text-[#2C2416]">{property.basePricePerNight}₼</p>
-                <p className="text-sm text-[#6B5D4F]">gecəlik</p>
+            <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-3.5 md:p-6 lg:sticky lg:top-24">
+              <div className="text-center mb-3 md:mb-6">
+                <p className="text-2xl md:text-3xl font-bold text-[#2C2416]">{property.basePricePerNight}₼</p>
+                <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik</p>
               </div>
 
-              <div className="space-y-4">
-                {/* Check-in */}
+              <div className="space-y-2.5 md:space-y-4">
+                {/* Check-in - Mobile Optimized */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                    <FaCalendar className="inline mr-2" />
+                  <label className="block text-xs md:text-sm font-semibold text-[#2C2416] mb-1.5 md:mb-2">
+                    <FaCalendar className="inline mr-1 md:mr-2 text-[10px] md:text-xs" />
                     Giriş tarixi
                   </label>
                   <input
@@ -291,14 +293,14 @@ export default function PropertyDetailPage() {
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-xs md:text-base"
                   />
                 </div>
 
-                {/* Check-out */}
+                {/* Check-out - Mobile Optimized */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                    <FaCalendar className="inline mr-2" />
+                  <label className="block text-xs md:text-sm font-semibold text-[#2C2416] mb-1.5 md:mb-2">
+                    <FaCalendar className="inline mr-1 md:mr-2 text-[10px] md:text-xs" />
                     Çıxış tarixi
                   </label>
                   <input
@@ -306,20 +308,20 @@ export default function PropertyDetailPage() {
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
                     min={checkIn || new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-xs md:text-base"
                   />
                 </div>
 
-                {/* Guests */}
+                {/* Guests - Mobile Optimized */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                    <FaUsers className="inline mr-2" />
+                  <label className="block text-xs md:text-sm font-semibold text-[#2C2416] mb-1.5 md:mb-2">
+                    <FaUsers className="inline mr-1 md:mr-2 text-[10px] md:text-xs" />
                     Qonaq sayı
                   </label>
                   <select
                     value={guests}
                     onChange={(e) => setGuests(parseInt(e.target.value))}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    className="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-xs md:text-base"
                   >
                     {[...Array(property.maxGuests)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
@@ -329,30 +331,30 @@ export default function PropertyDetailPage() {
                   </select>
                 </div>
 
-                {/* Summary */}
+                {/* Summary - Mobile Optimized */}
                 {nights > 0 && (
-                  <div className="bg-[#FAF8F5] rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="bg-[#FAF8F5] rounded-lg p-3 md:p-4 space-y-1.5 md:space-y-2">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-[#6B5D4F]">Gecə sayı:</span>
                       <span className="font-semibold text-[#2C2416]">{nights}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-[#6B5D4F]">Qonaq:</span>
                       <span className="font-semibold text-[#2C2416]">{guests} nəfər</span>
                     </div>
-                    <div className="border-t border-[#E5DDD5] pt-2 flex justify-between">
-                      <span className="font-semibold text-[#2C2416]">Cəmi:</span>
-                      <span className="text-xl font-bold text-[#8B7355]">{totalPrice}₼</span>
+                    <div className="border-t border-[#E5DDD5] pt-1.5 md:pt-2 flex justify-between">
+                      <span className="font-semibold text-[#2C2416] text-xs md:text-base">Cəmi:</span>
+                      <span className="text-lg md:text-xl font-bold text-[#8B7355]">{totalPrice}₼</span>
                     </div>
                   </div>
                 )}
 
-                {/* WhatsApp Button */}
+                {/* WhatsApp Button - Mobile Optimized */}
                 <button
                   onClick={handleWhatsAppBooking}
-                  className="w-full bg-gradient-to-r from-[#25D366] to-[#20BA5A] text-white py-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+                  className="w-full bg-gradient-to-r from-[#25D366] to-[#20BA5A] text-white py-3 md:py-4 rounded-lg font-semibold flex items-center justify-center gap-1.5 md:gap-2 hover:shadow-lg transition-all text-xs md:text-base"
                 >
-                  <FaWhatsapp className="text-xl" />
+                  <FaWhatsapp className="text-base md:text-xl" />
                   <span>WhatsApp ilə sifariş et</span>
                 </button>
               </div>
