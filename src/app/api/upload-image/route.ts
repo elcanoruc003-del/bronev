@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
 
     console.log('[UPLOAD] File converted to base64');
 
-    // Cloudinary credentials
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm';
+    // Cloudinary credentials - FIXED: correct cloud_name
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfaasdbm';
     const apiKey = process.env.CLOUDINARY_API_KEY || '526295514959981';
     const apiSecret = process.env.CLOUDINARY_API_SECRET || 'JoV-VfaQi9m3TyZRoJtcJP8Vemo';
     
