@@ -50,8 +50,8 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Search Filters - Much Narrower on Mobile */}
-        <div className="relative z-10 max-w-[90%] md:max-w-4xl mx-auto">
+        {/* Search Filters - Optimal Width */}
+        <div className="relative z-10 max-w-md md:max-w-2xl mx-auto">
           <SearchFilters onSearch={handleSearch} />
         </div>
       </div>
