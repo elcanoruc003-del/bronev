@@ -93,23 +93,29 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
   }
 
   const toggleFavorite = async (id: string) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
-    } else {
-      newFavorites.add(id);
-    }
-    setFavorites(newFavorites);
-    
-    // Save to localStorage
-    localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
-    
-    // Try to save to backend (requires phone number)
+    // Try to save to backend (requires authentication)
     try {
       const { toggleFavorite: toggleFavoriteAction } = await import('@/app/actions/favorites');
-      await toggleFavoriteAction(id);
+      const result = await toggleFavoriteAction(id);
+      
+      if (result.requiresAuth) {
+        alert('Sevimlilərə əlavə etmək üçün giriş etməlisiniz');
+        return;
+      }
+      
+      if (result.success) {
+        const newFavorites = new Set(favorites);
+        if (result.isFavorite) {
+          newFavorites.add(id);
+        } else {
+          newFavorites.delete(id);
+        }
+        setFavorites(newFavorites);
+        localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
+      }
     } catch (error) {
-      console.log('Backend save skipped - user not logged in');
+      console.error('Toggle favorite error:', error);
+      alert('Xəta baş verdi');
     }
   };
 

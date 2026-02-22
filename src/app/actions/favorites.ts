@@ -4,51 +4,17 @@ import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 
 /**
- * Get user ID from session (simplified - using phone as identifier)
+ * Get user ID from session
  */
 async function getUserId(): Promise<string | null> {
   try {
-    // For now, use a simple cookie-based system
-    const userPhone = cookies().get('user_phone')?.value;
-    if (!userPhone) return null;
-
-    // Find or create user
-    let user = await prisma.users.findUnique({
-      where: { phone: userPhone },
-    });
-
-    if (!user) {
-      user = await prisma.users.create({
-        data: {
-          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          phone: userPhone,
-          name: 'Qonaq',
-          email: `${userPhone}@guest.com`,
-          password: 'guest', // Not used for guests
-          updatedAt: new Date(),
-        },
-      });
-    }
-
-    return user.id;
+    const { getCurrentUser } = await import('./auth');
+    const user = await getCurrentUser();
+    return user?.id || null;
   } catch (error) {
     console.error('Get user ID error:', error);
     return null;
   }
-}
-
-/**
- * Set user phone in cookie
- */
-export async function setUserPhone(phone: string) {
-  cookies().set('user_phone', phone, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    path: '/',
-  });
-  return { success: true };
 }
 
 /**
@@ -58,7 +24,7 @@ export async function toggleFavorite(propertyId: string) {
   try {
     const userId = await getUserId();
     if (!userId) {
-      return { success: false, error: 'İstifadəçi tapılmadı' };
+      return { success: false, error: 'Giriş etməlisiniz', requiresAuth: true };
     }
 
     // Check if already favorited
