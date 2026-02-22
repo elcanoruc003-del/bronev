@@ -193,8 +193,17 @@ export default function NewPropertyPage() {
     setIsSubmitting(true);
 
     try {
+      // Prepare data with required fields
+      const propertyData = {
+        ...formData,
+        district: formData.city, // Use city as district
+        beds: formData.bedrooms, // Use bedrooms count as beds
+        shortDescription: formData.description.substring(0, 150), // First 150 chars
+        longDescription: formData.description, // Full description
+      };
+
       // Create property
-      const result = await createProperty(formData);
+      const result = await createProperty(propertyData);
       
       if (!result.success || !result.data) {
         setError(result.error || 'Xəta baş verdi');
