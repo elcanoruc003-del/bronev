@@ -38,16 +38,16 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
   }
 
   return (
-    <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-lg p-2.5 md:p-3 border border-[#E5DDD5]/50">
-      {/* Basic Filters - Mobile Optimized */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-1.5 md:gap-2 mb-2">
+    <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-lg p-2 md:p-3 border border-[#E5DDD5]/50">
+      {/* Basic Filters - Ultra Compact Mobile */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-1 md:gap-2 mb-1.5 md:mb-2">
         {/* City - Full width on mobile */}
         <div className="relative col-span-2 md:col-span-2">
-          <FaMapMarkerAlt className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[10px]" />
+          <FaMapMarkerAlt className="absolute left-1.5 md:left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[9px] md:text-[10px]" />
           <select
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            className="w-full pl-7 pr-2 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-[11px] md:text-xs bg-white appearance-none"
+            className="w-full pl-6 md:pl-7 pr-1.5 md:pr-2 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-[10px] md:text-[11px] bg-white appearance-none"
           >
             <option value="">Şəhər</option>
             <option value="İsmayıllı">İsmayıllı</option>
@@ -59,11 +59,11 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
         {/* Guests */}
         <div className="relative">
-          <FaUsers className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[10px]" />
+          <FaUsers className="absolute left-1.5 md:left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[9px] md:text-[10px]" />
           <select
             value={filters.guests}
             onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
-            className="w-full pl-7 pr-1 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-[11px] md:text-xs"
+            className="w-full pl-5 md:pl-7 pr-1 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-[10px] md:text-[11px]"
           >
             <option value="">Qonaq</option>
             <option value="1">1</option>
@@ -77,11 +77,11 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
         {/* Bedrooms */}
         <div className="relative">
-          <FaBed className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[10px]" />
+          <FaBed className="absolute left-1.5 md:left-2 top-1/2 -translate-y-1/2 text-[#8B7355] text-[9px] md:text-[10px]" />
           <select
             value={filters.bedrooms}
             onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-            className="w-full pl-7 pr-1 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-[11px] md:text-xs"
+            className="w-full pl-5 md:pl-7 pr-1 py-1.5 md:py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-[10px] md:text-[11px]"
           >
             <option value="">Otaq</option>
             <option value="1">1</option>
@@ -95,35 +95,35 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
         {/* Search Button */}
         <button
           onClick={handleSearch}
-          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white px-2 md:px-4 py-1.5 md:py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-1 text-[11px] md:text-xs"
+          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white px-1.5 md:px-4 py-1.5 md:py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-0.5 md:space-x-1 text-[10px] md:text-[11px]"
         >
-          <FaSearch className="text-[10px]" />
+          <FaSearch className="text-[9px] md:text-[10px]" />
           <span className="hidden md:inline">Axtar</span>
         </button>
       </div>
 
-      {/* Advanced Filters Toggle - Compact */}
+      {/* Advanced Filters Toggle - Ultra Compact */}
       <button
         onClick={() => setShowAdvanced(!showAdvanced)}
-        className="text-[#8B7355] hover:text-[#6B5D4F] font-medium flex items-center space-x-1 transition-colors text-[10px] md:text-xs"
+        className="text-[#8B7355] hover:text-[#6B5D4F] font-medium flex items-center space-x-0.5 md:space-x-1 transition-colors text-[9px] md:text-[10px]"
       >
-        <FaFilter className="text-[9px]" />
+        <FaFilter className="text-[8px] md:text-[9px]" />
         <span>{showAdvanced ? 'Gizlət' : 'Ətraflı'}</span>
       </button>
 
-      {/* Advanced Filters - Mobile Optimized */}
+      {/* Advanced Filters - Ultra Compact Mobile */}
       {showAdvanced && (
-        <div className="mt-2 pt-2 border-t border-[#E5DDD5] space-y-1.5">
+        <div className="mt-1.5 md:mt-2 pt-1.5 md:pt-2 border-t border-[#E5DDD5] space-y-1.5">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2">
             {/* Property Type */}
             <div>
-              <label className="block text-[9px] md:text-[10px] font-semibold text-[#2C2416] mb-0.5">
+              <label className="block text-[8px] md:text-[9px] font-semibold text-[#2C2416] mb-0.5">
                 Növ
               </label>
               <select
                 value={filters.propertyType}
                 onChange={(e) => setFilters({ ...filters, propertyType: e.target.value })}
-                className="w-full px-2 py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-[11px] md:text-xs"
+                className="w-full px-1.5 md:px-2 py-1 md:py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-[10px] md:text-[11px]"
               >
                 <option value="">Hamısı</option>
                 <option value="VILLA">Villa</option>
@@ -135,7 +135,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
             {/* Min Price */}
             <div>
-              <label className="block text-[9px] md:text-[10px] font-semibold text-[#2C2416] mb-0.5">
+              <label className="block text-[8px] md:text-[9px] font-semibold text-[#2C2416] mb-0.5">
                 Min (₼)
               </label>
               <input
@@ -143,13 +143,13 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
                 placeholder="0"
                 value={filters.minPrice}
                 onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-                className="w-full px-2 py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-[11px] md:text-xs"
+                className="w-full px-1.5 md:px-2 py-1 md:py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-[10px] md:text-[11px]"
               />
             </div>
 
             {/* Max Price */}
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-[9px] md:text-[10px] font-semibold text-[#2C2416] mb-0.5">
+              <label className="block text-[8px] md:text-[9px] font-semibold text-[#2C2416] mb-0.5">
                 Max (₼)
               </label>
               <input
@@ -157,30 +157,30 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
                 placeholder="1000"
                 value={filters.maxPrice}
                 onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-                className="w-full px-2 py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-[11px] md:text-xs"
+                className="w-full px-1.5 md:px-2 py-1 md:py-1.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-[10px] md:text-[11px]"
               />
             </div>
           </div>
 
-          {/* Pool Filter & Reset - Compact */}
-          <div className="flex items-center space-x-1.5 flex-wrap gap-1">
+          {/* Pool Filter & Reset - Ultra Compact */}
+          <div className="flex items-center space-x-1 md:space-x-1.5 flex-wrap gap-1">
             <button
               onClick={() => setFilters({ ...filters, hasPool: !filters.hasPool })}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border transition-all text-[10px] md:text-xs ${
+              className={`flex items-center space-x-0.5 md:space-x-1 px-2 md:px-2.5 py-1 md:py-1.5 rounded-lg border transition-all text-[9px] md:text-[10px] ${
                 filters.hasPool
                   ? 'bg-[#8B7355] text-white border-[#8B7355]'
                   : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
               }`}
             >
-              <FaSwimmingPool className="text-[9px]" />
+              <FaSwimmingPool className="text-[8px] md:text-[9px]" />
               <span>Hovuz</span>
             </button>
 
             <button
               onClick={handleReset}
-              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-[#E5DDD5] text-[#6B5D4F] hover:border-red-500 hover:text-red-500 transition-all text-[10px] md:text-xs"
+              className="flex items-center space-x-0.5 md:space-x-1 px-2 md:px-2.5 py-1 md:py-1.5 rounded-lg border border-[#E5DDD5] text-[#6B5D4F] hover:border-red-500 hover:text-red-500 transition-all text-[9px] md:text-[10px]"
             >
-              <FaTimes className="text-[9px]" />
+              <FaTimes className="text-[8px] md:text-[9px]" />
               <span>Sıfırla</span>
             </button>
           </div>
