@@ -116,17 +116,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-3xl font-bold text-brand-navy mb-1">
-              {property.pricePerDay} <span className="text-brand-gold">₼</span>
-            </div>
-            <div className="text-sm text-neutral-500 font-medium">
               {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
                 <>
-                  həftəiçi / <span className="text-brand-gold font-semibold">{Math.round(property.pricePerDay * property.weekendPriceMultiplier)}₼</span> həftəsonu
+                  {property.pricePerDay}/{Math.round(property.pricePerDay * property.weekendPriceMultiplier)} <span className="text-brand-gold">₼</span>
                 </>
               ) : (
-                'günlük'
+                <>
+                  {property.pricePerDay} <span className="text-brand-gold">₼</span>
+                </>
               )}
             </div>
+            <div className="text-sm text-neutral-500 font-medium">günlük</div>
           </div>
           <Link href={`/ev/${property.slug}`} className="btn-secondary text-sm px-6 py-3">
             Ətraflı

@@ -278,16 +278,14 @@ export default function PropertyDetailPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-3.5 md:p-6 lg:sticky lg:top-24">
               <div className="text-center mb-3 md:mb-6">
-                <p className="text-2xl md:text-3xl font-bold text-[#2C2416]">{property.basePricePerNight}₼</p>
-                <p className="text-xs md:text-sm text-[#6B5D4F]">
+                <p className="text-2xl md:text-3xl font-bold text-[#2C2416]">
                   {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
-                    <>
-                      həftəiçi / <span className="text-[#8B7355] font-semibold">{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</span> həftəsonu
-                    </>
+                    <>{property.basePricePerNight}/{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</>
                   ) : (
-                    'gecəlik'
+                    <>{property.basePricePerNight}₼</>
                   )}
                 </p>
+                <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik</p>
               </div>
 
               <div className="space-y-2.5 md:space-y-4">

@@ -260,17 +260,14 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             <div className="flex items-start justify-between">
               {/* Price Badge */}
               <div className="badge-premium backdrop-blur-md text-[10px] px-1.5 py-0.5">
-                <div className="flex flex-col">
-                  <div>
+                {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
+                  <span className="font-bold">{property.basePricePerNight}/{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</span>
+                ) : (
+                  <>
                     <span className="font-bold">{property.basePricePerNight}₼</span>
                     <span className="text-[8px] opacity-90">/gecə</span>
-                  </div>
-                  {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 && (
-                    <div className="text-[8px] opacity-75 mt-0.5">
-                      H/s: {Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
 
               {/* Featured Badge */}
