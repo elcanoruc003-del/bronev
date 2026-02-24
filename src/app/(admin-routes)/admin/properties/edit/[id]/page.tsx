@@ -404,18 +404,59 @@ export default function EditPropertyPage() {
             </div>
 
             {/* Qiymət */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Gecəlik qiymət (₼) *
-              </label>
-              <input
-                type="number"
-                min="10"
-                value={property.basePricePerNight}
-                onChange={(e) => setProperty({ ...property, basePricePerNight: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                required
-              />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəiçi gecəlik qiymət (₼) *
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={property.basePricePerNight}
+                    onChange={(e) => setProperty({ ...property, basePricePerNight: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Bazar ertəsi - Cümə axşamı</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəsonu gecəlik qiymət (₼)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={property.weekendPriceMultiplier ? Math.round(property.basePricePerNight * property.weekendPriceMultiplier) : 0}
+                    onChange={(e) => {
+                      const weekendPrice = parseInt(e.target.value);
+                      const multiplier = weekendPrice > 0 ? weekendPrice / property.basePricePerNight : 1.0;
+                      setProperty({ ...property, weekendPriceMultiplier: multiplier });
+                    }}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    placeholder="Boş buraxsanız həftəiçi qiymət tətbiq olunacaq"
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Cümə - Bazar (boş buraxsanız həftəiçi qiymət işlənəcək)</p>
+                </div>
+              </div>
+
+              {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-semibold">Qiymət fərqi:</span>{' '}
+                    {property.weekendPriceMultiplier > 1.0 ? (
+                      <>
+                        Həftəsonu <span className="font-bold">+{Math.round(property.basePricePerNight * (property.weekendPriceMultiplier - 1))}₼</span> ({Math.round((property.weekendPriceMultiplier - 1) * 100)}% baha)
+                      </>
+                    ) : (
+                      <>
+                        Həftəsonu <span className="font-bold">-{Math.round(property.basePricePerNight * (1 - property.weekendPriceMultiplier))}₼</span> ({Math.round((1 - property.weekendPriceMultiplier) * 100)}% ucuz)
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Mövcud Şəkillər */}

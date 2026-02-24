@@ -23,6 +23,7 @@ export default function NewPropertyPage() {
     area: 50,
     maxGuests: 2,
     basePricePerNight: 50,
+    weekendPricePerNight: 0, // 0 means use base price
     description: '',
     latitude: 40.4093,
     longitude: 49.8671,
@@ -218,6 +219,11 @@ export default function NewPropertyPage() {
         return;
       }
 
+      // Calculate weekend price multiplier
+      const weekendMultiplier = formData.weekendPricePerNight > 0 
+        ? formData.weekendPricePerNight / formData.basePricePerNight 
+        : 1.0;
+
       // Prepare data with required fields and proper number parsing
       const propertyData = {
         id: formData.id.trim(),
@@ -232,6 +238,7 @@ export default function NewPropertyPage() {
         area: Number(formData.area) || 50,
         maxGuests: Number(formData.maxGuests) || 2,
         basePricePerNight: Number(formData.basePricePerNight) || 50,
+        weekendPriceMultiplier: weekendMultiplier,
         description: formData.description.trim(),
         shortDescription: formData.description.substring(0, 150).trim(), // First 150 chars
         longDescription: formData.description.trim(), // Full description
@@ -464,18 +471,57 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Qiymət */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Gecəlik qiymət (₼) *
-              </label>
-              <input
-                type="number"
-                min="10"
-                value={formData.basePricePerNight}
-                onChange={(e) => setFormData({ ...formData, basePricePerNight: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                required
-              />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəiçi gecəlik qiymət (₼) *
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={formData.basePricePerNight}
+                    onChange={(e) => setFormData({ ...formData, basePricePerNight: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Bazar ertəsi - Cümə axşamı</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəsonu gecəlik qiymət (₼)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.weekendPricePerNight}
+                    onChange={(e) => setFormData({ ...formData, weekendPricePerNight: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    placeholder="Boş buraxsanız həftəiçi qiymət tətbiq olunacaq"
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Cümə - Bazar (boş buraxsanız həftəiçi qiymət işlənəcək)</p>
+                </div>
+              </div>
+
+              {formData.weekendPricePerNight > 0 && formData.basePricePerNight > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-semibold">Qiymət fərqi:</span>{' '}
+                    {formData.weekendPricePerNight > formData.basePricePerNight ? (
+                      <>
+                        Həftəsonu <span className="font-bold">+{formData.weekendPricePerNight - formData.basePricePerNight}₼</span> ({Math.round(((formData.weekendPricePerNight - formData.basePricePerNight) / formData.basePricePerNight) * 100)}% baha)
+                      </>
+                    ) : formData.weekendPricePerNight < formData.basePricePerNight ? (
+                      <>
+                        Həftəsonu <span className="font-bold">-{formData.basePricePerNight - formData.weekendPricePerNight}₼</span> ({Math.round(((formData.basePricePerNight - formData.weekendPricePerNight) / formData.basePricePerNight) * 100)}% ucuz)
+                      </>
+                    ) : (
+                      'Eyni qiymət'
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Şəkillər */}

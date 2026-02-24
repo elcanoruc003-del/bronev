@@ -9,6 +9,7 @@ interface Property {
   title: string;
   shortDescription: string;
   basePricePerNight: number;
+  weekendPriceMultiplier?: number;
   city: string;
   district: string;
   bedrooms: number;
@@ -259,8 +260,17 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             <div className="flex items-start justify-between">
               {/* Price Badge */}
               <div className="badge-premium backdrop-blur-md text-[10px] px-1.5 py-0.5">
-                <span className="font-bold">{property.basePricePerNight}₼</span>
-                <span className="text-[8px] opacity-90">/gecə</span>
+                <div className="flex flex-col">
+                  <div>
+                    <span className="font-bold">{property.basePricePerNight}₼</span>
+                    <span className="text-[8px] opacity-90">/gecə</span>
+                  </div>
+                  {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 && (
+                    <div className="text-[8px] opacity-75 mt-0.5">
+                      H/s: {Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Featured Badge */}
@@ -281,7 +291,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
             className="
               absolute bottom-1.5 right-1.5 z-10
-              w-6 h-6 rounded-full
+              w-5 h-5 rounded-full
               glass-effect shadow-lg
               flex items-center justify-center
               transition-all duration-300
@@ -292,7 +302,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           >
             <FaHeart
               className={`
-                text-[10px] transition-all duration-300
+                text-[9px] transition-all duration-300
                 ${favorites.has(property.id) 
                   ? 'text-red-500 scale-110' 
                   : 'text-white/80'
@@ -340,7 +350,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           {/* CTA Buttons - Compact */}
           <div className="grid grid-cols-2 gap-1.5 pt-1">
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} haqqında məlumat almaq istəyirəm.`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} (ID: ${property.id}) haqqında məlumat almaq istəyirəm.`}
               target="_blank"
               rel="noopener noreferrer"
               className="

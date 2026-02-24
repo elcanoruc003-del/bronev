@@ -11,6 +11,7 @@ interface Property {
   shortDescription: string;
   longDescription: string;
   basePricePerNight: number;
+  weekendPriceMultiplier?: number;
   city: string;
   district: string;
   address: string;
@@ -174,9 +175,9 @@ export default function PropertyDetailPage() {
           
           <button
             onClick={toggleFavorite}
-            className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
+            className="flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
           >
-            <FaHeart className={`text-base md:text-xl ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
+            <FaHeart className={`text-sm md:text-lg ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
           </button>
         </div>
       </div>
@@ -278,7 +279,15 @@ export default function PropertyDetailPage() {
             <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-3.5 md:p-6 lg:sticky lg:top-24">
               <div className="text-center mb-3 md:mb-6">
                 <p className="text-2xl md:text-3xl font-bold text-[#2C2416]">{property.basePricePerNight}₼</p>
-                <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik</p>
+                <p className="text-xs md:text-sm text-[#6B5D4F]">
+                  {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
+                    <>
+                      həftəiçi / <span className="text-[#8B7355] font-semibold">{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</span> həftəsonu
+                    </>
+                  ) : (
+                    'gecəlik'
+                  )}
+                </p>
               </div>
 
               <div className="space-y-2.5 md:space-y-4">

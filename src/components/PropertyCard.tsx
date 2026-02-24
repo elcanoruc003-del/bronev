@@ -8,6 +8,7 @@ interface PropertyCardProps {
     slug: string
     title: string
     pricePerDay: number
+    weekendPriceMultiplier?: number
     city: string
     district: string
     type: string
@@ -49,8 +50,8 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         {/* Favorite Button */}
-        <button className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg">
-          <FaHeart className="text-brand-gold" />
+        <button className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg">
+          <FaHeart className="text-brand-gold text-sm" />
         </button>
 
         {/* Property Type Badge */}
@@ -117,7 +118,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <div className="text-3xl font-bold text-brand-navy mb-1">
               {property.pricePerDay} <span className="text-brand-gold">₼</span>
             </div>
-            <div className="text-sm text-neutral-500 font-medium">günlük</div>
+            <div className="text-sm text-neutral-500 font-medium">
+              {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
+                <>
+                  həftəiçi / <span className="text-brand-gold font-semibold">{Math.round(property.pricePerDay * property.weekendPriceMultiplier)}₼</span> həftəsonu
+                </>
+              ) : (
+                'günlük'
+              )}
+            </div>
           </div>
           <Link href={`/ev/${property.slug}`} className="btn-secondary text-sm px-6 py-3">
             Ətraflı
