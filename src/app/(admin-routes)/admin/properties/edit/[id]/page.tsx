@@ -19,15 +19,11 @@ export default function EditPropertyPage() {
   const [newImages, setNewImages] = useState<Array<{ url: string; alt: string }>>([]);
   const [customAmenity, setCustomAmenity] = useState('');
 
+  // Birləşdirilmiş imkanlar siyahısı
   const amenitiesList = [
-    'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
-    'Pulsuz parkinq', 'TV', 'Paltaryuyan', 'Quruducu', 'Dəmir',
-    'Saç quruducu', 'Şampun', 'Bədən sabunu', 'Isti su',
-  ];
-
-  const featuresList = [
-    'Dəniz mənzərəsi', 'Dağ mənzərəsi', 'Şəhər mənzərəsi', 'Balkon',
-    'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
+    'Wifi', 'İsti Hovuz', 'Kondisoner', 'İstilik Sistemi', 'Manqal', 
+    'Samovar', 'Qəlyan', 'Parking', 'Mənzərə', 'Söhbətgah',
+    'Besetka', 'Qab-qacaq', 'Qaz', 'Su', 'İşıq', 'Generator',
   ];
 
   useEffect(() => {
@@ -574,86 +570,67 @@ export default function EditPropertyPage() {
               )}
             </div>
 
-            {/* Amenities */}
+            {/* İmkanlar və Xüsusiyyətlər - Birləşdirilmiş */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                İmkanlar
+              <label className="block text-sm font-semibold text-[#2C2416] mb-3">
+                İmkanlar və Xüsusiyyətlər
               </label>
               
-              <div className="flex space-x-2 mb-3">
+              <div className="flex space-x-2 mb-4">
                 <input
                   type="text"
                   value={customAmenity}
                   onChange={(e) => setCustomAmenity(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
                   placeholder="Öz imkanınızı əlavə edin"
-                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
                 />
                 <button
                   type="button"
                   onClick={addCustomAmenity}
-                  className="px-6 py-2 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-medium"
+                  className="px-6 py-2.5 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-semibold shadow-sm"
                 >
-                  Əlavə et
+                  + Əlavə et
                 </button>
               </div>
 
               {property.amenities.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3 p-3 bg-[#FAF8F5] rounded-xl">
-                  {property.amenities.map((amenity: string) => (
-                    <span
-                      key={amenity}
-                      className="inline-flex items-center space-x-1 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
-                    >
-                      <span>{amenity}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeAmenity(amenity)}
-                        className="hover:text-red-200"
+                <div className="mb-4 p-4 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl border border-[#E5DDD5]">
+                  <p className="text-xs font-semibold text-[#6B5D4F] mb-2">Seçilmiş imkanlar:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {property.amenities.map((amenity: string) => (
+                      <span
+                        key={amenity}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-full text-sm font-medium shadow-sm"
                       >
-                        <FaTimes className="text-xs" />
-                      </button>
-                    </span>
-                  ))}
+                        <span>✓ {amenity}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeAmenity(amenity)}
+                          className="hover:text-red-200 transition-colors"
+                        >
+                          <FaTimes className="text-xs" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
                 {amenitiesList.map((amenity) => (
                   <button
                     key={amenity}
                     type="button"
                     onClick={() => toggleAmenity(amenity)}
-                    className={`px-4 py-2 rounded-xl border transition-all ${
+                    className={`px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium ${
                       property.amenities.includes(amenity)
-                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                        ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white border-[#8B7355] shadow-md scale-105'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355] hover:shadow-sm'
                     }`}
                   >
+                    {property.amenities.includes(amenity) && '✓ '}
                     {amenity}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Features */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Xüsusiyyətlər
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {featuresList.map((feature) => (
-                  <button
-                    key={feature}
-                    type="button"
-                    onClick={() => toggleFeature(feature)}
-                    className={`px-4 py-2 rounded-xl border transition-all ${
-                      property.features.includes(feature)
-                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                    }`}
-                  >
-                    {feature}
                   </button>
                 ))}
               </div>

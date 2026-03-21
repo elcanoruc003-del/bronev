@@ -33,17 +33,12 @@ export default function NewPropertyPage() {
   });
 
   const [customAmenity, setCustomAmenity] = useState('');
-  const [customFeature, setCustomFeature] = useState('');
 
+  // Birləşdirilmiş imkanlar siyahısı
   const amenitiesList = [
-    'WiFi', 'Hovuz', 'Kondisioner', 'İstilik sistemi', 'Mətbəx', 
-    'Pulsuz parkinq', 'TV', 'Paltaryuyan', 'Quruducu', 'Dəmir',
-    'Saç quruducu', 'Şampun', 'Bədən sabunu', 'Isti su',
-  ];
-
-  const featuresList = [
-    'Dəniz mənzərəsi', 'Dağ mənzərəsi', 'Şəhər mənzərəsi', 'Balkon',
-    'Terras', 'Bağ', 'BBQ', 'Kamin', 'Oyun otağı', 'İş masası',
+    'Wifi', 'İsti Hovuz', 'Kondisoner', 'İstilik Sistemi', 'Manqal', 
+    'Samovar', 'Qəlyan', 'Parking', 'Mənzərə', 'Söhbətgah',
+    'Besetka', 'Qab-qacaq', 'Qaz', 'Su', 'İşıq', 'Generator',
   ];
 
   // Empty useEffect to prevent hydration issues
@@ -173,37 +168,6 @@ export default function NewPropertyPage() {
         amenities: [...formData.amenities, amenity],
       });
     }
-  }
-
-  function toggleFeature(feature: string) {
-    if (formData.features.includes(feature)) {
-      setFormData({
-        ...formData,
-        features: formData.features.filter(f => f !== feature),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        features: [...formData.features, feature],
-      });
-    }
-  }
-
-  function addCustomFeature() {
-    if (customFeature.trim() && !formData.features.includes(customFeature.trim())) {
-      setFormData({
-        ...formData,
-        features: [...formData.features, customFeature.trim()],
-      });
-      setCustomFeature('');
-    }
-  }
-
-  function removeFeature(feature: string) {
-    setFormData({
-      ...formData,
-      features: formData.features.filter(f => f !== feature),
-    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -607,137 +571,73 @@ export default function NewPropertyPage() {
               )}
             </div>
 
-            {/* Amenities */}
+            {/* İmkanlar və Xüsusiyyətlər - Birləşdirilmiş */}
             <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                İmkanlar
+              <label className="block text-sm font-semibold text-[#2C2416] mb-3">
+                İmkanlar və Xüsusiyyətlər
               </label>
               
               {/* Custom Amenity Input */}
-              <div className="flex space-x-2 mb-3">
+              <div className="flex space-x-2 mb-4">
                 <input
                   type="text"
                   value={customAmenity}
                   onChange={(e) => setCustomAmenity(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
                   placeholder="Öz imkanınızı əlavə edin"
-                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
                 />
                 <button
                   type="button"
                   onClick={addCustomAmenity}
-                  className="px-6 py-2 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-medium"
+                  className="px-6 py-2.5 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-semibold shadow-sm"
                 >
-                  Əlavə et
+                  + Əlavə et
                 </button>
               </div>
 
               {/* Selected Amenities */}
               {formData.amenities.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3 p-3 bg-[#FAF8F5] rounded-xl">
-                  {formData.amenities.map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="inline-flex items-center space-x-1 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
-                    >
-                      <span>{amenity}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeAmenity(amenity)}
-                        className="hover:text-red-200"
+                <div className="mb-4 p-4 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl border border-[#E5DDD5]">
+                  <p className="text-xs font-semibold text-[#6B5D4F] mb-2">Seçilmiş imkanlar:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.amenities.map((amenity) => (
+                      <span
+                        key={amenity}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-full text-sm font-medium shadow-sm"
                       >
-                        <FaTimes className="text-xs" />
-                      </button>
-                    </span>
-                  ))}
+                        <span>✓ {amenity}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeAmenity(amenity)}
+                          className="hover:text-red-200 transition-colors"
+                        >
+                          <FaTimes className="text-xs" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Predefined Amenities */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
                 {amenitiesList.map((amenity) => (
                   <button
                     key={amenity}
                     type="button"
                     onClick={() => toggleAmenity(amenity)}
-                    className={`px-4 py-2 rounded-xl border transition-all ${
+                    className={`px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium ${
                       formData.amenities.includes(amenity)
-                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                        ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white border-[#8B7355] shadow-md scale-105'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355] hover:shadow-sm'
                     }`}
                   >
+                    {formData.amenities.includes(amenity) && '✓ '}
                     {amenity}
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Features */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Xüsusiyyətlər
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-                {featuresList.map((feature) => (
-                  <button
-                    key={feature}
-                    type="button"
-                    onClick={() => toggleFeature(feature)}
-                    className={`px-4 py-2 rounded-xl border transition-all ${
-                      formData.features.includes(feature)
-                        ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                    }`}
-                  >
-                    {feature}
-                  </button>
-                ))}
-              </div>
-
-              {/* Custom Feature Input */}
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={customFeature}
-                  onChange={(e) => setCustomFeature(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addCustomFeature();
-                    }
-                  }}
-                  placeholder="Özünüzdən xüsusiyyət əlavə edin..."
-                  className="flex-1 px-4 py-2 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={addCustomFeature}
-                  className="px-6 py-2 bg-[#8B7355] text-white rounded-xl hover:bg-[#6B5D4F] transition-colors"
-                >
-                  Əlavə et
-                </button>
-              </div>
-
-              {/* Selected Features */}
-              {formData.features.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.features.map((feature) => (
-                    <span
-                      key={feature}
-                      className="inline-flex items-center gap-2 px-3 py-1 bg-[#8B7355] text-white rounded-full text-sm"
-                    >
-                      {feature}
-                      <button
-                        type="button"
-                        onClick={() => removeFeature(feature)}
-                        className="hover:text-red-300 transition-colors"
-                      >
-                        <FaTimes className="text-xs" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Təsvir */}

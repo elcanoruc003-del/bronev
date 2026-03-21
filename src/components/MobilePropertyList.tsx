@@ -247,40 +247,43 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
           />
           
-          {/* Top Badges Container - Fixed Layout */}
-          <div className="absolute top-1.5 left-1.5 right-1.5 z-10">
-            {/* VIP Badge - Top Left */}
-            {property.featured && (
-              <div className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-lg mb-0.5">
-                ⭐ VIP
-              </div>
-            )}
-            
-            {/* Price and New Badge Row */}
-            <div className="flex items-start justify-between">
-              {/* Price Badge */}
-              <div className="badge-premium backdrop-blur-md text-[10px] px-1.5 py-0.5">
+          {/* Top Badges Container - Optimized */}
+          <div className="absolute top-1.5 left-1.5 right-1.5 z-10 flex items-start justify-between">
+            <div className="flex flex-col gap-1">
+              {/* VIP Badge */}
+              {property.featured && (
+                <div className="inline-flex items-center gap-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-lg">
+                  <FaStar className="text-[7px]" />
+                  <span>VIP</span>
+                </div>
+              )}
+              
+              {/* Price Badge - Elegant */}
+              <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm text-[#2C1810] text-[9px] font-bold px-2 py-1 rounded-lg shadow-md">
                 {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
-                  <span className="font-bold">{property.basePricePerNight}/{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</span>
+                  <>
+                    <span className="text-[#8B7355]">{property.basePricePerNight}</span>
+                    <span className="text-[8px] text-[#6B5D4F]">/</span>
+                    <span className="text-[#8B7355]">{Math.round(property.basePricePerNight * property.weekendPriceMultiplier)}₼</span>
+                  </>
                 ) : (
                   <>
-                    <span className="font-bold">{property.basePricePerNight}₼</span>
-                    <span className="text-[8px] opacity-90">/gecə</span>
+                    <span className="text-[#8B7355]">{property.basePricePerNight}₼</span>
+                    <span className="text-[7px] text-[#6B5D4F]">/gecə</span>
                   </>
                 )}
               </div>
-
-              {/* Featured Badge */}
-              {property.featured && (
-                <div className="badge-new backdrop-blur-md pulse-soft text-[8px] px-1 py-0.5">
-                  <FaStar className="inline text-[6px] mr-0.5" />
-                  <span>Yeni</span>
-                </div>
-              )}
             </div>
+
+            {/* New Badge */}
+            {property.featured && (
+              <div className="inline-flex items-center gap-0.5 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
+                <span>YENİ</span>
+              </div>
+            )}
           </div>
 
-          {/* Favorite Button - Smaller */}
+          {/* Favorite Button - Elegant & Minimal */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -288,97 +291,94 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
             className="
               absolute bottom-1.5 right-1.5 z-10
-              w-5 h-5 rounded-full
-              glass-effect shadow-lg
+              w-6 h-6 rounded-full
+              bg-white/95 backdrop-blur-sm shadow-md
               flex items-center justify-center
               transition-all duration-300
               hover:scale-110 active:scale-95
-              tap-scale
             "
-            aria-label="Add to favorites"
+            aria-label="Sevimlilərə əlavə et"
           >
             <FaHeart
               className={`
-                text-[9px] transition-all duration-300
+                text-[10px] transition-all duration-300
                 ${favorites.has(property.id) 
                   ? 'text-red-500 scale-110' 
-                  : 'text-white/80'
+                  : 'text-[#C19A6B]'
                 }
               `}
             />
           </button>
         </div>
 
-        {/* Content - Compact */}
-        <div className="p-2.5 space-y-1.5">
-          {/* Title - Smaller */}
-          <h3 className="font-semibold text-xs leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
+        {/* Content - Ultra Compact & Elegant */}
+        <div className="p-2 space-y-1">
+          {/* Title - Optimized */}
+          <h3 className="font-bold text-[11px] leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
             {property.title}
           </h3>
           
-          {/* Location - Smaller */}
-          <div className="flex items-center gap-1 text-[10px] text-[#8B7E74]">
-            <FaMapMarkerAlt className="text-[9px] text-[#C19A6B]" />
+          {/* Location - Compact */}
+          <div className="flex items-center gap-0.5 text-[9px] text-[#8B7E74]">
+            <FaMapMarkerAlt className="text-[8px] text-[#C19A6B] flex-shrink-0" />
             <span className="line-clamp-1 font-medium">{property.city}</span>
           </div>
 
-          {/* Features - Compact */}
-          <div className="flex items-center gap-2 text-[10px] text-[#8B7E74]">
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
-                <FaBed className="text-[8px] text-[#8B7355]" />
-              </div>
-              <span className="font-medium">{property.bedrooms}</span>
+          {/* Features - Minimal */}
+          <div className="flex items-center gap-1.5 text-[9px] text-[#8B7E74] py-0.5">
+            <div className="flex items-center gap-0.5">
+              <FaBed className="text-[8px] text-[#8B7355]" />
+              <span className="font-semibold text-[#2C1810]">{property.bedrooms}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
-                <FaBath className="text-[8px] text-[#8B7355]" />
-              </div>
-              <span className="font-medium">{property.bathrooms}</span>
+            <span className="text-[#E5DDD5]">•</span>
+            <div className="flex items-center gap-0.5">
+              <FaBath className="text-[8px] text-[#8B7355]" />
+              <span className="font-semibold text-[#2C1810]">{property.bathrooms}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded-md bg-[#FAF8F5] flex items-center justify-center">
-                <FaRulerCombined className="text-[8px] text-[#8B7355]" />
-              </div>
-              <span className="font-medium">{property.area}m²</span>
+            <span className="text-[#E5DDD5]">•</span>
+            <div className="flex items-center gap-0.5">
+              <FaRulerCombined className="text-[8px] text-[#8B7355]" />
+              <span className="font-semibold text-[#2C1810]">{property.area}m²</span>
             </div>
           </div>
 
-          {/* CTA Buttons - Compact */}
-          <div className="grid grid-cols-2 gap-1.5 pt-1">
+          {/* CTA Buttons - Ultra Compact & Elegant */}
+          <div className="flex items-center gap-1 pt-1">
             <a
               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} (ID: ${property.id}) haqqında məlumat almaq istəyirəm.`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="
-                flex items-center justify-center gap-1
+                flex-1 flex items-center justify-center gap-1
                 py-1.5 rounded-lg
-                bg-gradient-to-r from-[#25D366] to-[#20BA5A]
-                text-white text-[10px] font-semibold
+                bg-[#25D366] hover:bg-[#20BA5A]
+                text-white text-[9px] font-bold
                 shadow-sm hover:shadow-md
-                transition-all duration-300
-                hover:scale-[1.02] active:scale-95
-                tap-scale
+                transition-all duration-200
+                active:scale-95
               "
+              aria-label="WhatsApp ilə əlaqə"
             >
-              <FaWhatsapp className="text-xs" />
+              <FaWhatsapp className="text-[11px]" />
               <span>WhatsApp</span>
             </a>
 
             <a
               href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
+              onClick={(e) => e.stopPropagation()}
               className="
-                flex items-center justify-center gap-1
+                flex-1 flex items-center justify-center gap-1
                 py-1.5 rounded-lg
-                bg-gradient-to-r from-[#4CAF50] to-[#388E3C]
-                text-white text-[10px] font-semibold
+                bg-[#8B7355] hover:bg-[#6B5D4F]
+                text-white text-[9px] font-bold
                 shadow-sm hover:shadow-md
-                transition-all duration-300
-                hover:scale-[1.02] active:scale-95
-                tap-scale
+                transition-all duration-200
+                active:scale-95
               "
+              aria-label="Zəng et"
             >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
               </svg>
               <span>Zəng</span>
