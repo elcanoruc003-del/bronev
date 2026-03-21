@@ -12,6 +12,7 @@ interface Property {
   longDescription: string;
   basePricePerNight: number;
   weekendPriceMultiplier?: number;
+  guestPricing?: Record<number, { weekday: number; weekend: number }>; // Adam sayına görə qiymət
   city: string;
   district: string;
   address: string;
@@ -45,7 +46,7 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     calculateNights();
-  }, [checkIn, checkOut]);
+  }, [checkIn, checkOut, guests, property]);
 
   function checkFavoriteStatus() {
     const savedFavorites = localStorage.getItem('favorites');
@@ -91,20 +92,95 @@ export default function PropertyDetailPage() {
     }
   }
 
+  function isWeekend(date: Date): boolean {
+    const day = date.getDay();
+    return day === 6 || day === 0; // 6 = Şənbə, 0 = Bazar
+  }
+
   function calculateNights() {
-    if (checkIn && checkOut) {
+    if (checkIn && checkOut && property) {
       const start = new Date(checkIn);
       const end = new Date(checkOut);
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setNights(diffDays);
-      if (property) {
-        setTotalPrice(diffDays * property.basePricePerNight);
+      
+      // Adam sayına görə qiymət varsa, onu istifadə et
+      if (property.guestPricing && property.guestPricing[guests]) {
+        let total = 0;
+        const currentDate = new Date(start);
+        
+        // Hər gecəni yoxla və həftəiçi/həftəsonu qiymətini tətbiq et
+        for (let i = 0; i < diffDays; i++) {
+          if (isWeekend(currentDate)) {
+            total += property.guestPricing[guests].weekend;
+          } else {
+            total += property.guestPricing[guests].weekday;
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        setTotalPrice(total);
+      } else {
+        // Əgər adam sayına görə qiymət yoxdursa, ümumi qiyməti istifadə et
+        let total = 0;
+        const currentDate = new Date(start);
+        const weekendMultiplier = property.weekendPriceMultiplier || 1.0;
+        
+        for (let i = 0; i < diffDays; i++) {
+          if (isWeekend(currentDate)) {
+            total += property.basePricePerNight * weekendMultiplier;
+          } else {
+            total += property.basePricePerNight;
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        setTotalPrice(Math.round(total));
       }
     } else {
       setNights(0);
       setTotalPrice(0);
     }
+  }
+
+  function getPriceBreakdown(): string {
+    if (!checkIn || !checkOut || !property || nights === 0) return '';
+    
+    const start = new Date(checkIn);
+    let breakdown = '';
+    let weekdayNights = 0;
+    let weekendNights = 0;
+    
+    const currentDate = new Date(start);
+    for (let i = 0; i < nights; i++) {
+      if (isWeekend(currentDate)) {
+        weekendNights++;
+      } else {
+        weekdayNights++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    if (property.guestPricing && property.guestPricing[guests]) {
+      if (weekdayNights > 0) {
+        breakdown += `${weekdayNights} həftəiçi gecə × ${property.guestPricing[guests].weekday}₼ = ${weekdayNights * property.guestPricing[guests].weekday}₼\n`;
+      }
+      if (weekendNights > 0) {
+        breakdown += `${weekendNights} həftəsonu gecə × ${property.guestPricing[guests].weekend}₼ = ${weekendNights * property.guestPricing[guests].weekend}₼`;
+      }
+    } else {
+      const weekendMultiplier = property.weekendPriceMultiplier || 1.0;
+      if (weekdayNights > 0) {
+        breakdown += `${weekdayNights} həftəiçi gecə × ${property.basePricePerNight}₼ = ${weekdayNights * property.basePricePerNight}₼\n`;
+      }
+      if (weekendNights > 0) {
+        const weekendPrice = Math.round(property.basePricePerNight * weekendMultiplier);
+        breakdown += `${weekendNights} həftəsonu gecə × ${weekendPrice}₼ = ${weekendNights * weekendPrice}₼`;
+      }
+    }
+    
+    return breakdown;
   }
 
   function handleWhatsAppBooking() {
@@ -113,6 +189,7 @@ export default function PropertyDetailPage() {
       return;
     }
 
+    const priceBreakdown = getPriceBreakdown();
     const message = `Salam! Ev haqqında məlumat almaq istəyirəm:
 
 🏠 *${property.title}*
@@ -124,8 +201,10 @@ export default function PropertyDetailPage() {
 🌙 Gecə sayı: ${nights}
 👥 Qonaq sayı: ${guests}
 
-💰 Qiymət: ${property.basePricePerNight}₼/gecə
-💵 Cəmi: ${totalPrice}₼
+💰 Qiymət:
+${priceBreakdown}
+
+💵 *Cəmi: ${totalPrice}₼*
 
 Ətraflı məlumat almaq istəyirəm.`;
 
@@ -285,7 +364,7 @@ export default function PropertyDetailPage() {
                     <>{property.basePricePerNight}₼</>
                   )}
                 </p>
-                <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik</p>
+                <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik (həftəiçi/həftəsonu)</p>
               </div>
 
               <div className="space-y-2.5 md:space-y-4">

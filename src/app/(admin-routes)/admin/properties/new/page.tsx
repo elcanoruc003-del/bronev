@@ -24,6 +24,7 @@ export default function NewPropertyPage() {
     maxGuests: 2,
     basePricePerNight: 50,
     weekendPricePerNight: 0, // 0 means use base price
+    guestPricing: {} as Record<number, { weekday: number; weekend: number }>, // Adam sayına görə qiymət
     description: '',
     latitude: 40.4093,
     longitude: 49.8671,
@@ -203,6 +204,7 @@ export default function NewPropertyPage() {
         maxGuests: Number(formData.maxGuests) || 2,
         basePricePerNight: Number(formData.basePricePerNight) || 50,
         weekendPriceMultiplier: weekendMultiplier,
+        guestPricing: formData.guestPricing, // Adam sayına görə qiymət
         description: formData.description.trim(),
         shortDescription: formData.description.substring(0, 150).trim(), // First 150 chars
         longDescription: formData.description.trim(), // Full description
@@ -434,58 +436,77 @@ export default function NewPropertyPage() {
               />
             </div>
 
-            {/* Qiymət */}
+            {/* Qiymət - Adam sayına görə */}
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                    Həftəiçi gecəlik qiymət (₼) *
-                  </label>
-                  <input
-                    type="number"
-                    min="10"
-                    value={formData.basePricePerNight}
-                    onChange={(e) => setFormData({ ...formData, basePricePerNight: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                    required
-                  />
-                  <p className="text-xs text-[#8B7355] mt-1">Bazar ertəsi - Cümə axşamı</p>
+              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 border border-[#E5DDD5]">
+                <h3 className="text-base font-bold text-[#2C2416] mb-3">Adam Sayına Görə Qiymət</h3>
+                <p className="text-xs text-[#6B5D4F] mb-4">Hər adam sayı üçün həftəiçi və həftəsonu qiymətlərini təyin edin</p>
+                
+                {/* Generate pricing inputs for each guest count */}
+                <div className="space-y-3">
+                  {Array.from({ length: formData.maxGuests }, (_, i) => i + 1).map((guestCount) => (
+                    <div key={guestCount} className="bg-white rounded-lg p-3 border border-[#E5DDD5]">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-[#2C2416]">
+                          {guestCount} {guestCount === 1 ? 'nəfər' : 'nəfər'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Həftəiçi (₼/gecə)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={formData.guestPricing[guestCount]?.weekday || ''}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              guestPricing: {
+                                ...formData.guestPricing,
+                                [guestCount]: {
+                                  weekday: parseInt(e.target.value) || 0,
+                                  weekend: formData.guestPricing[guestCount]?.weekend || 0,
+                                }
+                              }
+                            })}
+                            placeholder="Qiymət"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Həftəsonu (₼/gecə)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={formData.guestPricing[guestCount]?.weekend || ''}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              guestPricing: {
+                                ...formData.guestPricing,
+                                [guestCount]: {
+                                  weekday: formData.guestPricing[guestCount]?.weekday || 0,
+                                  weekend: parseInt(e.target.value) || 0,
+                                }
+                              }
+                            })}
+                            placeholder="Qiymət"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                    Həftəsonu gecəlik qiymət (₼)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.weekendPricePerNight}
-                    onChange={(e) => setFormData({ ...formData, weekendPricePerNight: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                    placeholder="Boş buraxsanız həftəiçi qiymət tətbiq olunacaq"
-                  />
-                  <p className="text-xs text-[#8B7355] mt-1">Cümə - Bazar (boş buraxsanız həftəiçi qiymət işlənəcək)</p>
-                </div>
-              </div>
-
-              {formData.weekendPricePerNight > 0 && formData.basePricePerNight > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">Qiymət fərqi:</span>{' '}
-                    {formData.weekendPricePerNight > formData.basePricePerNight ? (
-                      <>
-                        Həftəsonu <span className="font-bold">+{formData.weekendPricePerNight - formData.basePricePerNight}₼</span> ({Math.round(((formData.weekendPricePerNight - formData.basePricePerNight) / formData.basePricePerNight) * 100)}% baha)
-                      </>
-                    ) : formData.weekendPricePerNight < formData.basePricePerNight ? (
-                      <>
-                        Həftəsonu <span className="font-bold">-{formData.basePricePerNight - formData.weekendPricePerNight}₼</span> ({Math.round(((formData.basePricePerNight - formData.weekendPricePerNight) / formData.basePricePerNight) * 100)}% ucuz)
-                      </>
-                    ) : (
-                      'Eyni qiymət'
-                    )}
+                
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-xs text-blue-800">
+                    <span className="font-semibold">Qeyd:</span> Həftəsonu şənbə və bazar günləridir. Qiymətlər ana səhifədə göstərilməyəcək, yalnız elan səhifəsində adam sayı seçildikdə görünəcək.
                   </p>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Şəkillər */}
@@ -578,19 +599,19 @@ export default function NewPropertyPage() {
               </label>
               
               {/* Custom Amenity Input */}
-              <div className="flex space-x-2 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <input
                   type="text"
                   value={customAmenity}
                   onChange={(e) => setCustomAmenity(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
                   placeholder="Öz imkanınızı əlavə edin"
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                  className="flex-1 px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
                 />
                 <button
                   type="button"
                   onClick={addCustomAmenity}
-                  className="px-6 py-2.5 rounded-xl bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-semibold shadow-sm"
+                  className="px-4 py-2 rounded-lg bg-[#8B7355] text-white hover:bg-[#6B5D4F] transition-colors text-sm font-semibold shadow-sm whitespace-nowrap"
                 >
                   + Əlavə et
                 </button>
@@ -598,21 +619,21 @@ export default function NewPropertyPage() {
 
               {/* Selected Amenities */}
               {formData.amenities.length > 0 && (
-                <div className="mb-4 p-4 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl border border-[#E5DDD5]">
+                <div className="mb-4 p-3 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-lg border border-[#E5DDD5]">
                   <p className="text-xs font-semibold text-[#6B5D4F] mb-2">Seçilmiş imkanlar:</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {formData.amenities.map((amenity) => (
                       <span
                         key={amenity}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-full text-sm font-medium shadow-sm"
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-full text-xs font-medium shadow-sm"
                       >
-                        <span>✓ {amenity}</span>
+                        <span className="truncate max-w-[120px]">✓ {amenity}</span>
                         <button
                           type="button"
                           onClick={() => removeAmenity(amenity)}
-                          className="hover:text-red-200 transition-colors"
+                          className="hover:text-red-200 transition-colors flex-shrink-0"
                         >
-                          <FaTimes className="text-xs" />
+                          <FaTimes className="text-[10px]" />
                         </button>
                       </span>
                     ))}
@@ -621,17 +642,18 @@ export default function NewPropertyPage() {
               )}
 
               {/* Predefined Amenities */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {amenitiesList.map((amenity) => (
                   <button
                     key={amenity}
                     type="button"
                     onClick={() => toggleAmenity(amenity)}
-                    className={`px-3 py-2.5 rounded-lg border-2 transition-all text-sm font-medium ${
+                    className={`px-2 py-2 rounded-lg border-2 transition-all text-xs font-medium truncate ${
                       formData.amenities.includes(amenity)
-                        ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white border-[#8B7355] shadow-md scale-105'
+                        ? 'bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white border-[#8B7355] shadow-md'
                         : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355] hover:shadow-sm'
                     }`}
+                    title={amenity}
                   >
                     {formData.amenities.includes(amenity) && '✓ '}
                     {amenity}

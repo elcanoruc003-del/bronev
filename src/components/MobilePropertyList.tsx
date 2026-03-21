@@ -311,56 +311,56 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           </button>
         </div>
 
-        {/* Content - Ultra Compact & Elegant */}
-        <div className="p-2 space-y-1">
-          {/* Title - Optimized */}
-          <h3 className="font-bold text-[11px] leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
+        {/* Content - Ultra Compact & Minimal */}
+        <div className="p-1.5 space-y-0.5">
+          {/* Title - Minimal */}
+          <h3 className="font-bold text-[10px] leading-tight text-[#2C1810] line-clamp-1 group-hover:text-[#8B7355] transition-colors duration-300">
             {property.title}
           </h3>
           
-          {/* Location - Compact */}
-          <div className="flex items-center gap-0.5 text-[9px] text-[#8B7E74]">
-            <FaMapMarkerAlt className="text-[8px] text-[#C19A6B] flex-shrink-0" />
+          {/* Location - Minimal */}
+          <div className="flex items-center gap-0.5 text-[8px] text-[#8B7E74]">
+            <FaMapMarkerAlt className="text-[7px] text-[#C19A6B] flex-shrink-0" />
             <span className="line-clamp-1 font-medium">{property.city}</span>
           </div>
 
-          {/* Features - Minimal */}
-          <div className="flex items-center gap-1.5 text-[9px] text-[#8B7E74] py-0.5">
+          {/* Features - Ultra Minimal */}
+          <div className="flex items-center gap-1 text-[8px] text-[#8B7E74] py-0.5">
             <div className="flex items-center gap-0.5">
-              <FaBed className="text-[8px] text-[#8B7355]" />
+              <FaBed className="text-[7px] text-[#8B7355]" />
               <span className="font-semibold text-[#2C1810]">{property.bedrooms}</span>
             </div>
             <span className="text-[#E5DDD5]">•</span>
             <div className="flex items-center gap-0.5">
-              <FaBath className="text-[8px] text-[#8B7355]" />
+              <FaBath className="text-[7px] text-[#8B7355]" />
               <span className="font-semibold text-[#2C1810]">{property.bathrooms}</span>
             </div>
             <span className="text-[#E5DDD5]">•</span>
             <div className="flex items-center gap-0.5">
-              <FaRulerCombined className="text-[8px] text-[#8B7355]" />
+              <FaRulerCombined className="text-[7px] text-[#8B7355]" />
               <span className="font-semibold text-[#2C1810]">{property.area}m²</span>
             </div>
           </div>
 
-          {/* CTA Buttons - Ultra Compact & Elegant */}
-          <div className="flex items-center gap-1 pt-1">
+          {/* CTA Buttons - Ultra Minimal & Compact */}
+          <div className="flex items-center gap-1 pt-0.5">
             <a
               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} (ID: ${property.id}) haqqında məlumat almaq istəyirəm.`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="
-                flex-1 flex items-center justify-center gap-1
-                py-1.5 rounded-lg
+                flex-1 flex items-center justify-center gap-0.5
+                py-1 rounded-md
                 bg-[#25D366] hover:bg-[#20BA5A]
-                text-white text-[9px] font-bold
-                shadow-sm hover:shadow-md
+                text-white text-[8px] font-bold
+                shadow-sm hover:shadow
                 transition-all duration-200
                 active:scale-95
               "
               aria-label="WhatsApp ilə əlaqə"
             >
-              <FaWhatsapp className="text-[11px]" />
+              <FaWhatsapp className="text-[10px]" />
               <span>WhatsApp</span>
             </a>
 
@@ -368,17 +368,17 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
               href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
               onClick={(e) => e.stopPropagation()}
               className="
-                flex-1 flex items-center justify-center gap-1
-                py-1.5 rounded-lg
+                flex-1 flex items-center justify-center gap-0.5
+                py-1 rounded-md
                 bg-[#8B7355] hover:bg-[#6B5D4F]
-                text-white text-[9px] font-bold
-                shadow-sm hover:shadow-md
+                text-white text-[8px] font-bold
+                shadow-sm hover:shadow
                 transition-all duration-200
                 active:scale-95
               "
               aria-label="Zəng et"
             >
-              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
               </svg>
               <span>Zəng</span>

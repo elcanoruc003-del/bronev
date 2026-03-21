@@ -180,6 +180,7 @@ model properties {
   zipCode                String?
   features               Json                    @default("[]")
   amenities              Json                    @default("[]")
+  guestPricing           Json?
   bookingRequests        bookings[]
   favorites              favorites[]
   pricing_rules          pricing_rules[]

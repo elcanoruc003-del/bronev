@@ -382,7 +382,7 @@ export async function createProperty(data: any) {
     const now = new Date();
 
     // Prepare property data with proper types
-    const propertyData = {
+    const propertyData: any = {
       id: data.id,
       title: data.title,
       slug: `${slug}-${Date.now()}`,
@@ -409,6 +409,11 @@ export async function createProperty(data: any) {
       ownerId: currentUser.id,
       updatedAt: now,
     };
+
+    // Adam sayına görə qiymət əlavə et (JSON field)
+    if (data.guestPricing && Object.keys(data.guestPricing).length > 0) {
+      propertyData.guestPricing = data.guestPricing;
+    }
 
     console.log('Creating property with data:', JSON.stringify(propertyData, null, 2));
 
@@ -457,6 +462,11 @@ export async function updateProperty(propertyId: string, data: any) {
     // Only update amenities and features if provided
     if (data.amenities) updateData.amenities = data.amenities;
     if (data.features) updateData.features = data.features;
+    
+    // Adam sayına görə qiymət əlavə et (JSON field)
+    if (data.guestPricing !== undefined) {
+      updateData.guestPricing = data.guestPricing;
+    }
 
     const property = await prisma.properties.update({
       where: { id: propertyId },
