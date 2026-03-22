@@ -18,8 +18,20 @@ export default function Page() {
       {/* Header */}
       <MobileHeader />
       
-      {/* Hero & Filters Section with Background Pattern */}
+      {/* Hero & Filters Section with Background Image */}
       <div className="relative pt-16 pb-2.5 px-2.5 md:px-3 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop')`,
+            }}
+          />
+          {/* Gradient Overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/95 via-[#FAF8F5]/90 to-[#FAF8F5]/95"></div>
+        </div>
+
         {/* Decorative Background Elements */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-[#8B7355] blur-3xl"></div>
