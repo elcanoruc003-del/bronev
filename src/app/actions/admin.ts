@@ -949,7 +949,36 @@ export async function createAdminBooking(data: {
       },
     });
 
+    // Automatically block dates for this booking
+    const blockedDates: string[] = [];
+    for (let d = new Date(checkInDate); d < checkOutDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      blockedDates.push(dateStr);
+    }
+
+    // Create availability records for blocked dates
+    if (blockedDates.length > 0) {
+      const availabilityRecords = blockedDates.map((dateStr) => {
+        const date = new Date(dateStr);
+        return {
+          id: `avail_${data.propertyId}_${dateStr}_${Date.now()}`,
+          propertyId: data.propertyId,
+          startDate: date,
+          endDate: date,
+          isAvailable: false,
+          blockReason: `Booking ${bookingId}`,
+          updatedAt: new Date(),
+        };
+      });
+
+      await prisma.property_availability.createMany({
+        data: availabilityRecords,
+        skipDuplicates: true, // Skip if date already blocked
+      });
+    }
+
     revalidatePath('/admin/dashboard');
+    revalidatePath(`/properties/${data.propertyId}`);
     
     return booking;
   }, 'Bron yaradılarkən xəta baş verdi');

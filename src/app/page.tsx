@@ -54,7 +54,7 @@ export default function Page() {
             style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.02em' }}
           >
             <span className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] bg-clip-text text-transparent">
-              Günlük Kirayə Evləri
+              Günlük Kirayə Evlər
             </span>
           </h1>
           <p className="text-[9px] md:text-xs text-[#6B5D4F] mt-0.5" style={{ fontFamily: "'Poppins', sans-serif" }}>

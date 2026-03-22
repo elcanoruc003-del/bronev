@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart, FaCalendarAlt } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart } from 'react-icons/fa';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
 interface Property {
@@ -33,7 +33,7 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [error, setError] = useState('');
   
   // Booking form
   const [checkIn, setCheckIn] = useState('');
@@ -112,6 +112,23 @@ export default function PropertyDetailPage() {
     return day === 6 || day === 0; // 6 = Şənbə, 0 = Bazar
   }
 
+  function isDateBlocked(dateStr: string): boolean {
+    return blockedDates.includes(dateStr);
+  }
+
+  function isDateRangeBlocked(startDateStr: string, endDateStr: string): boolean {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      if (isDateBlocked(dateStr)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function getPriceForGuests(guestCount: number): { weekday: number; weekend: number } | null {
     if (!property?.guestPricing || property.guestPricing.length === 0) return null;
     
@@ -125,6 +142,15 @@ export default function PropertyDetailPage() {
 
   function calculateNights() {
     if (checkIn && checkOut && property) {
+      // Check if any date in range is blocked
+      if (isDateRangeBlocked(checkIn, checkOut)) {
+        setError('Seçdiyiniz tarixlər arasında dolu günlər var. Zəhmət olmasa başqa tarix seçin.');
+        setNights(0);
+        setTotalPrice(0);
+        return;
+      }
+      
+      setError('');
       const start = new Date(checkIn);
       const end = new Date(checkOut);
       const diffTime = Math.abs(end.getTime() - start.getTime());
@@ -381,6 +407,17 @@ ${priceBreakdown}
                 </div>
               </div>
             )}
+
+            {/* Boş/Dolu Günlər - Mobile Optimized */}
+            <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-6">
+              <h2 className="text-base md:text-xl font-bold text-[#2C2416] mb-3 md:mb-4">Boş/Dolu Günlər</h2>
+              <AvailabilityCalendar
+                propertyId={property.id}
+                blockedDates={blockedDates}
+                readOnly={true}
+                showLegend={true}
+              />
+            </div>
           </div>
 
           {/* Right: Booking Card - Mobile Optimized */}
@@ -397,67 +434,33 @@ ${priceBreakdown}
                 <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik (həftəiçi/həftəsonu)</p>
               </div>
 
-              {/* Qiymət Cədvəli - Adam sayına görə */}
+              {/* Qiymət Cədvəli - Sadələşdirilmiş */}
               {property.guestPricing && property.guestPricing.length > 0 && (
-                <div className="mb-4 md:mb-6 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-lg p-3 md:p-4 border border-[#E5DDD5]">
-                  <h3 className="text-xs md:text-sm font-bold text-[#2C2416] mb-2 md:mb-3 text-center">
-                    💰 Qonaq Sayına Görə Qiymətlər
+                <div className="mb-4 md:mb-6 bg-white rounded-lg p-3 border border-[#E5DDD5]">
+                  <h3 className="text-sm font-bold text-[#2C2416] mb-3 text-center">
+                    Qiymətlər
                   </h3>
                   <div className="space-y-2">
                     {property.guestPricing.map((range, index) => (
-                      <div key={index} className="bg-white rounded-lg p-2 md:p-3 border border-[#E5DDD5]">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs md:text-sm font-semibold text-[#2C2416]">
-                            👥 {range.minGuests === range.maxGuests 
-                              ? `${range.minGuests} nəfər` 
-                              : `${range.minGuests}-${range.maxGuests} nəfər`}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs">
-                          <div className="bg-blue-50 rounded px-2 py-1.5">
-                            <div className="text-[#6B5D4F] mb-0.5">Həftəiçi</div>
-                            <div className="font-bold text-[#2C2416]">{range.weekday}₼/gecə</div>
-                          </div>
-                          <div className="bg-orange-50 rounded px-2 py-1.5">
-                            <div className="text-[#6B5D4F] mb-0.5">Həftəsonu</div>
-                            <div className="font-bold text-[#2C2416]">{range.weekend}₼/gecə</div>
-                          </div>
+                      <div key={index} className="flex items-center justify-between py-2 border-b border-[#F5F1ED] last:border-0">
+                        <span className="text-sm font-medium text-[#2C2416]">
+                          {range.minGuests === range.maxGuests 
+                            ? `${range.minGuests} nəfər` 
+                            : `${range.minGuests}-${range.maxGuests} nəfər`}
+                        </span>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-[#6B5D4F]">{range.weekday}₼</span>
+                          <span className="text-[#8B7355]">/</span>
+                          <span className="text-[#C19A6B] font-semibold">{range.weekend}₼</span>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-2 md:mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-[9px] md:text-xs text-blue-800 leading-tight">
-                      <span className="font-semibold">ℹ️ Qeyd:</span> Həftəsonu şənbə və bazar günləridir. Qiymət seçdiyiniz qonaq sayı və tarixlərə görə hesablanır.
-                    </p>
-                  </div>
+                  <p className="text-[10px] text-[#8B7355] mt-2 text-center">
+                    həftəiçi / həftəsonu
+                  </p>
                 </div>
               )}
-
-              {/* Mövcudluq Təqvimi */}
-              <div className="mb-4 md:mb-6">
-                <button
-                  onClick={() => setShowCalendar(!showCalendar)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-lg font-semibold text-sm md:text-base hover:shadow-lg transition-all"
-                >
-                  <span className="flex items-center gap-2">
-                    <FaCalendarAlt />
-                    Mövcudluq Təqvimi
-                  </span>
-                  <span className="text-xs">{showCalendar ? '▲' : '▼'}</span>
-                </button>
-                
-                {showCalendar && (
-                  <div className="mt-3 bg-white rounded-lg p-3 border border-[#E5DDD5]">
-                    <AvailabilityCalendar
-                      propertyId={property.id}
-                      blockedDates={blockedDates}
-                      readOnly={true}
-                      showLegend={true}
-                    />
-                  </div>
-                )}
-              </div>
 
               <div className="space-y-2.5 md:space-y-4">
                 {/* Check-in - Mobile Optimized */}
@@ -527,10 +530,18 @@ ${priceBreakdown}
                   </div>
                 )}
 
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs md:text-sm">
+                    {error}
+                  </div>
+                )}
+
                 {/* WhatsApp Button - Mobile Optimized */}
                 <button
                   onClick={handleWhatsAppBooking}
-                  className="w-full bg-gradient-to-r from-[#25D366] to-[#20BA5A] text-white py-3 md:py-4 rounded-lg font-semibold flex items-center justify-center gap-1.5 md:gap-2 hover:shadow-lg transition-all text-xs md:text-base"
+                  disabled={!!error || nights === 0}
+                  className="w-full bg-gradient-to-r from-[#25D366] to-[#20BA5A] text-white py-3 md:py-4 rounded-lg font-semibold flex items-center justify-center gap-1.5 md:gap-2 hover:shadow-lg transition-all text-xs md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FaWhatsapp className="text-base md:text-xl" />
                   <span>WhatsApp ilə sifariş et</span>
