@@ -279,6 +279,20 @@ export default function EditPropertyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Ev ID *
+                </label>
+                <input
+                  type="text"
+                  value={property.id}
+                  onChange={(e) => setProperty({ ...property, id: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none"
+                  required
+                />
+                <p className="text-xs text-[#8B7355] mt-1">Unikal ID təyin edin</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Başlıq *
                 </label>
                 <input

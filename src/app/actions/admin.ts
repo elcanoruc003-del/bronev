@@ -437,9 +437,93 @@ export async function updateProperty(propertyId: string, data: any) {
       throw new Error('Property ID tələb olunur');
     }
 
+    // Əgər ID dəyişdirilirsə, unikallığı yoxla
+    if (data.id && data.id !== propertyId) {
+      const existingProperty = await prisma.properties.findUnique({
+        where: { id: data.id },
+      });
+
+      if (existingProperty) {
+        throw new Error('Bu ID artıq istifadə olunur. Başqa ID seçin.');
+      }
+
+      // ID dəyişdirilirsə, köhnə property-ni sil və yenisini yarat
+      const oldProperty = await prisma.properties.findUnique({
+        where: { id: propertyId },
+        include: {
+          property_images: true,
+        },
+      });
+
+      if (!oldProperty) {
+        throw new Error('Ev tapılmadı');
+      }
+
+      const now = new Date();
+
+      // Yeni property yarat
+      const newProperty = await prisma.properties.create({
+        data: {
+          id: data.id,
+          title: data.title,
+          slug: oldProperty.slug,
+          city: data.city,
+          district: data.district || data.city,
+          address: data.address,
+          latitude: oldProperty.latitude,
+          longitude: oldProperty.longitude,
+          type: data.type,
+          bedrooms: Number(data.bedrooms),
+          beds: Number(data.beds || data.bedrooms),
+          bathrooms: Number(data.bathrooms),
+          area: Number(data.area),
+          maxGuests: Number(data.maxGuests),
+          basePricePerNight: Number(data.basePricePerNight),
+          weekendPriceMultiplier: Number(data.weekendPriceMultiplier) || 1.0,
+          shortDescription: data.shortDescription || data.longDescription?.substring(0, 150),
+          longDescription: data.longDescription || data.shortDescription,
+          featured: Boolean(data.featured),
+          status: oldProperty.status,
+          publishedAt: oldProperty.publishedAt,
+          amenities: data.amenities || oldProperty.amenities,
+          features: data.features || oldProperty.features,
+          guestPricing: data.guestPricing !== undefined ? data.guestPricing : oldProperty.guestPricing,
+          ownerId: oldProperty.ownerId,
+          views: oldProperty.views,
+          createdAt: oldProperty.createdAt,
+          updatedAt: now,
+        },
+      });
+
+      // Şəkilləri köçür
+      if (oldProperty.property_images && oldProperty.property_images.length > 0) {
+        for (const img of oldProperty.property_images) {
+          await prisma.property_images.create({
+            data: {
+              id: `img_${data.id}_${Date.now()}_${img.order}`,
+              url: img.url,
+              alt: img.alt,
+              order: img.order,
+              propertyId: data.id,
+            },
+          });
+        }
+      }
+
+      // Köhnə property-ni sil
+      await prisma.properties.delete({
+        where: { id: propertyId },
+      });
+
+      revalidatePath('/admin');
+      revalidatePath('/');
+
+      return newProperty;
+    }
+
+    // ID dəyişdirilmirsə, normal update et
     const now = new Date();
 
-    // Prepare update data
     const updateData: any = {
       title: data.title,
       city: data.city,
@@ -459,11 +543,9 @@ export async function updateProperty(propertyId: string, data: any) {
       updatedAt: now,
     };
 
-    // Only update amenities and features if provided
     if (data.amenities) updateData.amenities = data.amenities;
     if (data.features) updateData.features = data.features;
     
-    // Adam sayına görə qiymət əlavə et (JSON field)
     if (data.guestPricing !== undefined) {
       updateData.guestPricing = data.guestPricing;
     }
