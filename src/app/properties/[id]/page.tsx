@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart, FaCalendarAlt } from 'react-icons/fa';
+import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
 interface Property {
   id: string;
@@ -31,6 +32,8 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+  const [showCalendar, setShowCalendar] = useState(false);
   
   // Booking form
   const [checkIn, setCheckIn] = useState('');
@@ -42,12 +45,24 @@ export default function PropertyDetailPage() {
   useEffect(() => {
     fetchProperty();
     checkFavoriteStatus();
+    fetchAvailability();
   }, [params.id]);
 
   useEffect(() => {
     calculateNights();
   }, [checkIn, checkOut, guests, property]);
 
+  async function fetchAvailability() {
+    try {
+      const { getBlockedDates } = await import('@/app/actions/admin');
+      const result = await getBlockedDates(params.id as string);
+      if (result.success && result.data) {
+        setBlockedDates(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching availability:', error);
+    }
+  }
   function checkFavoriteStatus() {
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
@@ -418,6 +433,31 @@ ${priceBreakdown}
                   </div>
                 </div>
               )}
+
+              {/* Mövcudluq Təqvimi */}
+              <div className="mb-4 md:mb-6">
+                <button
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white rounded-lg font-semibold text-sm md:text-base hover:shadow-lg transition-all"
+                >
+                  <span className="flex items-center gap-2">
+                    <FaCalendarAlt />
+                    Mövcudluq Təqvimi
+                  </span>
+                  <span className="text-xs">{showCalendar ? '▲' : '▼'}</span>
+                </button>
+                
+                {showCalendar && (
+                  <div className="mt-3 bg-white rounded-lg p-3 border border-[#E5DDD5]">
+                    <AvailabilityCalendar
+                      propertyId={property.id}
+                      blockedDates={blockedDates}
+                      readOnly={true}
+                      showLegend={true}
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-2.5 md:space-y-4">
                 {/* Check-in - Mobile Optimized */}

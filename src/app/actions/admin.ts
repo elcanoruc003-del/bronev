@@ -954,3 +954,111 @@ export async function createAdminBooking(data: {
     return booking;
   }, 'Bron yaradılarkən xəta baş verdi');
 }
+
+
+/**
+ * Get property availability dates
+ */
+export async function getPropertyAvailability(propertyId: string) {
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    const availability = await prisma.property_availability.findMany({
+      where: { 
+        propertyId,
+        endDate: { gte: new Date() } // Only future dates
+      },
+      orderBy: { startDate: 'asc' },
+    });
+
+    return availability;
+  }, 'Mövcudluq məlumatları yüklənərkən xəta');
+}
+
+/**
+ * Update property availability (batch update)
+ */
+export async function updatePropertyAvailability(
+  propertyId: string,
+  blockedDates: string[] // Array of YYYY-MM-DD strings
+) {
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    // Delete all future availability records for this property
+    await prisma.property_availability.deleteMany({
+      where: {
+        propertyId,
+        startDate: { gte: new Date() },
+      },
+    });
+
+    // Create new availability records for blocked dates
+    if (blockedDates.length > 0) {
+      const availabilityRecords = blockedDates.map((dateStr) => {
+        const date = new Date(dateStr);
+        return {
+          id: `avail_${propertyId}_${dateStr}_${Date.now()}`,
+          propertyId,
+          startDate: date,
+          endDate: date,
+          isAvailable: false,
+          blockReason: 'Admin blocked',
+          updatedAt: new Date(),
+        };
+      });
+
+      await prisma.property_availability.createMany({
+        data: availabilityRecords,
+      });
+    }
+
+    revalidatePath('/admin');
+    revalidatePath(`/properties/${propertyId}`);
+
+    return { success: true, blockedCount: blockedDates.length };
+  }, 'Mövcudluq yenilənərkən xəta');
+}
+
+/**
+ * Get blocked dates for a property (for calendar display)
+ */
+export async function getBlockedDates(propertyId: string) {
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    const blockedAvailability = await prisma.property_availability.findMany({
+      where: {
+        propertyId,
+        isAvailable: false,
+        endDate: { gte: new Date() },
+      },
+      select: {
+        startDate: true,
+        endDate: true,
+      },
+    });
+
+    // Convert to array of date strings
+    const blockedDates: string[] = [];
+    blockedAvailability.forEach((record) => {
+      const start = new Date(record.startDate);
+      const end = new Date(record.endDate);
+      
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        if (!blockedDates.includes(dateStr)) {
+          blockedDates.push(dateStr);
+        }
+      }
+    });
+
+    return blockedDates;
+  }, 'Dolu tarixlər yüklənərkən xəta');
+}

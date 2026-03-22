@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaArrowUp, FaArrowDown } from 'react-icons/fa';
-import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage, updateImageOrder } from '@/app/actions/admin';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaArrowUp, FaArrowDown, FaCalendarAlt } from 'react-icons/fa';
+import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage, updateImageOrder, getBlockedDates, updatePropertyAvailability } from '@/app/actions/admin';
 import Image from 'next/image';
+import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
 export default function EditPropertyPage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function EditPropertyPage() {
   const [property, setProperty] = useState<any>(null);
   const [newImages, setNewImages] = useState<Array<{ url: string; alt: string }>>([]);
   const [customAmenity, setCustomAmenity] = useState('');
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
 
   // Birləşdirilmiş imkanlar siyahısı
   const amenitiesList = [
@@ -28,6 +31,7 @@ export default function EditPropertyPage() {
 
   useEffect(() => {
     loadProperty();
+    loadAvailability();
   }, [propertyId]);
 
   async function loadProperty() {
@@ -48,6 +52,28 @@ export default function EditPropertyPage() {
       setIsLoading(false);
     }
   }
+
+  async function loadAvailability() {
+    try {
+      setIsLoadingAvailability(true);
+      const result = await getBlockedDates(propertyId);
+      if (result.success && result.data) {
+        setBlockedDates(result.data);
+      }
+    } catch (error) {
+      console.error('Availability load error:', error);
+    } finally {
+      setIsLoadingAvailability(false);
+    }
+  }
+
+  const handleDateToggle = (date: string, isBlocked: boolean) => {
+    if (isBlocked) {
+      setBlockedDates([...blockedDates, date]);
+    } else {
+      setBlockedDates(blockedDates.filter(d => d !== date));
+    }
+  };
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -218,6 +244,12 @@ export default function EditPropertyPage() {
         }));
 
         await addPropertyImages(propertyId, imagesWithOrder);
+      }
+
+      // Update availability
+      const availResult = await updatePropertyAvailability(propertyId, blockedDates);
+      if (!availResult.success) {
+        console.error('Availability update failed:', availResult.error);
       }
 
       alert('Ev uğurla yeniləndi!');
@@ -800,6 +832,41 @@ export default function EditPropertyPage() {
                 className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                 required
               />
+            </div>
+
+            {/* Mövcudluq Təqvimi */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
+                <FaCalendarAlt className="text-[#8B7355]" />
+                <span>Mövcudluq Təqvimi</span>
+              </label>
+              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
+                {isLoadingAvailability ? (
+                  <div className="flex items-center justify-center py-8">
+                    <FaSpinner className="animate-spin text-2xl text-[#8B7355]" />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
+                      Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
+                    </p>
+                    <AvailabilityCalendar
+                      propertyId={propertyId}
+                      blockedDates={blockedDates}
+                      onDateToggle={handleDateToggle}
+                      readOnly={false}
+                      showLegend={true}
+                    />
+                    {blockedDates.length > 0 && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs text-blue-800">
+                          <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Premium */}

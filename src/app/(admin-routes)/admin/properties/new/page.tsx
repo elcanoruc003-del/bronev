@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaSpinner, FaUpload, FaTimes } from 'react-icons/fa';
-import { createProperty, addPropertyImages } from '@/app/actions/admin';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaCalendarAlt } from 'react-icons/fa';
+import { createProperty, addPropertyImages, updatePropertyAvailability } from '@/app/actions/admin';
+import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
 export default function NewPropertyPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function NewPropertyPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; alt: string }>>([]);
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     id: '',
@@ -46,6 +48,14 @@ export default function NewPropertyPage() {
   useEffect(() => {
     // Component mounted
   }, []);
+
+  const handleDateToggle = (date: string, isBlocked: boolean) => {
+    if (isBlocked) {
+      setBlockedDates([...blockedDates, date]);
+    } else {
+      setBlockedDates(blockedDates.filter(d => d !== date));
+    }
+  };
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -247,6 +257,17 @@ export default function NewPropertyPage() {
         }
       } else {
         console.log('No images to upload');
+      }
+
+      // Save availability (blocked dates)
+      if (blockedDates.length > 0) {
+        console.log('Saving availability:', blockedDates.length, 'blocked dates');
+        const availResult = await updatePropertyAvailability(result.data.id, blockedDates);
+        console.log('Availability result:', availResult);
+        
+        if (!availResult.success) {
+          console.error('Availability save failed:', availResult.error);
+        }
       }
 
       alert('Ev uğurla əlavə edildi!');
@@ -737,6 +758,32 @@ export default function NewPropertyPage() {
                 className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                 required
               />
+            </div>
+
+            {/* Mövcudluq Təqvimi */}
+            <div>
+              <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
+                <FaCalendarAlt className="text-[#8B7355]" />
+                <span>Mövcudluq Təqvimi</span>
+              </label>
+              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
+                <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
+                  Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
+                </p>
+                <AvailabilityCalendar
+                  blockedDates={blockedDates}
+                  onDateToggle={handleDateToggle}
+                  readOnly={false}
+                  showLegend={true}
+                />
+                {blockedDates.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-800">
+                      <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Submit */}
