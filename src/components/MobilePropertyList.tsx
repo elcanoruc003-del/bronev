@@ -341,49 +341,6 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
               <span className="font-semibold text-[#2C1810]">{property.area}m²</span>
             </div>
           </div>
-
-          {/* CTA Buttons - Ultra Minimal & Compact */}
-          <div className="flex items-center gap-1 pt-0.5">
-            <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} (ID: ${property.id}) haqqında məlumat almaq istəyirəm.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="
-                flex-1 flex items-center justify-center gap-0.5
-                py-1 rounded-md
-                bg-[#25D366] hover:bg-[#20BA5A]
-                text-white text-[8px] font-bold
-                shadow-sm hover:shadow
-                transition-all duration-200
-                active:scale-95
-              "
-              aria-label="WhatsApp ilə əlaqə"
-            >
-              <FaWhatsapp className="text-[10px]" />
-              <span>WhatsApp</span>
-            </a>
-
-            <a
-              href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
-              onClick={(e) => e.stopPropagation()}
-              className="
-                flex-1 flex items-center justify-center gap-0.5
-                py-1 rounded-md
-                bg-[#8B7355] hover:bg-[#6B5D4F]
-                text-white text-[8px] font-bold
-                shadow-sm hover:shadow
-                transition-all duration-200
-                active:scale-95
-              "
-              aria-label="Zəng et"
-            >
-              <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-              </svg>
-              <span>Zəng</span>
-            </a>
-          </div>
         </div>
       </div>
     </a>

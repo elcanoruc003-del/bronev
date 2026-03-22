@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaHeart, FaEye, FaStar, FaWhatsapp, FaPhone } from 'react-icons/fa'
+import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaHeart, FaEye, FaStar } from 'react-icons/fa'
 
 interface PropertyCardProps {
   property: {
@@ -131,28 +131,6 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               <div className="text-[9px] md:text-xs text-neutral-500">Vanna</div>
             </div>
           </div>
-        </div>
-
-        {/* Contact Buttons - Compact */}
-        <div className="flex items-center gap-2 mb-4">
-          <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Salam! ${property.title} haqqında məlumat almaq istəyirəm.`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 md:py-2.5 rounded-lg bg-[#25D366] hover:bg-[#20BA5A] text-white text-[10px] md:text-xs font-bold shadow-sm hover:shadow-md transition-all duration-200 active:scale-95"
-          >
-            <FaWhatsapp className="text-xs md:text-sm" />
-            <span>WhatsApp</span>
-          </a>
-          <a
-            href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 md:py-2.5 rounded-lg bg-[#8B7355] hover:bg-[#6B5D4F] text-white text-[10px] md:text-xs font-bold shadow-sm hover:shadow-md transition-all duration-200 active:scale-95"
-          >
-            <FaPhone className="text-[9px] md:text-xs" />
-            <span>Zəng</span>
-          </a>
         </div>
 
         {/* Details Button */}
