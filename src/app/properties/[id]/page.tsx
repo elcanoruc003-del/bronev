@@ -382,6 +382,43 @@ ${priceBreakdown}
                 <p className="text-xs md:text-sm text-[#6B5D4F]">gecəlik (həftəiçi/həftəsonu)</p>
               </div>
 
+              {/* Qiymət Cədvəli - Adam sayına görə */}
+              {property.guestPricing && property.guestPricing.length > 0 && (
+                <div className="mb-4 md:mb-6 bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-lg p-3 md:p-4 border border-[#E5DDD5]">
+                  <h3 className="text-xs md:text-sm font-bold text-[#2C2416] mb-2 md:mb-3 text-center">
+                    💰 Qonaq Sayına Görə Qiymətlər
+                  </h3>
+                  <div className="space-y-2">
+                    {property.guestPricing.map((range, index) => (
+                      <div key={index} className="bg-white rounded-lg p-2 md:p-3 border border-[#E5DDD5]">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs md:text-sm font-semibold text-[#2C2416]">
+                            👥 {range.minGuests === range.maxGuests 
+                              ? `${range.minGuests} nəfər` 
+                              : `${range.minGuests}-${range.maxGuests} nəfər`}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs">
+                          <div className="bg-blue-50 rounded px-2 py-1.5">
+                            <div className="text-[#6B5D4F] mb-0.5">Həftəiçi</div>
+                            <div className="font-bold text-[#2C2416]">{range.weekday}₼/gecə</div>
+                          </div>
+                          <div className="bg-orange-50 rounded px-2 py-1.5">
+                            <div className="text-[#6B5D4F] mb-0.5">Həftəsonu</div>
+                            <div className="font-bold text-[#2C2416]">{range.weekend}₼/gecə</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-2 md:mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-[9px] md:text-xs text-blue-800 leading-tight">
+                      <span className="font-semibold">ℹ️ Qeyd:</span> Həftəsonu şənbə və bazar günləridir. Qiymət seçdiyiniz qonaq sayı və tarixlərə görə hesablanır.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2.5 md:space-y-4">
                 {/* Check-in - Mobile Optimized */}
                 <div>
@@ -458,6 +495,64 @@ ${priceBreakdown}
                   <FaWhatsapp className="text-base md:text-xl" />
                   <span>WhatsApp ilə sifariş et</span>
                 </button>
+
+                {/* Qiymət Hesablama Məlumatı */}
+                {nights > 0 && (
+                  <div className="mt-3 md:mt-4 p-3 md:p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                    <h4 className="text-xs md:text-sm font-bold text-[#2C2416] mb-2 flex items-center gap-1.5">
+                      <span>📊</span>
+                      <span>Qiymət Hesablaması</span>
+                    </h4>
+                    <div className="space-y-1.5 text-[10px] md:text-xs text-[#6B5D4F]">
+                      {(() => {
+                        const start = new Date(checkIn);
+                        let weekdayNights = 0;
+                        let weekendNights = 0;
+                        const currentDate = new Date(start);
+                        
+                        for (let i = 0; i < nights; i++) {
+                          if (isWeekend(currentDate)) {
+                            weekendNights++;
+                          } else {
+                            weekdayNights++;
+                          }
+                          currentDate.setDate(currentDate.getDate() + 1);
+                        }
+                        
+                        const guestPrice = getPriceForGuests(guests);
+                        
+                        return (
+                          <>
+                            <div className="flex justify-between items-center py-1 border-b border-blue-200">
+                              <span>Qonaq sayı:</span>
+                              <span className="font-semibold text-[#2C2416]">{guests} nəfər</span>
+                            </div>
+                            {weekdayNights > 0 && (
+                              <div className="flex justify-between items-center py-1">
+                                <span>Həftəiçi gecələr:</span>
+                                <span className="font-semibold text-[#2C2416]">
+                                  {weekdayNights} × {guestPrice ? guestPrice.weekday : property.basePricePerNight}₼ = {weekdayNights * (guestPrice ? guestPrice.weekday : property.basePricePerNight)}₼
+                                </span>
+                              </div>
+                            )}
+                            {weekendNights > 0 && (
+                              <div className="flex justify-between items-center py-1">
+                                <span>Həftəsonu gecələr:</span>
+                                <span className="font-semibold text-[#2C2416]">
+                                  {weekendNights} × {guestPrice ? guestPrice.weekend : Math.round(property.basePricePerNight * (property.weekendPriceMultiplier || 1.0))}₼ = {weekendNights * (guestPrice ? guestPrice.weekend : Math.round(property.basePricePerNight * (property.weekendPriceMultiplier || 1.0)))}₼
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex justify-between items-center py-1.5 border-t-2 border-blue-300 mt-1.5">
+                              <span className="font-bold text-[#2C2416]">Ümumi məbləğ:</span>
+                              <span className="text-base md:text-lg font-bold text-[#8B7355]">{totalPrice}₼</span>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
