@@ -269,9 +269,9 @@ ${priceBreakdown}
           
           <button
             onClick={toggleFavorite}
-            className="flex items-center justify-center w-7 h-7 md:w-9 md:h-9 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
+            className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#FAF8F5] hover:bg-[#E5DDD5] transition-colors"
           >
-            <FaHeart className={`text-sm md:text-lg ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
+            <FaHeart className={`text-xs md:text-base ${isFavorite ? 'text-red-500' : 'text-[#6B5D4F]'}`} />
           </button>
         </div>
       </div>
