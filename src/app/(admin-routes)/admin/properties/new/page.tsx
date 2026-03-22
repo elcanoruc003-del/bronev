@@ -24,7 +24,7 @@ export default function NewPropertyPage() {
     maxGuests: 2,
     basePricePerNight: 50,
     weekendPricePerNight: 0, // 0 means use base price
-    guestPricing: {} as Record<number, { weekday: number; weekend: number }>, // Adam sayına görə qiymət
+    guestPricing: [] as Array<{ minGuests: number; maxGuests: number; weekday: number; weekend: number }>, // Aralıq əsaslı qiymət
     description: '',
     latitude: 40.4093,
     longitude: 49.8671,
@@ -436,21 +436,71 @@ export default function NewPropertyPage() {
               />
             </div>
 
-            {/* Qiymət - Adam sayına görə */}
+            {/* Qiymət - Aralıq əsaslı */}
             <div className="space-y-4">
               <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 border border-[#E5DDD5]">
                 <h3 className="text-base font-bold text-[#2C2416] mb-3">Adam Sayına Görə Qiymət</h3>
-                <p className="text-xs text-[#6B5D4F] mb-4">Hər adam sayı üçün həftəiçi və həftəsonu qiymətlərini təyin edin</p>
+                <p className="text-xs text-[#6B5D4F] mb-4">Qonaq sayı aralıqları üçün qiymətləri təyin edin (məsələn: 1-6 nəfər, 7-10 nəfər)</p>
                 
-                {/* Generate pricing inputs for each guest count */}
+                {/* Pricing ranges */}
                 <div className="space-y-3">
-                  {Array.from({ length: formData.maxGuests }, (_, i) => i + 1).map((guestCount) => (
-                    <div key={guestCount} className="bg-white rounded-lg p-3 border border-[#E5DDD5]">
-                      <div className="flex items-center justify-between mb-2">
+                  {formData.guestPricing.map((range, index) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border border-[#E5DDD5]">
+                      <div className="flex items-center justify-between mb-3">
                         <span className="text-sm font-semibold text-[#2C2416]">
-                          {guestCount} {guestCount === 1 ? 'nəfər' : 'nəfər'}
+                          Aralıq {index + 1}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newPricing = formData.guestPricing.filter((_, i) => i !== index);
+                            setFormData({ ...formData, guestPricing: newPricing });
+                          }}
+                          className="text-red-500 hover:text-red-700 text-xs font-medium"
+                        >
+                          Sil
+                        </button>
                       </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Min nəfər
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={formData.maxGuests}
+                            value={range.minGuests}
+                            onChange={(e) => {
+                              const newPricing = [...formData.guestPricing];
+                              newPricing[index] = { ...range, minGuests: parseInt(e.target.value) || 1 };
+                              setFormData({ ...formData, guestPricing: newPricing });
+                            }}
+                            placeholder="1"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Max nəfər
+                          </label>
+                          <input
+                            type="number"
+                            min={range.minGuests}
+                            max={formData.maxGuests}
+                            value={range.maxGuests}
+                            onChange={(e) => {
+                              const newPricing = [...formData.guestPricing];
+                              newPricing[index] = { ...range, maxGuests: parseInt(e.target.value) || range.minGuests };
+                              setFormData({ ...formData, guestPricing: newPricing });
+                            }}
+                            placeholder={formData.maxGuests.toString()}
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                      </div>
+                      
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
@@ -459,17 +509,12 @@ export default function NewPropertyPage() {
                           <input
                             type="number"
                             min="0"
-                            value={formData.guestPricing[guestCount]?.weekday || ''}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              guestPricing: {
-                                ...formData.guestPricing,
-                                [guestCount]: {
-                                  weekday: parseInt(e.target.value) || 0,
-                                  weekend: formData.guestPricing[guestCount]?.weekend || 0,
-                                }
-                              }
-                            })}
+                            value={range.weekday}
+                            onChange={(e) => {
+                              const newPricing = [...formData.guestPricing];
+                              newPricing[index] = { ...range, weekday: parseInt(e.target.value) || 0 };
+                              setFormData({ ...formData, guestPricing: newPricing });
+                            }}
                             placeholder="Qiymət"
                             className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
                           />
@@ -481,17 +526,12 @@ export default function NewPropertyPage() {
                           <input
                             type="number"
                             min="0"
-                            value={formData.guestPricing[guestCount]?.weekend || ''}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              guestPricing: {
-                                ...formData.guestPricing,
-                                [guestCount]: {
-                                  weekday: formData.guestPricing[guestCount]?.weekday || 0,
-                                  weekend: parseInt(e.target.value) || 0,
-                                }
-                              }
-                            })}
+                            value={range.weekend}
+                            onChange={(e) => {
+                              const newPricing = [...formData.guestPricing];
+                              newPricing[index] = { ...range, weekend: parseInt(e.target.value) || 0 };
+                              setFormData({ ...formData, guestPricing: newPricing });
+                            }}
                             placeholder="Qiymət"
                             className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
                           />
@@ -499,6 +539,28 @@ export default function NewPropertyPage() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Add new range button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const lastRange = formData.guestPricing[formData.guestPricing.length - 1];
+                      const newMinGuests = lastRange ? lastRange.maxGuests + 1 : 1;
+                      
+                      if (newMinGuests <= formData.maxGuests) {
+                        setFormData({
+                          ...formData,
+                          guestPricing: [
+                            ...formData.guestPricing,
+                            { minGuests: newMinGuests, maxGuests: formData.maxGuests, weekday: 0, weekend: 0 }
+                          ]
+                        });
+                      }
+                    }}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-dashed border-[#8B7355] text-[#8B7355] hover:bg-[#8B7355] hover:text-white transition-colors text-sm font-semibold"
+                  >
+                    + Yeni Aralıq Əlavə Et
+                  </button>
                 </div>
                 
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">

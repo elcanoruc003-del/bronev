@@ -12,7 +12,7 @@ interface Property {
   longDescription: string;
   basePricePerNight: number;
   weekendPriceMultiplier?: number;
-  guestPricing?: Record<number, { weekday: number; weekend: number }>; // Adam sayına görə qiymət
+  guestPricing?: Array<{ minGuests: number; maxGuests: number; weekday: number; weekend: number }>; // Aralıq əsaslı qiymət
   city: string;
   district: string;
   address: string;
@@ -97,6 +97,17 @@ export default function PropertyDetailPage() {
     return day === 6 || day === 0; // 6 = Şənbə, 0 = Bazar
   }
 
+  function getPriceForGuests(guestCount: number): { weekday: number; weekend: number } | null {
+    if (!property?.guestPricing || property.guestPricing.length === 0) return null;
+    
+    // Qonaq sayına uyğun aralığı tap
+    const range = property.guestPricing.find(
+      r => guestCount >= r.minGuests && guestCount <= r.maxGuests
+    );
+    
+    return range ? { weekday: range.weekday, weekend: range.weekend } : null;
+  }
+
   function calculateNights() {
     if (checkIn && checkOut && property) {
       const start = new Date(checkIn);
@@ -105,24 +116,26 @@ export default function PropertyDetailPage() {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setNights(diffDays);
       
-      // Adam sayına görə qiymət varsa, onu istifadə et
-      if (property.guestPricing && property.guestPricing[guests]) {
+      // Qonaq sayına görə qiymət varsa, onu istifadə et
+      const guestPrice = getPriceForGuests(guests);
+      
+      if (guestPrice) {
         let total = 0;
         const currentDate = new Date(start);
         
         // Hər gecəni yoxla və həftəiçi/həftəsonu qiymətini tətbiq et
         for (let i = 0; i < diffDays; i++) {
           if (isWeekend(currentDate)) {
-            total += property.guestPricing[guests].weekend;
+            total += guestPrice.weekend;
           } else {
-            total += property.guestPricing[guests].weekday;
+            total += guestPrice.weekday;
           }
           currentDate.setDate(currentDate.getDate() + 1);
         }
         
         setTotalPrice(total);
       } else {
-        // Əgər adam sayına görə qiymət yoxdursa, ümumi qiyməti istifadə et
+        // Əgər qonaq sayına görə qiymət yoxdursa, ümumi qiyməti istifadə et
         let total = 0;
         const currentDate = new Date(start);
         const weekendMultiplier = property.weekendPriceMultiplier || 1.0;
@@ -162,12 +175,14 @@ export default function PropertyDetailPage() {
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    if (property.guestPricing && property.guestPricing[guests]) {
+    const guestPrice = getPriceForGuests(guests);
+    
+    if (guestPrice) {
       if (weekdayNights > 0) {
-        breakdown += `${weekdayNights} həftəiçi gecə × ${property.guestPricing[guests].weekday}₼ = ${weekdayNights * property.guestPricing[guests].weekday}₼\n`;
+        breakdown += `${weekdayNights} həftəiçi gecə × ${guestPrice.weekday}₼ = ${weekdayNights * guestPrice.weekday}₼\n`;
       }
       if (weekendNights > 0) {
-        breakdown += `${weekendNights} həftəsonu gecə × ${property.guestPricing[guests].weekend}₼ = ${weekendNights * property.guestPricing[guests].weekend}₼`;
+        breakdown += `${weekendNights} həftəsonu gecə × ${guestPrice.weekend}₼ = ${weekendNights * guestPrice.weekend}₼`;
       }
     } else {
       const weekendMultiplier = property.weekendPriceMultiplier || 1.0;

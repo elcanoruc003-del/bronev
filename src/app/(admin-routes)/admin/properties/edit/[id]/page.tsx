@@ -454,66 +454,129 @@ export default function EditPropertyPage() {
                 </div>
               )}
 
-              {/* Adam sayına görə qiymət */}
+              {/* Adam sayına görə qiymət - Aralıq əsaslı */}
               <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 border border-[#E5DDD5]">
                 <h3 className="text-base font-bold text-[#2C2416] mb-3">Adam Sayına Görə Qiymət</h3>
-                <p className="text-xs text-[#6B5D4F] mb-4">Hər adam sayı üçün həftəiçi və həftəsonu qiymətlərini təyin edin</p>
+                <p className="text-xs text-[#6B5D4F] mb-4">Qonaq sayı aralıqları üçün qiymətləri təyin edin (məsələn: 1-6 nəfər, 7-10 nəfər)</p>
                 
                 <div className="space-y-3">
-                  {Array.from({ length: property.maxGuests }, (_, i) => i + 1).map((guestCount) => {
-                    const guestPricing = (property.guestPricing as any) || {};
-                    return (
-                      <div key={guestCount} className="bg-white rounded-lg p-3 border border-[#E5DDD5]">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-semibold text-[#2C2416]">
-                            {guestCount} {guestCount === 1 ? 'nəfər' : 'nəfər'}
-                          </span>
+                  {(Array.isArray(property.guestPricing) ? property.guestPricing : []).map((range: any, index: number) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border border-[#E5DDD5]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-semibold text-[#2C2416]">
+                          Aralıq {index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newPricing = property.guestPricing.filter((_: any, i: number) => i !== index);
+                            setProperty({ ...property, guestPricing: newPricing });
+                          }}
+                          className="text-red-500 hover:text-red-700 text-xs font-medium"
+                        >
+                          Sil
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Min nəfər
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={property.maxGuests}
+                            value={range.minGuests}
+                            onChange={(e) => {
+                              const newPricing = [...property.guestPricing];
+                              newPricing[index] = { ...range, minGuests: parseInt(e.target.value) || 1 };
+                              setProperty({ ...property, guestPricing: newPricing });
+                            }}
+                            placeholder="1"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
-                              Həftəiçi (₼/gecə)
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              value={guestPricing[guestCount]?.weekday || ''}
-                              onChange={(e) => {
-                                const newGuestPricing = { ...guestPricing };
-                                if (!newGuestPricing[guestCount]) {
-                                  newGuestPricing[guestCount] = { weekday: 0, weekend: 0 };
-                                }
-                                newGuestPricing[guestCount].weekday = parseInt(e.target.value) || 0;
-                                setProperty({ ...property, guestPricing: newGuestPricing });
-                              }}
-                              placeholder="Qiymət"
-                              className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
-                              Həftəsonu (₼/gecə)
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              value={guestPricing[guestCount]?.weekend || ''}
-                              onChange={(e) => {
-                                const newGuestPricing = { ...guestPricing };
-                                if (!newGuestPricing[guestCount]) {
-                                  newGuestPricing[guestCount] = { weekday: 0, weekend: 0 };
-                                }
-                                newGuestPricing[guestCount].weekend = parseInt(e.target.value) || 0;
-                                setProperty({ ...property, guestPricing: newGuestPricing });
-                              }}
-                              placeholder="Qiymət"
-                              className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Max nəfər
+                          </label>
+                          <input
+                            type="number"
+                            min={range.minGuests}
+                            max={property.maxGuests}
+                            value={range.maxGuests}
+                            onChange={(e) => {
+                              const newPricing = [...property.guestPricing];
+                              newPricing[index] = { ...range, maxGuests: parseInt(e.target.value) || range.minGuests };
+                              setProperty({ ...property, guestPricing: newPricing });
+                            }}
+                            placeholder={property.maxGuests.toString()}
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
                         </div>
                       </div>
-                    );
-                  })}
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Həftəiçi (₼/gecə)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={range.weekday}
+                            onChange={(e) => {
+                              const newPricing = [...property.guestPricing];
+                              newPricing[index] = { ...range, weekday: parseInt(e.target.value) || 0 };
+                              setProperty({ ...property, guestPricing: newPricing });
+                            }}
+                            placeholder="Qiymət"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#6B5D4F] mb-1">
+                            Həftəsonu (₼/gecə)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={range.weekend}
+                            onChange={(e) => {
+                              const newPricing = [...property.guestPricing];
+                              newPricing[index] = { ...range, weekend: parseInt(e.target.value) || 0 };
+                              setProperty({ ...property, guestPricing: newPricing });
+                            }}
+                            placeholder="Qiymət"
+                            className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentPricing = Array.isArray(property.guestPricing) ? property.guestPricing : [];
+                      const lastRange = currentPricing[currentPricing.length - 1];
+                      const newMinGuests = lastRange ? lastRange.maxGuests + 1 : 1;
+                      
+                      if (newMinGuests <= property.maxGuests) {
+                        setProperty({
+                          ...property,
+                          guestPricing: [
+                            ...currentPricing,
+                            { minGuests: newMinGuests, maxGuests: property.maxGuests, weekday: 0, weekend: 0 }
+                          ]
+                        });
+                      }
+                    }}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-dashed border-[#8B7355] text-[#8B7355] hover:bg-[#8B7355] hover:text-white transition-colors text-sm font-semibold"
+                  >
+                    + Yeni Aralıq Əlavə Et
+                  </button>
                 </div>
                 
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
