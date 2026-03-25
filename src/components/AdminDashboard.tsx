@@ -39,6 +39,8 @@ export default function AdminDashboard() {
   
   const [metrics, setMetrics] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
+  const [propertySearchId, setPropertySearchId] = useState('');
   const [bookings, setBookings] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
 
@@ -127,6 +129,7 @@ export default function AdminDashboard() {
         const propertiesResult = await getAdminProperties();
         if (propertiesResult.success && propertiesResult.data) {
           setProperties(propertiesResult.data);
+          setFilteredProperties(propertiesResult.data);
         }
       } else if (activeTab === 'bookings') {
         const bookingsResult = await getAdminBookings();
@@ -163,6 +166,18 @@ export default function AdminDashboard() {
       setProperties(properties.map(p => 
         p.id === id ? { ...p, featured: !p.featured } : p
       ));
+    }
+  }
+
+  function handlePropertySearch(searchId: string) {
+    setPropertySearchId(searchId);
+    if (searchId.trim() === '') {
+      setFilteredProperties(properties);
+    } else {
+      const filtered = properties.filter(p => 
+        p.id.toLowerCase().includes(searchId.toLowerCase())
+      );
+      setFilteredProperties(filtered);
     }
   }
 
@@ -581,6 +596,17 @@ export default function AdminDashboard() {
               </button>
             </div>
 
+            {/* ID ilə Axtarış */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="ID ilə axtar..."
+                value={propertySearchId}
+                onChange={(e) => handlePropertySearch(e.target.value)}
+                className="w-full md:w-64 px-4 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355]/20 outline-none text-sm"
+              />
+            </div>
+
             <div className="bg-white rounded-xl md:rounded-2xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -594,11 +620,12 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E5DDD5]">
-                    {properties.map((property) => (
+                    {filteredProperties.map((property) => (
                       <tr key={property.id} className="hover:bg-[#FAF8F5]">
                         <td className="px-3 md:px-6 py-3 md:py-4">
                           <p className="font-semibold text-[#2C2416] text-xs md:text-sm">{property.title}</p>
                           <p className="text-xs text-[#6B5D4F]">{property.city}</p>
+                          <p className="text-[10px] text-[#8B7355] font-mono">ID: {property.id}</p>
                           <p className="text-xs font-bold text-[#8B7355] md:hidden mt-1">{property.basePricePerNight} ₼</p>
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 font-bold text-xs md:text-sm hidden md:table-cell">{property.basePricePerNight} ₼</td>

@@ -362,6 +362,7 @@ enum PropertyType {
   COTTAGE
   STUDIO
   LOFT
+  AFRAME
 }
 
 enum PoolType {

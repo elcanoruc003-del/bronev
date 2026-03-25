@@ -130,7 +130,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
               >
                 <option value="">Hamısı</option>
                 <option value="VILLA">Villa</option>
-                <option value="APARTMENT">Mənzil</option>
+                <option value="AFRAME">A-frame</option>
                 <option value="HOUSE">Ev</option>
                 <option value="COTTAGE">Bağ evi</option>
               </select>
