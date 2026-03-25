@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaCalendarAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaCalendarAlt, FaSwimmingPool } from 'react-icons/fa';
 import { createProperty, addPropertyImages, updatePropertyAvailability } from '@/app/actions/admin';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
@@ -386,16 +386,43 @@ export default function NewPropertyPage() {
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Hovuz *
                 </label>
-                <select
-                  value={formData.poolType}
-                  onChange={(e) => setFormData({ ...formData, poolType: e.target.value as any })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                  required
-                >
-                  <option value="NONE">Hovuzsuz</option>
-                  <option value="REGULAR">Sadə Hovuzlu</option>
-                  <option value="HEATED">İsti Hovuzlu</option>
-                </select>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, poolType: 'NONE' })}
+                    className={`flex items-center gap-1.5 px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                      formData.poolType === 'NONE'
+                        ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-md'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    Hovuzsuz
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, poolType: 'REGULAR' })}
+                    className={`flex items-center gap-1.5 px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                      formData.poolType === 'REGULAR'
+                        ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-md'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    <FaSwimmingPool className="text-sm" />
+                    Sadə Hovuzlu
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, poolType: 'HEATED' })}
+                    className={`flex items-center gap-1.5 px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                      formData.poolType === 'HEATED'
+                        ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-md'
+                        : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                    }`}
+                  >
+                    <FaSwimmingPool className="text-sm" />
+                    İsti Hovuzlu
+                  </button>
+                </div>
               </div>
 
               <div>
