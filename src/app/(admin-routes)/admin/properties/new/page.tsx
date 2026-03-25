@@ -794,30 +794,32 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Mövcudluq Təqvimi */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
-                <FaCalendarAlt className="text-[#8B7355]" />
-                <span>Mövcudluq Təqvimi</span>
-              </label>
-              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
-                <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
-                  Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
-                </p>
-                <AvailabilityCalendar
-                  blockedDates={blockedDates}
-                  onDateToggle={handleDateToggle}
-                  readOnly={false}
-                  showLegend={true}
-                />
-                {blockedDates.length > 0 && (
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-xs text-blue-800">
-                      <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
-                    </p>
-                  </div>
-                )}
+            {formData.showAvailability && (
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
+                  <FaCalendarAlt className="text-[#8B7355]" />
+                  <span>Mövcudluq Təqvimi</span>
+                </label>
+                <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
+                  <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
+                    Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
+                  </p>
+                  <AvailabilityCalendar
+                    blockedDates={blockedDates}
+                    onDateToggle={handleDateToggle}
+                    readOnly={false}
+                    showLegend={true}
+                  />
+                  {blockedDates.length > 0 && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-800">
+                        <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Submit */}
             <div className="flex space-x-4">

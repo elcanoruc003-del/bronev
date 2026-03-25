@@ -166,21 +166,58 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
           </div>
 
           {/* Pool Filter & Reset */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <FaSwimmingPool className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
-              <select
-                value={filters.poolType}
-                onChange={(e) => setFilters({ ...filters, poolType: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-sm appearance-none"
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-[#2C2416]">
+              Hovuz
+            </label>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setFilters({ ...filters, poolType: '' })}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
+                  filters.poolType === ''
+                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                }`}
               >
-                <option value="">Hovuz</option>
-                <option value="NONE">Hovuzsuz</option>
-                <option value="REGULAR">Sadə Hovuzlu</option>
-                <option value="HEATED">İsti Hovuzlu</option>
-              </select>
+                Hamısı
+              </button>
+              <button
+                onClick={() => setFilters({ ...filters, poolType: 'NONE' })}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
+                  filters.poolType === 'NONE'
+                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                }`}
+              >
+                Hovuzsuz
+              </button>
+              <button
+                onClick={() => setFilters({ ...filters, poolType: 'REGULAR' })}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
+                  filters.poolType === 'REGULAR'
+                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                }`}
+              >
+                <FaSwimmingPool className="text-xs" />
+                Sadə Hovuzlu
+              </button>
+              <button
+                onClick={() => setFilters({ ...filters, poolType: 'HEATED' })}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
+                  filters.poolType === 'HEATED'
+                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
+                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                }`}
+              >
+                <FaSwimmingPool className="text-xs" />
+                İsti Hovuzlu
+              </button>
             </div>
+          </div>
 
+          {/* Reset Button */}
+          <div className="flex justify-end">
             <button
               onClick={handleReset}
               className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E5DDD5] text-[#6B5D4F] hover:border-red-500 hover:text-red-500 transition-all text-sm"

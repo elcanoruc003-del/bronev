@@ -834,53 +834,71 @@ export default function EditPropertyPage() {
               />
             </div>
 
-            {/* Mövcudluq Təqvimi */}
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
-                <FaCalendarAlt className="text-[#8B7355]" />
-                <span>Mövcudluq Təqvimi</span>
+            {/* Premium və Boş/Dolu Tarixlər */}
+            <div className="space-y-3">
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={property.featured}
+                  onChange={(e) => setProperty({ ...property, featured: e.target.checked })}
+                  className="w-5 h-5 rounded border-[#E5DDD5] text-[#8B7355] focus:ring-[#8B7355]"
+                />
+                <div>
+                  <span className="text-sm font-semibold text-[#2C2416]">Premium/VIP Ev</span>
+                  <p className="text-xs text-[#8B7355]">İlk sətirdə göstərilsin</p>
+                </div>
               </label>
-              <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
-                {isLoadingAvailability ? (
-                  <div className="flex items-center justify-center py-8">
-                    <FaSpinner className="animate-spin text-2xl text-[#8B7355]" />
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
-                      Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
-                    </p>
-                    <AvailabilityCalendar
-                      propertyId={propertyId}
-                      blockedDates={blockedDates}
-                      onDateToggle={handleDateToggle}
-                      readOnly={false}
-                      showLegend={true}
-                    />
-                    {blockedDates.length > 0 && (
-                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-xs text-blue-800">
-                          <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={property.showAvailability || false}
+                  onChange={(e) => setProperty({ ...property, showAvailability: e.target.checked })}
+                  className="w-5 h-5 rounded border-[#E5DDD5] text-[#8B7355] focus:ring-[#8B7355]"
+                />
+                <div>
+                  <span className="text-sm font-semibold text-[#2C2416]">Boş/Dolu Tarixlər</span>
+                  <p className="text-xs text-[#8B7355]">Təqvim müştərilərə göstərilsin</p>
+                </div>
+              </label>
             </div>
 
-            {/* Premium */}
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                checked={property.featured}
-                onChange={(e) => setProperty({ ...property, featured: e.target.checked })}
-                className="w-5 h-5 rounded border-[#E5DDD5] text-[#8B7355] focus:ring-[#8B7355]"
-              />
-              <label className="text-sm font-semibold text-[#2C2416]">
-                Premium/VIP Ev (İlk sətirdə göstərilsin)
-              </label>
-            </div>
+            {/* Mövcudluq Təqvimi */}
+            {property.showAvailability && (
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-3 flex items-center gap-2">
+                  <FaCalendarAlt className="text-[#8B7355]" />
+                  <span>Mövcudluq Təqvimi</span>
+                </label>
+                <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 md:p-6 border border-[#E5DDD5]">
+                  {isLoadingAvailability ? (
+                    <div className="flex items-center justify-center py-8">
+                      <FaSpinner className="animate-spin text-2xl text-[#8B7355]" />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-xs md:text-sm text-[#6B5D4F] mb-4">
+                        Dolu olan tarixləri seçin. Yaşıl tarixlər boş, qırmızı tarixlər dolu olacaq.
+                      </p>
+                      <AvailabilityCalendar
+                        propertyId={propertyId}
+                        blockedDates={blockedDates}
+                        onDateToggle={handleDateToggle}
+                        readOnly={false}
+                        showLegend={true}
+                      />
+                      {blockedDates.length > 0 && (
+                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-xs text-blue-800">
+                            <span className="font-semibold">{blockedDates.length}</span> tarix dolu olaraq qeyd edildi
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Submit */}
             <div className="flex space-x-4">
