@@ -24,6 +24,7 @@ interface Property {
   amenities: string[];
   features: string[];
   images: Array<{ url: string; alt?: string }>;
+  showAvailability?: boolean;
 }
 
 export default function PropertyDetailPage() {
@@ -409,15 +410,17 @@ ${priceBreakdown}
             )}
 
             {/* Boş/Dolu Günlər - Mobile Optimized */}
-            <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-6">
-              <h2 className="text-base md:text-xl font-bold text-[#2C2416] mb-3 md:mb-4">Boş/Dolu Günlər</h2>
-              <AvailabilityCalendar
-                propertyId={property.id}
-                blockedDates={blockedDates}
-                readOnly={true}
-                showLegend={true}
-              />
-            </div>
+            {property.showAvailability && (
+              <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-6">
+                <h2 className="text-base md:text-xl font-bold text-[#2C2416] mb-3 md:mb-4">Boş/Dolu Günlər</h2>
+                <AvailabilityCalendar
+                  propertyId={property.id}
+                  blockedDates={blockedDates}
+                  readOnly={true}
+                  showLegend={true}
+                />
+              </div>
+            )}
           </div>
 
           {/* Right: Booking Card - Mobile Optimized */}

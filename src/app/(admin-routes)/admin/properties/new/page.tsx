@@ -34,6 +34,7 @@ export default function NewPropertyPage() {
     amenities: [] as string[],
     features: [] as string[],
     featured: false,
+    showAvailability: false,
   });
 
   const [customAmenity, setCustomAmenity] = useState('');
@@ -225,6 +226,7 @@ export default function NewPropertyPage() {
         amenities: formData.amenities,
         features: formData.features,
         featured: Boolean(formData.featured),
+        showAvailability: Boolean(formData.showAvailability),
       };
 
       console.log('Submitting property data:', propertyData);
@@ -319,7 +321,7 @@ export default function NewPropertyPage() {
                 <p className="text-xs text-[#8B7355] mt-1">Unikal ID təyin edin</p>
               </div>
 
-              <div className="flex items-center">
+              <div className="space-y-3">
                 <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -330,6 +332,19 @@ export default function NewPropertyPage() {
                   <div>
                     <span className="text-sm font-semibold text-[#2C2416]">Premium/VIP Ev</span>
                     <p className="text-xs text-[#8B7355]">İlk sətirdə göstərilsin</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.showAvailability}
+                    onChange={(e) => setFormData({ ...formData, showAvailability: e.target.checked })}
+                    className="w-5 h-5 rounded border-[#E5DDD5] text-[#8B7355] focus:ring-[#8B7355]"
+                  />
+                  <div>
+                    <span className="text-sm font-semibold text-[#2C2416]">Boş/Dolu Tarixlər</span>
+                    <p className="text-xs text-[#8B7355]">Təqvim müştərilərə göstərilsin</p>
                   </div>
                 </label>
               </div>

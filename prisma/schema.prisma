@@ -141,6 +141,7 @@ model properties {
   status                 PropertyStatus          @default(DRAFT)
   featured               Boolean                 @default(false)
   verified               Boolean                 @default(false)
+  showAvailability       Boolean                 @default(false)
   metaTitle              String?
   metaDescription        String?
   metaKeywords           String[]

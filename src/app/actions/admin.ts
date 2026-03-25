@@ -409,6 +409,7 @@ export async function createProperty(data: any) {
       features: data.features || [],
       ownerId: currentUser.id,
       updatedAt: now,
+      showAvailability: Boolean(data.showAvailability),
     };
 
     // Adam sayına görə qiymət əlavə et (JSON field)
@@ -490,6 +491,7 @@ export async function updateProperty(propertyId: string, data: any) {
           amenities: data.amenities || oldProperty.amenities,
           features: data.features || oldProperty.features,
           guestPricing: data.guestPricing !== undefined ? data.guestPricing : oldProperty.guestPricing,
+          showAvailability: data.showAvailability !== undefined ? Boolean(data.showAvailability) : oldProperty.showAvailability,
           ownerId: oldProperty.ownerId,
           views: oldProperty.views,
           createdAt: oldProperty.createdAt,
@@ -551,6 +553,10 @@ export async function updateProperty(propertyId: string, data: any) {
     
     if (data.guestPricing !== undefined) {
       updateData.guestPricing = data.guestPricing;
+    }
+
+    if (data.showAvailability !== undefined) {
+      updateData.showAvailability = Boolean(data.showAvailability);
     }
 
     const property = await prisma.properties.update({

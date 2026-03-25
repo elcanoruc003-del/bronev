@@ -587,8 +587,8 @@ export default function AdminDashboard() {
                   <thead className="bg-[#FAF8F5] border-b border-[#E5DDD5]">
                     <tr>
                       <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Ev</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Qiymət</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416] hidden sm:table-cell">Status</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416] hidden md:table-cell">Qiymət</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Status</th>
                       <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416] hidden lg:table-cell">Baxış</th>
                       <th className="px-3 md:px-6 py-3 md:py-4 text-left text-xs md:text-sm font-bold text-[#2C2416]">Əməliyyat</th>
                     </tr>
@@ -599,13 +599,14 @@ export default function AdminDashboard() {
                         <td className="px-3 md:px-6 py-3 md:py-4">
                           <p className="font-semibold text-[#2C2416] text-xs md:text-sm">{property.title}</p>
                           <p className="text-xs text-[#6B5D4F]">{property.city}</p>
+                          <p className="text-xs font-bold text-[#8B7355] md:hidden mt-1">{property.basePricePerNight} ₼</p>
                         </td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 font-bold text-xs md:text-sm">{property.basePricePerNight} ₼</td>
-                        <td className="px-3 md:px-6 py-3 md:py-4 hidden sm:table-cell">
+                        <td className="px-3 md:px-6 py-3 md:py-4 font-bold text-xs md:text-sm hidden md:table-cell">{property.basePricePerNight} ₼</td>
+                        <td className="px-3 md:px-6 py-3 md:py-4">
                           <select
                             value={property.status}
                             onChange={(e) => handleStatusChange(property.id, e.target.value)}
-                            className="text-xs md:text-sm border border-[#E5DDD5] rounded px-2 py-1"
+                            className="text-[10px] md:text-sm border border-[#E5DDD5] rounded px-1.5 md:px-2 py-1 w-full md:w-auto"
                           >
                             <option value="DRAFT">Draft</option>
                             <option value="PUBLISHED">Published</option>
@@ -614,7 +615,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 hidden lg:table-cell text-xs md:text-sm">{property.views}</td>
                         <td className="px-3 md:px-6 py-3 md:py-4">
-                          <div className="flex space-x-1 md:space-x-2">
+                          <div className="flex flex-col md:flex-row gap-1 md:gap-2">
                             <button
                               onClick={() => handleToggleFeatured(property.id)}
                               className={`p-1.5 md:p-2 rounded text-xs md:text-sm ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
