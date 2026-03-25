@@ -137,6 +137,7 @@ model properties {
   area                   Int
   floor                  Int?
   totalFloors            Int?
+  poolType               PoolType                @default(NONE)
   status                 PropertyStatus          @default(DRAFT)
   featured               Boolean                 @default(false)
   verified               Boolean                 @default(false)
@@ -360,6 +361,12 @@ enum PropertyType {
   COTTAGE
   STUDIO
   LOFT
+}
+
+enum PoolType {
+  NONE
+  REGULAR
+  HEATED
 }
 
 enum UserRole {

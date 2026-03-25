@@ -20,6 +20,7 @@ export default function NewPropertyPage() {
     city: '',
     address: '',
     type: 'VILLA' as const,
+    poolType: 'NONE' as 'NONE' | 'REGULAR' | 'HEATED',
     bedrooms: 1,
     bathrooms: 1,
     area: 50,
@@ -207,6 +208,7 @@ export default function NewPropertyPage() {
         district: formData.city.trim(), // Use city as district
         address: formData.address.trim(),
         type: formData.type,
+        poolType: formData.poolType,
         bedrooms: Number(formData.bedrooms) || 1,
         beds: Number(formData.bedrooms) || 1, // Use bedrooms count as beds
         bathrooms: Number(formData.bathrooms) || 1,
@@ -362,6 +364,22 @@ export default function NewPropertyPage() {
                   <option value="APARTMENT">Mənzil</option>
                   <option value="HOUSE">Ev</option>
                   <option value="COTTAGE">Bağ evi</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                  Hovuz *
+                </label>
+                <select
+                  value={formData.poolType}
+                  onChange={(e) => setFormData({ ...formData, poolType: e.target.value as any })}
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                  required
+                >
+                  <option value="NONE">Hovuzsuz</option>
+                  <option value="REGULAR">Sadə Hovuzlu</option>
+                  <option value="HEATED">İsti Hovuzlu</option>
                 </select>
               </div>
 

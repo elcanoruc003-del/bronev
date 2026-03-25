@@ -72,7 +72,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
       if (filters.bedrooms) params.append('bedrooms', filters.bedrooms);
       if (filters.minPrice) params.append('minPrice', filters.minPrice);
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
-      if (filters.hasPool) params.append('hasPool', 'true');
+      if (filters.poolType) params.append('poolType', filters.poolType);
       if (filters.propertyType) params.append('type', filters.propertyType);
 
       const res = await fetch(`/api/properties?${params.toString()}`);

@@ -15,7 +15,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
     bedrooms: '',
     minPrice: '',
     maxPrice: '',
-    hasPool: false,
+    poolType: '',
     propertyType: '',
   });
 
@@ -30,7 +30,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
       bedrooms: '',
       minPrice: '',
       maxPrice: '',
-      hasPool: false,
+      poolType: '',
       propertyType: '',
     };
     setFilters(resetFilters);
@@ -167,17 +167,19 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
           {/* Pool Filter & Reset */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFilters({ ...filters, hasPool: !filters.hasPool })}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm ${
-                filters.hasPool
-                  ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                  : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-              }`}
-            >
-              <FaSwimmingPool className="text-xs" />
-              <span>Hovuz</span>
-            </button>
+            <div className="relative flex-1">
+              <FaSwimmingPool className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
+              <select
+                value={filters.poolType}
+                onChange={(e) => setFilters({ ...filters, poolType: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-sm appearance-none"
+              >
+                <option value="">Hovuz</option>
+                <option value="NONE">Hovuzsuz</option>
+                <option value="REGULAR">Sadə Hovuzlu</option>
+                <option value="HEATED">İsti Hovuzlu</option>
+              </select>
+            </div>
 
             <button
               onClick={handleReset}

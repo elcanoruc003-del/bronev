@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const maxPrice = searchParams.get('maxPrice')
     const guests = searchParams.get('guests')
     const bedrooms = searchParams.get('bedrooms')
-    const hasPool = searchParams.get('hasPool')
+    const poolType = searchParams.get('poolType')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
     const skip = (page - 1) * limit
@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
       where.bedrooms = { gte: parseInt(bedrooms) }
     }
 
-    if (hasPool === 'true') {
-      where.amenities = { has: 'Hovuz' }
+    if (poolType && poolType.trim()) {
+      where.poolType = poolType
     }
 
     const [properties, total] = await Promise.all([
