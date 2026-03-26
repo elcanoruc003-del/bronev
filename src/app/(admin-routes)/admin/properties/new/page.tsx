@@ -505,6 +505,55 @@ export default function NewPropertyPage() {
 
             {/* Qiymət - Aralıq əsaslı */}
             <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəiçi gecəlik qiymət (₼) *
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={formData.basePricePerNight}
+                    onChange={(e) => setFormData({ ...formData, basePricePerNight: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    required
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Bazar ertəsi - Cümə axşamı</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                    Həftəsonu gecəlik qiymət (₼)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.weekendPricePerNight}
+                    onChange={(e) => setFormData({ ...formData, weekendPricePerNight: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
+                    placeholder="Boş buraxsanız həftəiçi qiymət tətbiq olunacaq"
+                  />
+                  <p className="text-xs text-[#8B7355] mt-1">Cümə - Bazar (boş buraxsanız həftəiçi qiymət işlənəcək)</p>
+                </div>
+              </div>
+
+              {formData.weekendPricePerNight > 0 && formData.weekendPricePerNight !== formData.basePricePerNight && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-semibold">Qiymət fərqi:</span>{' '}
+                    {formData.weekendPricePerNight > formData.basePricePerNight ? (
+                      <>
+                        Həftəsonu <span className="font-bold">+{formData.weekendPricePerNight - formData.basePricePerNight}₼</span> ({Math.round(((formData.weekendPricePerNight - formData.basePricePerNight) / formData.basePricePerNight) * 100)}% baha)
+                      </>
+                    ) : (
+                      <>
+                        Həftəsonu <span className="font-bold">-{formData.basePricePerNight - formData.weekendPricePerNight}₼</span> ({Math.round(((formData.basePricePerNight - formData.weekendPricePerNight) / formData.basePricePerNight) * 100)}% ucuz)
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+
               <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 border border-[#E5DDD5]">
                 <h3 className="text-base font-bold text-[#2C2416] mb-3">Adam Sayına Görə Qiymət</h3>
                 <p className="text-xs text-[#6B5D4F] mb-4">Qonaq sayı aralıqları üçün qiymətləri təyin edin (məsələn: 1-6 nəfər, 7-10 nəfər)</p>
