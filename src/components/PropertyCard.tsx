@@ -77,8 +77,8 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </div>
 
         {/* Favorite Button */}
-        <button className="absolute top-3 md:top-4 right-3 md:right-4 w-[14px] h-[14px] md:w-8 md:h-8 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg">
-          <FaHeart className="text-brand-gold text-[7px] md:text-sm" />
+        <button className="absolute top-3 md:top-4 right-3 md:right-4 w-[8px] h-[8px] md:w-8 md:h-8 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg">
+          <FaHeart className="text-brand-gold text-[5px] md:text-sm" />
         </button>
 
         {/* Views Counter */}
