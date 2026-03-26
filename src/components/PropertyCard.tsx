@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaHeart, FaEye, FaStar } from 'react-icons/fa'
+import { FaBed, FaBath, FaUsers, FaSwimmingPool, FaMapMarkerAlt, FaHeart, FaEye, FaStar } from 'react-icons/fa'
 
 interface PropertyCardProps {
   property: {
@@ -14,7 +14,8 @@ interface PropertyCardProps {
     type: string
     bedrooms: number
     bathrooms: number
-    area: number
+    maxGuests: number
+    poolType?: 'NONE' | 'REGULAR' | 'HEATED'
     views: number
     featured: boolean
     images: { url: string; alt?: string }[]
@@ -106,15 +107,6 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="flex items-center justify-between text-neutral-600 mb-4 md:mb-6 pb-4 md:pb-6 border-b border-neutral-100">
           <div className="flex items-center space-x-1.5 md:space-x-2">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-neutral-50 rounded-lg flex items-center justify-center">
-              <FaRulerCombined className="text-brand-gold text-xs md:text-sm" />
-            </div>
-            <div>
-              <div className="text-xs md:text-sm font-bold text-brand-navy">{property.area}m²</div>
-              <div className="text-[9px] md:text-xs text-neutral-500">Sahə</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-1.5 md:space-x-2">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-neutral-50 rounded-lg flex items-center justify-center">
               <FaBed className="text-brand-gold text-xs md:text-sm" />
             </div>
             <div>
@@ -131,6 +123,28 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               <div className="text-[9px] md:text-xs text-neutral-500">Vanna</div>
             </div>
           </div>
+          <div className="flex items-center space-x-1.5 md:space-x-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-neutral-50 rounded-lg flex items-center justify-center">
+              <FaUsers className="text-brand-gold text-xs md:text-sm" />
+            </div>
+            <div>
+              <div className="text-xs md:text-sm font-bold text-brand-navy">{property.maxGuests}</div>
+              <div className="text-[9px] md:text-xs text-neutral-500">Qonaq</div>
+            </div>
+          </div>
+          {property.poolType && property.poolType !== 'NONE' && (
+            <div className="flex items-center space-x-1.5 md:space-x-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-neutral-50 rounded-lg flex items-center justify-center">
+                <FaSwimmingPool className="text-brand-gold text-xs md:text-sm" />
+              </div>
+              <div>
+                <div className="text-xs md:text-sm font-bold text-brand-navy">
+                  {property.poolType === 'HEATED' ? 'İsti' : 'Sadə'}
+                </div>
+                <div className="text-[9px] md:text-xs text-neutral-500">Hovuz</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Details Button */}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaWhatsapp, FaHeart, FaStar } from 'react-icons/fa';
+import { FaBed, FaBath, FaUsers, FaSwimmingPool, FaMapMarkerAlt, FaWhatsapp, FaHeart, FaStar } from 'react-icons/fa';
 
 interface Property {
   id: string;
@@ -14,7 +14,8 @@ interface Property {
   district: string;
   bedrooms: number;
   bathrooms: number;
-  area: number;
+  maxGuests: number;
+  poolType?: 'NONE' | 'REGULAR' | 'HEATED';
   featured: boolean;
   images: Array<{ url: string; alt?: string }>;
   property_images?: Array<{ url: string; alt?: string }>; // Fallback
@@ -337,9 +338,20 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             </div>
             <span className="text-[#E5DDD5]">•</span>
             <div className="flex items-center gap-0.5">
-              <FaRulerCombined className="text-[7px] text-[#8B7355]" />
-              <span className="font-semibold text-[#2C1810]">{property.area}m²</span>
+              <FaUsers className="text-[7px] text-[#8B7355]" />
+              <span className="font-semibold text-[#2C1810]">{property.maxGuests}</span>
             </div>
+            {property.poolType && property.poolType !== 'NONE' && (
+              <>
+                <span className="text-[#E5DDD5]">•</span>
+                <div className="flex items-center gap-0.5">
+                  <FaSwimmingPool className="text-[7px] text-[#8B7355]" />
+                  <span className="font-semibold text-[#2C1810]">
+                    {property.poolType === 'HEATED' ? 'İsti' : 'Sadə'}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

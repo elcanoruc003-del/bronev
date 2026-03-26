@@ -429,7 +429,7 @@ export default function EditPropertyPage() {
             </div>
 
             {/* Xüsusiyyətlər */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-[#2C2416] mb-2">
                   Yataq otağı *
@@ -468,20 +468,6 @@ export default function EditPropertyPage() {
                   min="1"
                   value={property.maxGuests}
                   onChange={(e) => setProperty({ ...property, maxGuests: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                  Sahə (m²) *
-                </label>
-                <input
-                  type="number"
-                  min="10"
-                  value={property.area}
-                  onChange={(e) => setProperty({ ...property, area: parseInt(e.target.value) })}
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 />

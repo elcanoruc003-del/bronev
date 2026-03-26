@@ -503,20 +503,6 @@ export default function NewPropertyPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-[#2C2416] mb-2">
-                Sahə (m²) *
-              </label>
-              <input
-                type="number"
-                min="10"
-                value={formData.area}
-                onChange={(e) => setFormData({ ...formData, area: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
-                required
-              />
-            </div>
-
             {/* Qiymət - Aralıq əsaslı */}
             <div className="space-y-4">
               <div className="bg-gradient-to-br from-[#FAF8F5] to-[#F5F1ED] rounded-xl p-4 border border-[#E5DDD5]">
