@@ -292,7 +292,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
             className="
               absolute bottom-1.5 right-1.5 z-10
-              w-[8px] h-[8px] rounded-full
+              w-4 h-4 rounded-full
               bg-white/95 backdrop-blur-sm shadow-md
               flex items-center justify-center
               transition-all duration-300
@@ -302,7 +302,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
           >
             <FaHeart
               className={`
-                text-[5px] transition-all duration-300
+                text-[9px] transition-all duration-300
                 ${favorites.has(property.id) 
                   ? 'text-red-500 scale-110' 
                   : 'text-[#C19A6B]'
