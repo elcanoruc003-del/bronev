@@ -189,10 +189,35 @@ export default function NewPropertyPage() {
     setIsSubmitting(true);
 
     try {
-      // Validate required fields
-      if (!formData.id || !formData.title || !formData.city || !formData.address || !formData.description) {
-        setError('Bütün tələb olunan sahələri doldurun');
+      // Validate required fields with specific messages
+      if (!formData.id) {
+        setError('❌ Ev ID-si tələb olunur');
         setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (!formData.title) {
+        setError('❌ Başlıq tələb olunur');
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (!formData.city) {
+        setError('❌ Şəhər seçilməlidir');
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (!formData.address) {
+        setError('❌ Ünvan tələb olunur');
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (!formData.description) {
+        setError('❌ Təsvir tələb olunur');
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
