@@ -540,6 +540,25 @@ ${priceBreakdown}
                   </div>
                 )}
 
+                {/* Welcome Notice Banner */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-sm p-2.5 md:p-3">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xs md:text-sm font-bold text-blue-900 mb-1">
+                        Qiymət Məlumatı
+                      </h3>
+                      <p className="text-[10px] md:text-xs text-blue-800 leading-relaxed">
+                        Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün aşağıdaki rezerv düyməsinə klik edib bizə mesaj göndərərək ətraflı məlumat əldə edə bilərsiniz.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* WhatsApp Button - Mobile Optimized */}
                 <button
                   onClick={handleWhatsAppBooking}
