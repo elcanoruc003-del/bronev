@@ -28,6 +28,12 @@ export async function GET(
       )
     }
 
+    // Increment view count
+    await prisma.properties.update({
+      where: { id: params.id },
+      data: { views: { increment: 1 } },
+    })
+
     console.log('[Detail API] Found property with', property.property_images?.length || 0, 'images');
 
     // Map property_images to images for frontend compatibility
