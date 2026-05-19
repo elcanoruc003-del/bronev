@@ -98,9 +98,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </Link>
         
         {/* Location */}
-        <div className="flex items-center text-neutral-600 mb-3 md:mb-4">
+        <div className="flex items-center text-neutral-600 mb-2 md:mb-3">
           <FaMapMarkerAlt className="text-brand-gold mr-2 flex-shrink-0 text-xs md:text-sm" />
           <span className="text-xs md:text-sm font-medium line-clamp-1">{property.district}, {property.city}</span>
+        </div>
+
+        {/* Property ID */}
+        <div className="text-[10px] md:text-xs text-neutral-500 font-mono mb-3 md:mb-4">
+          ID: {property.id}
         </div>
 
         {/* Features */}

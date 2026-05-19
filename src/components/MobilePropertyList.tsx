@@ -325,6 +325,11 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             <span className="line-clamp-1 font-medium">{property.city}</span>
           </div>
 
+          {/* Property ID - Minimal */}
+          <div className="text-[7px] text-[#8B7E74] font-mono">
+            ID: {property.id}
+          </div>
+
           {/* Features - Ultra Minimal */}
           <div className="flex items-center gap-1 text-[8px] text-[#8B7E74] py-0.5">
             <div className="flex items-center gap-0.5">
