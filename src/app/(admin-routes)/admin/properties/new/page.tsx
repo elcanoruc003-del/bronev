@@ -19,7 +19,7 @@ export default function NewPropertyPage() {
     title: '',
     city: '',
     address: '',
-    type: 'VILLA' as const,
+    type: 'AFRAME' as const,
     poolType: 'NONE' as 'NONE' | 'REGULAR' | 'HEATED',
     bedrooms: 1,
     bathrooms: 1,
@@ -375,10 +375,9 @@ export default function NewPropertyPage() {
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 >
-                  <option value="VILLA">Villa</option>
                   <option value="AFRAME">A-frame</option>
-                  <option value="HOUSE">Ev</option>
                   <option value="COTTAGE">Bağ evi</option>
+                  <option value="VILLA">Villa</option>
                 </select>
               </div>
 

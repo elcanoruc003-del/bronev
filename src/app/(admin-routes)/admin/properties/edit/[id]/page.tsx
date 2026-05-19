@@ -346,10 +346,9 @@ export default function EditPropertyPage() {
                   className="w-full px-4 py-3 rounded-xl border border-[#E5DDD5] focus:border-[#8B7355] outline-none"
                   required
                 >
-                  <option value="VILLA">Villa</option>
-                  <option value="APARTMENT">Mənzil</option>
-                  <option value="HOUSE">Ev</option>
+                  <option value="AFRAME">A-frame</option>
                   <option value="COTTAGE">Bağ evi</option>
+                  <option value="VILLA">Villa</option>
                 </select>
               </div>
 

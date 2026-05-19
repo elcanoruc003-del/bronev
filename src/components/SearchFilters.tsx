@@ -129,10 +129,9 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
                 className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-sm"
               >
                 <option value="">Hamısı</option>
-                <option value="VILLA">Villa</option>
                 <option value="AFRAME">A-frame</option>
-                <option value="HOUSE">Ev</option>
                 <option value="COTTAGE">Bağ evi</option>
+                <option value="VILLA">Villa</option>
               </select>
             </div>
 
