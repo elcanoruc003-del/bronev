@@ -21,9 +21,10 @@ async function safeServerAction<T>(
     return { success: true, data };
   } catch (error) {
     console.error(`Server action error: ${errorMessage}`, error);
+    const actualError = error instanceof Error ? error.message : String(error);
     return { 
       success: false, 
-      error: errorMessage,
+      error: `${errorMessage}: ${actualError}`,
     };
   }
 }
@@ -368,10 +369,14 @@ export async function getRevenueChartData(months: number = 12) {
  */
 export async function createProperty(data: any) {
   return safeServerAction(async () => {
+    console.log('[CREATE PROPERTY] Starting with data:', JSON.stringify(data, null, 2));
+    
     const currentUser = await getCurrentAdmin();
     if (!currentUser) {
       throw new Error('Giriş tələb olunur');
     }
+
+    console.log('[CREATE PROPERTY] Current user:', currentUser.id);
 
     // Generate slug from title
     const slug = data.title
@@ -413,15 +418,17 @@ export async function createProperty(data: any) {
     };
 
     // Adam sayına görə qiymət əlavə et (JSON field)
-    if (data.guestPricing && Object.keys(data.guestPricing).length > 0) {
+    if (data.guestPricing && Array.isArray(data.guestPricing) && data.guestPricing.length > 0) {
       propertyData.guestPricing = data.guestPricing;
     }
 
-    console.log('Creating property with data:', JSON.stringify(propertyData, null, 2));
+    console.log('[CREATE PROPERTY] Property data prepared:', JSON.stringify(propertyData, null, 2));
 
     const property = await prisma.properties.create({
       data: propertyData,
     });
+
+    console.log('[CREATE PROPERTY] Property created successfully:', property.id);
 
     revalidatePath('/admin');
     revalidatePath('/');
