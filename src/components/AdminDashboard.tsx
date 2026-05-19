@@ -153,7 +153,10 @@ export default function AdminDashboard() {
 
     const result = await deleteProperty(id);
     if (result.success) {
-      setProperties(properties.filter(p => p.id !== id));
+      // Update both properties and filteredProperties immediately
+      const updatedProperties = properties.filter(p => p.id !== id);
+      setProperties(updatedProperties);
+      setFilteredProperties(filteredProperties.filter(p => p.id !== id));
       alert('Ev uğurla silindi');
     } else {
       alert(result.error);
@@ -163,7 +166,12 @@ export default function AdminDashboard() {
   async function handleToggleFeatured(id: string) {
     const result = await togglePropertyFeatured(id);
     if (result.success) {
-      setProperties(properties.map(p => 
+      // Update both properties and filteredProperties immediately
+      const updatedProperties = properties.map(p => 
+        p.id === id ? { ...p, featured: !p.featured } : p
+      );
+      setProperties(updatedProperties);
+      setFilteredProperties(filteredProperties.map(p => 
         p.id === id ? { ...p, featured: !p.featured } : p
       ));
     }
