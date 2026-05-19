@@ -635,7 +635,6 @@ export default function AdminDashboard() {
                             onChange={(e) => handleStatusChange(property.id, e.target.value)}
                             className="text-[10px] md:text-sm border border-[#E5DDD5] rounded px-1.5 md:px-2 py-1 w-full md:w-auto"
                           >
-                            <option value="DRAFT">Draft</option>
                             <option value="PUBLISHED">Published</option>
                             <option value="ARCHIVED">Archived</option>
                           </select>
