@@ -307,6 +307,47 @@ export default function EditPropertyPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* VIP və Sıra Parametrləri */}
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-[#2C2416] mb-4 flex items-center gap-2">
+                <FaStar className="text-amber-500" />
+                <span>VIP Parametrləri</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={property.featured || false}
+                      onChange={(e) => setProperty({ ...property, featured: e.target.checked })}
+                      className="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                    />
+                    <div>
+                      <span className="text-sm font-semibold text-[#2C2416]">Premium/VIP Ev</span>
+                      <p className="text-xs text-[#8B7355]">Ana səhifədə ilk sətirdə göstərilsin</p>
+                    </div>
+                  </label>
+                </div>
+
+                {property.featured && (
+                  <div>
+                    <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                      VIP Sırası
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={property.featuredOrder || 0}
+                      onChange={(e) => setProperty({ ...property, featuredOrder: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-amber-300 bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none font-semibold"
+                      placeholder="0"
+                    />
+                    <p className="text-xs text-[#8B7355] mt-1">Kiçik rəqəm əvvəl göstərilir (0, 1, 2, 3...)</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Əsas Məlumatlar */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>

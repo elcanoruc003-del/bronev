@@ -34,6 +34,7 @@ export default function NewPropertyPage() {
     amenities: [] as string[],
     features: [] as string[],
     featured: false,
+    featuredOrder: 0,
     showAvailability: false,
   });
 
@@ -251,6 +252,7 @@ export default function NewPropertyPage() {
         amenities: formData.amenities,
         features: formData.features,
         featured: Boolean(formData.featured),
+        featuredOrder: Number(formData.featuredOrder) || 0,
         showAvailability: Boolean(formData.showAvailability),
       };
 
@@ -359,6 +361,23 @@ export default function NewPropertyPage() {
                     <p className="text-xs text-[#8B7355]">İlk sətirdə göstərilsin</p>
                   </div>
                 </label>
+
+                {formData.featured && (
+                  <div>
+                    <label className="block text-sm font-semibold text-[#2C2416] mb-2">
+                      VIP Sırası
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.featuredOrder || 0}
+                      onChange={(e) => setFormData({ ...formData, featuredOrder: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-amber-300 bg-amber-50 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none font-semibold"
+                      placeholder="0"
+                    />
+                    <p className="text-xs text-[#8B7355] mt-1">Kiçik rəqəm əvvəl göstərilir (0, 1, 2, 3...)</p>
+                  </div>
+                )}
 
                 <label className="flex items-center space-x-3 cursor-pointer">
                   <input

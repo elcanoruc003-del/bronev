@@ -163,39 +163,6 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleToggleFeatured(id: string) {
-    const result = await togglePropertyFeatured(id);
-    if (result.success) {
-      // Update both properties and filteredProperties immediately
-      const updatedProperties = properties.map(p => 
-        p.id === id ? { ...p, featured: !p.featured } : p
-      );
-      setProperties(updatedProperties);
-      setFilteredProperties(filteredProperties.map(p => 
-        p.id === id ? { ...p, featured: !p.featured } : p
-      ));
-    }
-  }
-
-  async function handleFeaturedOrderChange(id: string, order: number) {
-    try {
-      const { updatePropertyFeaturedOrder } = await import('@/app/actions/admin');
-      const result = await updatePropertyFeaturedOrder(id, order);
-      if (result.success) {
-        // Update both properties and filteredProperties immediately
-        const updatedProperties = properties.map(p => 
-          p.id === id ? { ...p, featuredOrder: order } : p
-        );
-        setProperties(updatedProperties);
-        setFilteredProperties(filteredProperties.map(p => 
-          p.id === id ? { ...p, featuredOrder: order } : p
-        ));
-      }
-    } catch (error) {
-      console.error('Featured order update error:', error);
-    }
-  }
-
   function handlePropertySearch(searchId: string) {
     setPropertySearchId(searchId);
     if (searchId.trim() === '') {
@@ -694,24 +661,6 @@ export default function AdminDashboard() {
                         <td className="px-3 md:px-6 py-3 md:py-4 hidden lg:table-cell text-xs md:text-sm">{property.views}</td>
                         <td className="px-3 md:px-6 py-3 md:py-4">
                           <div className="flex flex-col md:flex-row gap-1 md:gap-2">
-                            <button
-                              onClick={() => handleToggleFeatured(property.id)}
-                              className={`p-1.5 md:p-2 rounded text-xs md:text-sm ${property.featured ? 'bg-amber-100 text-amber-600' : 'bg-gray-100'}`}
-                              title={property.featured ? 'VIP-dən çıxart' : 'VIP et'}
-                            >
-                              <FaStar />
-                            </button>
-                            {property.featured && (
-                              <input
-                                type="number"
-                                min="0"
-                                value={property.featuredOrder || 0}
-                                onChange={(e) => handleFeaturedOrderChange(property.id, parseInt(e.target.value) || 0)}
-                                className="w-12 md:w-16 px-1 md:px-2 py-1 text-[10px] md:text-xs border border-amber-300 rounded bg-amber-50 text-center font-semibold"
-                                title="VIP sırası (kiçik rəqəm əvvəl göstərilir)"
-                                placeholder="0"
-                              />
-                            )}
                             <button 
                               onClick={() => router.push(`/admin/properties/edit/${property.id}`)}
                               className="p-1.5 md:p-2 bg-blue-50 text-blue-600 rounded text-xs md:text-sm"

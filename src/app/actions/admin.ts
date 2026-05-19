@@ -429,6 +429,7 @@ export async function createProperty(data: any) {
       shortDescription: data.shortDescription,
       longDescription: data.longDescription,
       featured: data.featured || false,
+      featuredOrder: data.featuredOrder || 0,
       status: 'PUBLISHED' as const, // Publish immediately
       publishedAt: now,
       amenities: data.amenities || [],
@@ -514,6 +515,7 @@ export async function updateProperty(propertyId: string, data: any) {
           shortDescription: data.shortDescription || data.longDescription?.substring(0, 150),
           longDescription: data.longDescription || data.shortDescription,
           featured: Boolean(data.featured),
+          featuredOrder: Number(data.featuredOrder) || 0,
           status: oldProperty.status,
           publishedAt: oldProperty.publishedAt,
           amenities: data.amenities || oldProperty.amenities,
@@ -573,6 +575,7 @@ export async function updateProperty(propertyId: string, data: any) {
       shortDescription: data.shortDescription || data.longDescription?.substring(0, 150),
       longDescription: data.longDescription || data.shortDescription,
       featured: Boolean(data.featured),
+      featuredOrder: Number(data.featuredOrder) || 0,
       updatedAt: now,
     };
 
