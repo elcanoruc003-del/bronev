@@ -182,11 +182,36 @@ export default function AdminDashboard() {
   }
 
   async function handleStatusChange(id: string, status: string) {
-    const result = await updatePropertyStatus(id, status as any);
-    if (result.success) {
-      setProperties(properties.map(p => 
-        p.id === id ? { ...p, status } : p
-      ));
+    try {
+      const result = await updatePropertyStatus(id, status as any);
+      if (result.success) {
+        // Update local state immediately
+        setProperties(properties.map(p => 
+          p.id === id ? { ...p, status: status as any } : p
+        ));
+        setFilteredProperties(filteredProperties.map(p => 
+          p.id === id ? { ...p, status: status as any } : p
+        ));
+        // Reload properties from server to ensure sync
+        const propertiesResult = await getAdminProperties();
+        if (propertiesResult.success && propertiesResult.data) {
+          setProperties(propertiesResult.data);
+          // Reapply search filter if active
+          if (propertySearchId.trim() !== '') {
+            const filtered = propertiesResult.data.filter((p: any) => 
+              p.id.toLowerCase().includes(propertySearchId.toLowerCase())
+            );
+            setFilteredProperties(filtered);
+          } else {
+            setFilteredProperties(propertiesResult.data);
+          }
+        }
+      } else {
+        alert('Status dəyişdirilə bilmədi: ' + (result.error || 'Xəta'));
+      }
+    } catch (error) {
+      console.error('Status change error:', error);
+      alert('Status dəyişdirilə bilmədi');
     }
   }
 
