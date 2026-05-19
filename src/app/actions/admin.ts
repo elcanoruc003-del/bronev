@@ -271,6 +271,27 @@ export async function togglePropertyFeatured(propertyId: string) {
 }
 
 /**
+ * Update property featured order
+ */
+export async function updatePropertyFeaturedOrder(propertyId: string, order: number) {
+  return safeServerAction(async () => {
+    if (!propertyId) {
+      throw new Error('Property ID tələb olunur');
+    }
+
+    await prisma.properties.update({
+      where: { id: propertyId },
+      data: { featuredOrder: order },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/');
+
+    return true;
+  }, 'Sıra yenilənərkən xəta baş verdi');
+}
+
+/**
  * Get all bookings for admin
  */
 export async function getAdminBookings() {

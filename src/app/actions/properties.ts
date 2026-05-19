@@ -48,6 +48,7 @@ export async function getProperties(filters?: {
         },
         orderBy: [
           { featured: 'desc' },
+          { featuredOrder: 'asc' },
           { createdAt: 'desc' },
         ],
         skip,

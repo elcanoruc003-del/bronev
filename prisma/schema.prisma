@@ -140,6 +140,7 @@ model properties {
   poolType               PoolType                @default(NONE)
   status                 PropertyStatus          @default(DRAFT)
   featured               Boolean                 @default(false)
+  featuredOrder          Int                     @default(0)
   verified               Boolean                 @default(false)
   showAvailability       Boolean                 @default(false)
   metaTitle              String?
@@ -196,6 +197,7 @@ model properties {
   @@index([city])
   @@index([createdAt])
   @@index([featured])
+  @@index([featuredOrder])
   @@index([ownerId])
   @@index([slug])
   @@index([status])

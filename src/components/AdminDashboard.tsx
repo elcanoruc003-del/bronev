@@ -177,6 +177,25 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleFeaturedOrderChange(id: string, order: number) {
+    try {
+      const { updatePropertyFeaturedOrder } = await import('@/app/actions/admin');
+      const result = await updatePropertyFeaturedOrder(id, order);
+      if (result.success) {
+        // Update both properties and filteredProperties immediately
+        const updatedProperties = properties.map(p => 
+          p.id === id ? { ...p, featuredOrder: order } : p
+        );
+        setProperties(updatedProperties);
+        setFilteredProperties(filteredProperties.map(p => 
+          p.id === id ? { ...p, featuredOrder: order } : p
+        ));
+      }
+    } catch (error) {
+      console.error('Featured order update error:', error);
+    }
+  }
+
   function handlePropertySearch(searchId: string) {
     setPropertySearchId(searchId);
     if (searchId.trim() === '') {
@@ -682,6 +701,17 @@ export default function AdminDashboard() {
                             >
                               <FaStar />
                             </button>
+                            {property.featured && (
+                              <input
+                                type="number"
+                                min="0"
+                                value={property.featuredOrder || 0}
+                                onChange={(e) => handleFeaturedOrderChange(property.id, parseInt(e.target.value) || 0)}
+                                className="w-12 md:w-16 px-1 md:px-2 py-1 text-[10px] md:text-xs border border-amber-300 rounded bg-amber-50 text-center font-semibold"
+                                title="VIP sırası (kiçik rəqəm əvvəl göstərilir)"
+                                placeholder="0"
+                              />
+                            )}
                             <button 
                               onClick={() => router.push(`/admin/properties/edit/${property.id}`)}
                               className="p-1.5 md:p-2 bg-blue-50 text-blue-600 rounded text-xs md:text-sm"
