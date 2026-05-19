@@ -28,7 +28,7 @@ export default function NewPropertyPage() {
     basePricePerNight: 50,
     weekendPricePerNight: 0, // 0 means use base price
     guestPricing: [] as Array<{ minGuests: number; maxGuests: number; weekday: number; weekend: number }>, // Aralıq əsaslı qiymət
-    description: '',
+    description: 'Gündəlik qayğılardan uzaqlaşıb, tam rahat və hüzurlu bir mühitdə vaxt keçirmək istəyənlər üçün mükəmməl bir seçimdir. Müasir komfortla ev istiliyinin vəhdətini təşkil edən bu məkanda qonaqların xoş və keyfiyyətli istirahəti üçün hər bir xırdalıq nəzərə alınıb. Həm ailəvi istirahət, həm də sevdiklərinizlə unudulmaz xatirələr bölüşmək üçün ideal olan bu ev, təmizliyi və yüksək qonaqpərvərliyi ilə seçilir. Komfort və rahatlığın bir arada olduğu bu məkanda unudulmaz bir gün keçirməyə dəvətlisiniz',
     latitude: 40.4093,
     longitude: 49.8671,
     amenities: [] as string[],
