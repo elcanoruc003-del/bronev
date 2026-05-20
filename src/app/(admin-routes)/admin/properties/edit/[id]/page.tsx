@@ -145,33 +145,57 @@ export default function EditPropertyPage() {
   async function moveImageUp(index: number) {
     if (index === 0) return;
     
-    const images = [...property.property_images];
-    const currentImage = images[index];
-    const previousImage = images[index - 1];
+    try {
+      const images = [...property.property_images];
+      const currentImage = images[index];
+      const previousImage = images[index - 1];
 
-    // Swap orders
-    await updateImageOrder(currentImage.id, index - 1);
-    await updateImageOrder(previousImage.id, index);
+      // Swap orders in database
+      const result1 = await updateImageOrder(currentImage.id, index - 1);
+      const result2 = await updateImageOrder(previousImage.id, index);
 
-    // Update local state
-    [images[index - 1], images[index]] = [images[index], images[index - 1]];
-    setProperty({ ...property, property_images: images });
+      if (result1.success && result2.success) {
+        // Update local state immediately
+        [images[index - 1], images[index]] = [images[index], images[index - 1]];
+        // Update order values
+        images[index - 1].order = index - 1;
+        images[index].order = index;
+        setProperty({ ...property, property_images: images });
+      } else {
+        alert('Şəkil sırası dəyişdirilə bilmədi');
+      }
+    } catch (error) {
+      console.error('Move image up error:', error);
+      alert('Xəta baş verdi');
+    }
   }
 
   async function moveImageDown(index: number) {
     if (index === property.property_images.length - 1) return;
     
-    const images = [...property.property_images];
-    const currentImage = images[index];
-    const nextImage = images[index + 1];
+    try {
+      const images = [...property.property_images];
+      const currentImage = images[index];
+      const nextImage = images[index + 1];
 
-    // Swap orders
-    await updateImageOrder(currentImage.id, index + 1);
-    await updateImageOrder(nextImage.id, index);
+      // Swap orders in database
+      const result1 = await updateImageOrder(currentImage.id, index + 1);
+      const result2 = await updateImageOrder(nextImage.id, index);
 
-    // Update local state
-    [images[index], images[index + 1]] = [images[index + 1], images[index]];
-    setProperty({ ...property, property_images: images });
+      if (result1.success && result2.success) {
+        // Update local state immediately
+        [images[index], images[index + 1]] = [images[index + 1], images[index]];
+        // Update order values
+        images[index].order = index;
+        images[index + 1].order = index + 1;
+        setProperty({ ...property, property_images: images });
+      } else {
+        alert('Şəkil sırası dəyişdirilə bilmədi');
+      }
+    } catch (error) {
+      console.error('Move image down error:', error);
+      alert('Xəta baş verdi');
+    }
   }
 
   function removeNewImage(index: number) {
