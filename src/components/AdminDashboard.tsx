@@ -642,10 +642,22 @@ export default function AdminDashboard() {
                     {filteredProperties.map((property) => (
                       <tr key={property.id} className="hover:bg-[#FAF8F5]">
                         <td className="px-3 md:px-6 py-3 md:py-4">
-                          <p className="font-semibold text-[#2C2416] text-xs md:text-sm">{property.title}</p>
-                          <p className="text-xs text-[#6B5D4F]">{property.city}</p>
-                          <p className="text-[10px] text-[#8B7355] font-mono">ID: {property.id}</p>
-                          <p className="text-xs font-bold text-[#8B7355] md:hidden mt-1">{property.basePricePerNight} ₼</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-[#2C2416] text-xs md:text-sm">{property.title}</p>
+                                {property.featured && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-300 rounded-full text-[10px] font-bold text-amber-700">
+                                    <FaStar className="text-[8px]" />
+                                    VIP #{property.featuredOrder || 0}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-[#6B5D4F]">{property.city}</p>
+                              <p className="text-[10px] text-[#8B7355] font-mono">ID: {property.id}</p>
+                              <p className="text-xs font-bold text-[#8B7355] md:hidden mt-1">{property.basePricePerNight} ₼</p>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-3 md:px-6 py-3 md:py-4 font-bold text-xs md:text-sm hidden md:table-cell">{property.basePricePerNight} ₼</td>
                         <td className="px-3 md:px-6 py-3 md:py-4">

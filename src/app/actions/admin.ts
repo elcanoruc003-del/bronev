@@ -185,7 +185,11 @@ export async function getAdminProperties() {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { featured: 'desc' },
+        { featuredOrder: 'asc' },
+        { createdAt: 'desc' },
+      ],
     });
 
     return properties;
