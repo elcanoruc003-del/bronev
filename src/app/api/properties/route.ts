@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
         },
         orderBy: [
           { featured: 'desc' },
+          { featuredOrder: 'asc' },
           { createdAt: 'desc' },
         ],
         skip,
@@ -88,6 +89,12 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+      },
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
       },
     })
   } catch (error) {
