@@ -226,8 +226,16 @@ export default function EditPropertyPage() {
     setIsSubmitting(true);
 
     try {
+      console.log('[EDIT] Submitting property:', {
+        id: property.id,
+        featured: property.featured,
+        featuredOrder: property.featuredOrder,
+      });
+
       const result = await updateProperty(propertyId, property);
       
+      console.log('[EDIT] Update result:', result);
+
       if (!result.success) {
         setError(result.error || 'Xəta baş verdi');
         setIsSubmitting(false);
@@ -253,8 +261,12 @@ export default function EditPropertyPage() {
       }
 
       alert('Ev uğurla yeniləndi!');
+      
+      // Redirect to dashboard and force refresh
       router.push('/admin/dashboard');
+      router.refresh();
     } catch (error) {
+      console.error('[EDIT] Submit error:', error);
       setError('Xəta baş verdi');
       setIsSubmitting(false);
     }
