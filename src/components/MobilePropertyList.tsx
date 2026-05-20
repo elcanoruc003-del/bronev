@@ -75,6 +75,9 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
       if (filters.poolType) params.append('poolType', filters.poolType);
       if (filters.propertyType) params.append('type', filters.propertyType);
+      
+      // Set high limit to show all properties (up to 1000)
+      params.append('limit', '1000');
 
       const res = await fetch(`/api/properties?${params.toString()}`);
       const data = await res.json();
