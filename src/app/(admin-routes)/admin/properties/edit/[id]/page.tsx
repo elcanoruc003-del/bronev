@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaArrowUp, FaArrowDown, FaCalendarAlt, FaSwimmingPool } from 'react-icons/fa';
+import { FaArrowLeft, FaSpinner, FaUpload, FaTimes, FaArrowUp, FaArrowDown, FaCalendarAlt, FaSwimmingPool, FaStar } from 'react-icons/fa';
 import { getPropertyForEdit, updateProperty, addPropertyImages, deletePropertyImage, updateImageOrder, getBlockedDates, updatePropertyAvailability } from '@/app/actions/admin';
 import Image from 'next/image';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
