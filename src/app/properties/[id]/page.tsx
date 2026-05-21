@@ -549,7 +549,7 @@ ${priceBreakdown}
                         Qiymət Məlumatı
                       </h3>
                       <p className="text-[10px] md:text-xs text-blue-800 leading-relaxed">
-                        Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün aşağıdaki rezerv düyməsinə klik edib bizə mesaj göndərərək ətraflı məlumat əldə edə bilərsiniz.
+                        Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri tək günlər və s. qiymətlər tamamilə fərqlidir. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün aşağıdaki rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
                       </p>
                     </div>
                   </div>
