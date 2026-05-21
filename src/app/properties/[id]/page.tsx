@@ -546,10 +546,10 @@ ${priceBreakdown}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xs md:text-sm font-bold text-blue-900 mb-1">
-                        Qiymət Məlumatı
+                        Bron-Evə xoş gəlmisiniz!
                       </h3>
                       <p className="text-[10px] md:text-xs text-blue-800 leading-relaxed">
-                        Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri tək günlər və s. qiymətlər tamamilə fərqlidir. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün aşağıdaki rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
+                        Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri tək günlər və s. qiymətlər tamamilə fərqlidir. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
                       </p>
                     </div>
                   </div>
