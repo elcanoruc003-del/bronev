@@ -68,7 +68,7 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Welcome Notice Banner */}
+      {/* Welcome Notice Banner - Optimized Text */}
       <div className="max-w-7xl mx-auto px-3 md:px-4 -mt-1 mb-4">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-sm p-3 md:p-4">
           <div className="flex items-start gap-2 md:gap-3">
@@ -82,7 +82,7 @@ export default function Page() {
                 Bron-Evə xoş gəlmisiniz!
               </h3>
               <p className="text-xs md:text-sm text-blue-800 leading-relaxed">
-                Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri tək günlər və s. qiymətlər tamamilə fərqlidir. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
+                Qiymətlər qonaq və gün sayına görə dəyişir. Dəqiq qiymət öyrənmək və ətraflı məlumat almaq üçün rezerv düyməsinə klikləyərək bizə mesaj göndərə bilərsiniz.
               </p>
             </div>
           </div>

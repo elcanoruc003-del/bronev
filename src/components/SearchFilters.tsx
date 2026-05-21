@@ -43,8 +43,10 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
       <div className="grid grid-cols-3 gap-2 mb-2">
         {/* City */}
         <div className="relative">
-          <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
+          <label htmlFor="city-select" className="sr-only">Şəhər seçin</label>
+          <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
           <select
+            id="city-select"
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-sm bg-white appearance-none"
@@ -59,8 +61,10 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
         {/* Guests */}
         <div className="relative">
-          <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
+          <label htmlFor="guests-select" className="sr-only">Qonaq sayı</label>
+          <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
           <select
+            id="guests-select"
             value={filters.guests}
             onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
@@ -77,8 +81,10 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
 
         {/* Bedrooms */}
         <div className="relative">
-          <FaBed className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs" />
+          <label htmlFor="bedrooms-select" className="sr-only">Otaq sayı</label>
+          <FaBed className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
           <select
+            id="bedrooms-select"
             value={filters.bedrooms}
             onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
@@ -93,12 +99,13 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
         </div>
       </div>
 
-      {/* Second Row - Advanced Toggle & Search */}
+      {/* Second Row - Advanced Toggle & Search - Symmetric */}
       <div className="grid grid-cols-2 gap-2">
         {/* Advanced Filters Toggle */}
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-[#E5DDD5] text-[#8B7355] hover:border-[#8B7355] hover:bg-[#FAF8F5] transition-all text-sm font-medium"
+          className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-[#E5DDD5] text-[#8B7355] hover:border-[#8B7355] hover:bg-[#FAF8F5] transition-all text-sm font-medium h-11"
+          aria-label="Ətraflı filtrlər"
         >
           <FaFilter className="text-xs" />
           <span>Ətraflı</span>
@@ -107,7 +114,8 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
         {/* Search Button */}
         <button
           onClick={handleSearch}
-          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm h-11"
+          aria-label="Axtarış et"
         >
           <FaSearch className="text-xs" />
           <span>Axtarış</span>

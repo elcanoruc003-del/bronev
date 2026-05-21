@@ -53,18 +53,19 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               </div>
             )}
             
-            {/* Price Badge */}
-            <div className="inline-flex items-center gap-1 bg-white/95 backdrop-blur-sm text-[#2C1810] text-[10px] md:text-sm font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-lg shadow-md">
+            {/* Price Badge - Enhanced Clarity */}
+            <div className="inline-flex items-center gap-1.5 bg-white/98 backdrop-blur-sm text-[#2C1810] text-xs md:text-sm font-bold px-3 md:px-4 py-1.5 md:py-2 rounded-lg shadow-lg border border-white/50">
               {property.weekendPriceMultiplier && property.weekendPriceMultiplier !== 1.0 ? (
                 <>
-                  <span className="text-[#8B7355]">{property.pricePerDay}</span>
-                  <span className="text-[8px] md:text-xs text-[#6B5D4F]">/</span>
-                  <span className="text-[#8B7355]">{Math.round(property.pricePerDay * property.weekendPriceMultiplier)}₼</span>
+                  <span className="text-[#8B7355] text-sm md:text-base">{property.pricePerDay}</span>
+                  <span className="text-[9px] md:text-xs text-[#6B5D4F] font-medium">/</span>
+                  <span className="text-[#8B7355] text-sm md:text-base">{Math.round(property.pricePerDay * property.weekendPriceMultiplier)}</span>
+                  <span className="text-[9px] md:text-xs text-[#6B5D4F] font-semibold ml-0.5">AZN/gün</span>
                 </>
               ) : (
                 <>
-                  <span className="text-[#8B7355]">{property.pricePerDay}₼</span>
-                  <span className="text-[8px] md:text-xs text-[#6B5D4F]">/gecə</span>
+                  <span className="text-[#8B7355] text-sm md:text-base">{property.pricePerDay}</span>
+                  <span className="text-[9px] md:text-xs text-[#6B5D4F] font-semibold ml-0.5">AZN/gün</span>
                 </>
               )}
             </div>
