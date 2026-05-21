@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaBed, FaBath, FaRulerCombined, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart } from 'react-icons/fa';
+import { FaBed, FaBath, FaUsers, FaMapMarkerAlt, FaArrowLeft, FaWhatsapp, FaCalendar, FaHeart } from 'react-icons/fa';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar';
 
 interface Property {
@@ -376,10 +376,6 @@ ${priceBreakdown}
                 <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
                   <FaBath className="text-[#8B7355] text-xs md:text-base" />
                   <span>{property.bathrooms} vanna</span>
-                </div>
-                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
-                  <FaRulerCombined className="text-[#8B7355] text-xs md:text-base" />
-                  <span>{property.area}m²</span>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base">
                   <FaUsers className="text-[#8B7355] text-xs md:text-base" />
