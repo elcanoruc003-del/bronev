@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MobileHeader from '@/components/MobileHeader';
 import SearchFilters from '@/components/SearchFilters';
 import MobilePropertyList from '@/components/MobilePropertyList';
@@ -8,6 +8,20 @@ import MobileFooter from '@/components/MobileFooter';
 
 export default function Page() {
   const [filters, setFilters] = useState({});
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    // Yoxla ki, istifadəçi əvvəllər modalı bağlayıb ya yox
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+    if (!hasSeenWelcome) {
+      setShowWelcomeModal(true);
+    }
+  }, []);
+
+  const handleCloseModal = () => {
+    setShowWelcomeModal(false);
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
 
   const handleSearch = (newFilters: any) => {
     setFilters(newFilters);
@@ -15,6 +29,82 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F5F1ED] to-[#F0EBE6]">
+      {/* Welcome Modal */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={handleCloseModal}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-auto animate-slideUp overflow-hidden">
+            {/* Header with gradient */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 md:p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-white">
+                    Bron-Evə xoş gəlmisiniz!
+                  </h3>
+                </div>
+                <button
+                  onClick={handleCloseModal}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all hover:rotate-90 duration-300"
+                  aria-label="Bağla"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 md:p-6">
+              <div className="space-y-4">
+                <p className="text-sm md:text-base text-gray-700 leading-relaxed">
+                  Ev qiymətləri <span className="font-semibold text-blue-600">qonaq sayından</span> və <span className="font-semibold text-blue-600">gün sayından</span> asılı olaraq dəyişir.
+                </p>
+                
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Sayta yerləşdirilən qiymətlər <span className="font-semibold">standart</span> olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri, tək günlər və s. qiymətlər tamamilə fərqlidir.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                  <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 mb-1">
+                      Dəqiq qiymət öyrənmək üçün:
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      Rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={handleCloseModal}
+                className="w-full mt-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95"
+              >
+                Başa düşdüm, evlərə bax
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <MobileHeader />
       
@@ -65,27 +155,6 @@ export default function Page() {
         {/* Search Filters - Optimal Width */}
         <div className="relative z-10 max-w-md md:max-w-2xl mx-auto">
           <SearchFilters onSearch={handleSearch} />
-        </div>
-      </div>
-
-      {/* Welcome Notice Banner - Optimized Text */}
-      <div className="max-w-7xl mx-auto px-3 md:px-4 -mt-1 mb-4">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-sm p-3 md:p-4">
-          <div className="flex items-start gap-2 md:gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm md:text-base font-bold text-blue-900 mb-1">
-                Bron-Evə xoş gəlmisiniz!
-              </h3>
-              <p className="text-xs md:text-sm text-blue-800 leading-relaxed">
-                Ev qiymətləri qonaq sayından və gün sayından asılı olaraq dəyişir. Sayta yerləşdirilən qiymətlər standart olaraq nəzərdə tutulub. Bayram günləri, tətil günləri, şənbə günləri tək günlər və s. qiymətlər tamamilə fərqlidir. Qiyməti dəqiq öyrənmək və ətraflı məlumat almaq üçün rezerv düyməsinə klik edib bizə mesaj göndərərək və ya nömrəmizlə əlaqə saxlayaraq ətraflı məlumat əldə edə bilərsiniz.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 

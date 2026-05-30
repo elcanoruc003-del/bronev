@@ -241,6 +241,16 @@
     }
   }
 
+  /* Animate Fade In (for modal backdrop) */
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  /* Animate Slide Up (for modal content) */
+  .animate-slideUp {
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
   /* Stagger Animation */
   .stagger-item {
     opacity: 0;
