@@ -7,6 +7,13 @@ interface SearchFiltersProps {
   onSearch: (filters: any) => void;
 }
 
+const POOL_OPTIONS = [
+  { value: '',        label: 'Hamısı',       icon: false },
+  { value: 'NONE',   label: 'Hovuzsuz',     icon: false },
+  { value: 'REGULAR',label: 'Sadə',         icon: true  },
+  { value: 'HEATED', label: 'İsti',         icon: true  },
+];
+
 export default function SearchFilters({ onSearch }: SearchFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filters, setFilters] = useState({
@@ -24,24 +31,22 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
   }
 
   function handleReset() {
-    const resetFilters = {
-      city: '',
-      guests: '',
-      bedrooms: '',
-      minPrice: '',
-      maxPrice: '',
-      poolType: '',
-      propertyType: '',
-    };
-    setFilters(resetFilters);
-    onSearch(resetFilters);
+    const reset = { city: '', guests: '', bedrooms: '', minPrice: '', maxPrice: '', poolType: '', propertyType: '' };
+    setFilters(reset);
+    onSearch(reset);
+  }
+
+  function setPool(val: string) {
+    const updated = { ...filters, poolType: val };
+    setFilters(updated);
+    onSearch(updated); // anlıq filter tətbiq et
   }
 
   return (
     <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-lg p-3 md:p-4 border border-[#E5DDD5]/50">
-      {/* First Row - Main Filters */}
+
+      {/* Row 1 — Şəhər / Qonaq / Otaq */}
       <div className="grid grid-cols-3 gap-2 mb-2">
-        {/* City */}
         <div className="relative">
           <label htmlFor="city-select" className="sr-only">Şəhər seçin</label>
           <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
@@ -49,7 +54,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
             id="city-select"
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none transition-all text-sm bg-white appearance-none"
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] focus:ring-1 focus:ring-[#8B7355]/20 outline-none text-sm bg-white appearance-none"
           >
             <option value="">Şəhər</option>
             <option value="İsmayıllı">İsmayıllı</option>
@@ -59,7 +64,6 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
           </select>
         </div>
 
-        {/* Guests */}
         <div className="relative">
           <label htmlFor="guests-select" className="sr-only">Qonaq sayı</label>
           <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
@@ -67,19 +71,17 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
             id="guests-select"
             value={filters.guests}
             onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white text-sm"
           >
             <option value="">Qonaq</option>
-            <option value="1">1</option>
             <option value="2">2</option>
-            <option value="3">3</option>
             <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6+</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
+            <option value="10">10+</option>
           </select>
         </div>
 
-        {/* Bedrooms */}
         <div className="relative">
           <label htmlFor="bedrooms-select" className="sr-only">Otaq sayı</label>
           <FaBed className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-xs pointer-events-none" />
@@ -87,7 +89,7 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
             id="bedrooms-select"
             value={filters.bedrooms}
             onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white transition-all text-sm"
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none appearance-none bg-white text-sm"
           >
             <option value="">Otaq</option>
             <option value="1">1</option>
@@ -99,42 +101,62 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
         </div>
       </div>
 
-      {/* Second Row - Advanced Toggle & Search - Symmetric */}
+      {/* Row 2 — Hovuz filter (həmişə görünür) */}
+      <div className="flex items-center gap-1.5 mb-2 overflow-x-auto hide-scrollbar pb-0.5">
+        <FaSwimmingPool className="text-[#8B7355] text-xs flex-shrink-0" />
+        {POOL_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setPool(opt.value)}
+            className={`
+              flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-medium
+              flex-shrink-0 transition-all duration-200
+              ${filters.poolType === opt.value
+                ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-sm'
+                : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+              }
+            `}
+          >
+            {opt.icon && <FaSwimmingPool className="text-[9px]" />}
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Row 3 — Ətraflı / Axtarış */}
       <div className="grid grid-cols-2 gap-2">
-        {/* Advanced Filters Toggle */}
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-[#E5DDD5] text-[#8B7355] hover:border-[#8B7355] hover:bg-[#FAF8F5] transition-all text-sm font-medium h-11"
-          aria-label="Ətraflı filtrlər"
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium h-10 transition-all ${
+            showAdvanced
+              ? 'bg-[#FAF8F5] border-[#8B7355] text-[#8B7355]'
+              : 'border-[#E5DDD5] text-[#8B7355] hover:border-[#8B7355] hover:bg-[#FAF8F5]'
+          }`}
         >
           <FaFilter className="text-xs" />
           <span>Ətraflı</span>
         </button>
 
-        {/* Search Button */}
         <button
           onClick={handleSearch}
-          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm h-11"
-          aria-label="Axtarış et"
+          className="bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm h-10"
         >
           <FaSearch className="text-xs" />
           <span>Axtarış</span>
         </button>
       </div>
 
-      {/* Advanced Filters */}
+      {/* Ətraflı bölmə */}
       {showAdvanced && (
         <div className="mt-3 pt-3 border-t border-[#E5DDD5] space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {/* Property Type */}
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-xs font-semibold text-[#2C2416] mb-1.5">
-                Növ
-              </label>
+              <label className="block text-xs font-semibold text-[#2C2416] mb-1">Növ</label>
               <select
                 value={filters.propertyType}
                 onChange={(e) => setFilters({ ...filters, propertyType: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none bg-white text-xs"
               >
                 <option value="">Hamısı</option>
                 <option value="AFRAME">A-frame</option>
@@ -142,94 +164,34 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
                 <option value="VILLA">Villa</option>
               </select>
             </div>
-
-            {/* Min Price */}
             <div>
-              <label className="block text-xs font-semibold text-[#2C2416] mb-1.5">
-                Min (₼)
-              </label>
+              <label className="block text-xs font-semibold text-[#2C2416] mb-1">Min ₼</label>
               <input
                 type="number"
                 placeholder="0"
                 value={filters.minPrice}
                 onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-xs"
               />
             </div>
-
-            {/* Max Price */}
-            <div className="col-span-2 md:col-span-1">
-              <label className="block text-xs font-semibold text-[#2C2416] mb-1.5">
-                Max (₼)
-              </label>
+            <div>
+              <label className="block text-xs font-semibold text-[#2C2416] mb-1">Max ₼</label>
               <input
                 type="number"
                 placeholder="1000"
                 value={filters.maxPrice}
                 onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-[#E5DDD5] focus:border-[#8B7355] outline-none text-xs"
               />
             </div>
           </div>
 
-          {/* Pool Filter & Reset */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#2C2416]">
-              Hovuz
-            </label>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setFilters({ ...filters, poolType: '' })}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
-                  filters.poolType === ''
-                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                }`}
-              >
-                Hamısı
-              </button>
-              <button
-                onClick={() => setFilters({ ...filters, poolType: 'NONE' })}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
-                  filters.poolType === 'NONE'
-                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                }`}
-              >
-                Hovuzsuz
-              </button>
-              <button
-                onClick={() => setFilters({ ...filters, poolType: 'REGULAR' })}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
-                  filters.poolType === 'REGULAR'
-                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                }`}
-              >
-                <FaSwimmingPool className="text-xs" />
-                Sadə Hovuzlu
-              </button>
-              <button
-                onClick={() => setFilters({ ...filters, poolType: 'HEATED' })}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-xs ${
-                  filters.poolType === 'HEATED'
-                    ? 'bg-[#8B7355] text-white border-[#8B7355]'
-                    : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-                }`}
-              >
-                <FaSwimmingPool className="text-xs" />
-                İsti Hovuzlu
-              </button>
-            </div>
-          </div>
-
-          {/* Reset Button */}
           <div className="flex justify-end">
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E5DDD5] text-[#6B5D4F] hover:border-red-500 hover:text-red-500 transition-all text-sm"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-[#E5DDD5] text-[#6B5D4F] hover:border-red-400 hover:text-red-500 transition-all text-xs"
             >
-              <FaTimes className="text-xs" />
+              <FaTimes className="text-[10px]" />
               <span>Sıfırla</span>
             </button>
           </div>
