@@ -232,7 +232,7 @@ export default function NewPropertyPage() {
         id: formData.id.trim(),
         title: formData.title.trim(),
         city: formData.city.trim(),
-        district: formData.city.trim(), // Use city as district
+        district: formData.city.trim(), // district = city (region)
         address: formData.address.trim(),
         type: formData.type,
         poolType: formData.poolType,

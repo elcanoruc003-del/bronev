@@ -361,7 +361,7 @@ ${priceBreakdown}
               <h1 className="text-lg md:text-3xl font-bold text-[#2C2416] mb-1.5 md:mb-2">{property.title}</h1>
               <div className="flex items-center text-[#6B5D4F] text-xs md:text-base">
                 <FaMapMarkerAlt className="mr-1.5 md:mr-2 text-xs md:text-base" />
-                <span>{property.city}, {property.district}</span>
+                <span>{property.city}{property.address ? `, ${property.address}` : ''}</span>
               </div>
               <p className="text-[10px] md:text-sm text-[#8B7355] mt-1">ID: {property.id}</p>
             </div>
