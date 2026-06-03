@@ -296,7 +296,7 @@ function PropertyCard({ property, index, favorites, toggleFavorite }: {
             }}
             className="
               absolute bottom-1.5 right-1.5 z-10
-              w-5 h-5 rounded-full
+              w-[18px] h-[18px] rounded-full
               bg-white/95 backdrop-blur-sm shadow-md
               flex items-center justify-center
               transition-all duration-300
