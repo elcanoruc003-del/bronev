@@ -1,26 +1,31 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
+import bcrypt from 'bcryptjs';
+import { getCurrentUser } from './auth';
+import type { BookingStatus } from '@/types/index';
 
 /**
- * Get user by phone
+ * Get or create a user by phone number.
+ * Guest users created here get a properly hashed password.
  */
-async function getUserByPhone(phone: string) {
+async function getUserByPhone(phone: string, name: string = 'Qonaq') {
   try {
-    let user = await prisma.users.findUnique({
-      where: { phone },
-    });
+    let user = await prisma.users.findUnique({ where: { phone } });
 
     if (!user) {
+      const hashedPassword = await bcrypt.hash(
+        Math.random().toString(36).slice(-12), // random password
+        10
+      );
       user = await prisma.users.create({
         data: {
           id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           phone,
-          name: 'Qonaq',
-          email: `${phone}@guest.com`,
-          password: 'guest',
+          name,
+          email: `${phone.replace(/\D/g, '')}@guest.bronev.com`,
+          password: hashedPassword,
           updatedAt: new Date(),
         },
       });
@@ -34,7 +39,7 @@ async function getUserByPhone(phone: string) {
 }
 
 /**
- * Create booking (admin creates for user)
+ * Create booking for a user (admin action)
  */
 export async function createBookingForUser(data: {
   userPhone: string;
@@ -47,26 +52,25 @@ export async function createBookingForUser(data: {
   notes?: string;
 }) {
   try {
-    // Get or create user
-    const user = await getUserByPhone(data.userPhone);
+    const user = await getUserByPhone(data.userPhone, data.userName);
     if (!user) {
       return { success: false, error: 'İstifadəçi yaradıla bilmədi' };
     }
 
-    // Update user name if provided
-    if (data.userName && data.userName !== 'Qonaq') {
+    // Update user name if it is a real name (not default)
+    if (data.userName && data.userName !== 'Qonaq' && user.name !== data.userName) {
       await prisma.users.update({
         where: { id: user.id },
         data: { name: data.userName, updatedAt: new Date() },
       });
     }
 
-    // Calculate nights
     const checkIn = new Date(data.checkIn);
     const checkOut = new Date(data.checkOut);
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+    const nights = Math.ceil(
+      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
-    // Create booking
     const booking = await prisma.bookings.create({
       data: {
         id: `book_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -100,11 +104,10 @@ export async function createBookingForUser(data: {
 }
 
 /**
- * Get user bookings
+ * Get bookings for the currently logged-in user
  */
 export async function getUserBookings() {
   try {
-    const { getCurrentUser } = await import('./auth');
     const user = await getCurrentUser();
 
     if (!user) {
@@ -141,18 +144,10 @@ export async function getAllBookings() {
     const bookings = await prisma.bookings.findMany({
       include: {
         properties: {
-          select: {
-            id: true,
-            title: true,
-            city: true,
-          },
+          select: { id: true, title: true, city: true },
         },
         users: {
-          select: {
-            name: true,
-            phone: true,
-            email: true,
-          },
+          select: { name: true, phone: true, email: true },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -166,14 +161,14 @@ export async function getAllBookings() {
 }
 
 /**
- * Update booking status
+ * Update booking status with type-safe enum
  */
-export async function updateBookingStatus(bookingId: string, status: string) {
+export async function updateBookingStatus(bookingId: string, status: BookingStatus) {
   try {
     await prisma.bookings.update({
       where: { id: bookingId },
-      data: { 
-        status: status as any,
+      data: {
+        status,
         updatedAt: new Date(),
       },
     });
@@ -191,10 +186,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
  */
 export async function deleteBooking(bookingId: string) {
   try {
-    await prisma.bookings.delete({
-      where: { id: bookingId },
-    });
-
+    await prisma.bookings.delete({ where: { id: bookingId } });
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {

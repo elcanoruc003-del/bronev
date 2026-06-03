@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+// Next.js 15: params is a Promise
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
     const { prisma } = await import('@/lib/prisma')
-    
-    console.log('[Detail API] Fetching property:', params.id);
-    
+
     const property = await prisma.properties.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         property_images: {
           orderBy: { order: 'asc' },
@@ -21,30 +21,24 @@ export async function GET(
     })
 
     if (!property) {
-      console.log('[Detail API] Property not found:', params.id);
       return NextResponse.json(
         { error: 'Property not found', property: null },
         { status: 404 }
       )
     }
 
-    // Increment view count
-    await prisma.properties.update({
-      where: { id: params.id },
+    // Increment view count (non-blocking)
+    prisma.properties.update({
+      where: { id },
       data: { views: { increment: 1 } },
-    })
+    }).catch(() => {})
 
-    console.log('[Detail API] Found property with', property.property_images?.length || 0, 'images');
-
-    // Map property_images to images for frontend compatibility
     const mappedProperty = {
       ...property,
       images: property.property_images || [],
       amenities: Array.isArray(property.amenities) ? property.amenities : [],
       features: Array.isArray(property.features) ? property.features : [],
     }
-
-    console.log('[Detail API] Returning property with', mappedProperty.images.length, 'images');
 
     return NextResponse.json({ property: mappedProperty })
   } catch (error) {

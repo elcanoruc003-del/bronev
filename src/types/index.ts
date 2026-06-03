@@ -1,4 +1,4 @@
-export type PropertyType = 'VILLA' | 'APARTMENT' | 'HOUSE' | 'PENTHOUSE' | 'COTTAGE' | 'STUDIO' | 'LOFT';
+export type PropertyType = 'VILLA' | 'APARTMENT' | 'HOUSE' | 'PENTHOUSE' | 'COTTAGE' | 'STUDIO' | 'LOFT' | 'AFRAME';
 export type PropertyStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'MAINTENANCE' | 'SUSPENDED';
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'CHECKED_IN' | 'CHECKED_OUT';
 export type PaymentStatus = 'UNPAID' | 'PARTIALLY_PAID' | 'PAID' | 'REFUNDED' | 'FAILED';

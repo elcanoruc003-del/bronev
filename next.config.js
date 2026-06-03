@@ -1,12 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -22,17 +16,12 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
-  env: {
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dyfuasdbm',
-  },
   experimental: {
     optimizePackageImports: ['react-icons'],
   },
-  // Skip static generation for admin routes
   async generateBuildId() {
     return 'build-' + Date.now();
   },
-  // Skip prerendering for admin routes
   async headers() {
     return [
       {
@@ -46,6 +35,6 @@ const nextConfig = {
       },
     ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

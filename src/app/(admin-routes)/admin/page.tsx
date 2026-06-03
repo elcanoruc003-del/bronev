@@ -89,10 +89,6 @@ export default function AdminLoginPage() {
               'Daxil Ol'
             )}
           </button>
-
-          <div className="text-center text-sm text-[#6B5D4F] mt-4">
-            Demo: admin@bronev.com / admin123
-          </div>
         </form>
       </div>
     </div>

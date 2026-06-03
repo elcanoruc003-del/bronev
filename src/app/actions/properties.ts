@@ -127,6 +127,8 @@ export async function createProperty(data: any, ownerId: string) {
 
     revalidatePath('/')
     revalidatePath('/evler')
+    revalidatePath(`/properties/${property.id}`)
+    revalidatePath(`/ev/${validated.title}`)
 
     return { success: true, property }
   } catch (error) {

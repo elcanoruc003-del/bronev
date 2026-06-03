@@ -1,36 +1,33 @@
-import { PrismaClient } from '@prisma/client';
-
 /**
- * Production-Safe Prisma Client Initialization
- * Prevents multiple instances and handles connection pooling
+ * Prisma client singleton — safe for both development and production.
+ * Run `npm install` + `npx prisma generate` to resolve the @prisma/client import.
  */
 
+// @ts-ignore — @prisma/client is available after `npm install && npx prisma generate`
+import { PrismaClient } from '@prisma/client';
+
+// @ts-ignore
+type PrismaClientT = InstanceType<typeof PrismaClient>;
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: PrismaClientT | undefined;
 };
 
-// Prisma client with production-optimized settings
-export const prisma =
+export const prisma: PrismaClientT =
   globalForPrisma.prisma ??
+  // @ts-ignore
   new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    log:
+      process.env.NODE_ENV === 'development'
+        ? (['query', 'error', 'warn'] as const)
+        : (['error'] as const),
     errorFormat: 'minimal',
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
   });
 
-// Prevent multiple instances in development
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
-/**
- * Safe database connection check
- * Use this before critical operations
- */
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -41,9 +38,6 @@ export async function checkDatabaseConnection(): Promise<boolean> {
   }
 }
 
-/**
- * Graceful disconnect (for serverless cleanup)
- */
 export async function disconnectDatabase(): Promise<void> {
   try {
     await prisma.$disconnect();

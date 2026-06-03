@@ -1,10 +1,10 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
+import { prisma } from '@/lib/prisma';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://bron-ev.com'
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = 'https://bron-ev.com';
 
-  // Static sitemap - database connection issues zamanı
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -18,10 +18,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/admin`,
+      url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.3,
+      priority: 0.5,
     },
-  ]
+  ];
+
+  try {
+    const properties = await prisma.properties.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { id: true, slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    const propertyRoutes: MetadataRoute.Sitemap = properties.map((p) => ({
+      url: `${baseUrl}/properties/${p.id}`,
+      lastModified: p.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...propertyRoutes];
+  } catch {
+    // If DB is unavailable during build, return static routes only
+    return staticRoutes;
+  }
 }

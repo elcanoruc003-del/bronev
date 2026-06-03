@@ -80,21 +80,35 @@ export class AnalyticsService {
 
     // Optimized parallel queries
     const [counts, revenue, topProperty] = await Promise.all([
-      // Single query for all counts
-      prisma.$queryRaw<any[]>`
-        SELECT 
-          COUNT(DISTINCT p.id) as totalProperties,
-          COUNT(DISTINCT CASE WHEN p.status = 'PUBLISHED' THEN p.id END) as activeProperties,
-          COUNT(DISTINCT b.id) as totalBookings,
-          COUNT(DISTINCT CASE WHEN b.status = 'PENDING' THEN b.id END) as pendingBookings,
-          COUNT(DISTINCT CASE WHEN b.status IN ('CONFIRMED', 'COMPLETED') THEN b.id END) as confirmedBookings,
-          COUNT(DISTINCT r.id) as totalReviews,
-          AVG(r.overallRating) as averageRating
-        FROM properties p
-        LEFT JOIN bookings b ON b.propertyId = p.id
-        LEFT JOIN reviews r ON r.propertyId = p.id
-        ${ownerId ? `WHERE p.ownerId = '${ownerId}'` : ''}
-      `,
+      // Single query for all counts — parameterized to prevent SQL injection
+      ownerId
+        ? prisma.$queryRaw<any[]>`
+            SELECT 
+              COUNT(DISTINCT p.id) as totalProperties,
+              COUNT(DISTINCT CASE WHEN p.status = 'PUBLISHED' THEN p.id END) as activeProperties,
+              COUNT(DISTINCT b.id) as totalBookings,
+              COUNT(DISTINCT CASE WHEN b.status = 'PENDING' THEN b.id END) as pendingBookings,
+              COUNT(DISTINCT CASE WHEN b.status IN ('CONFIRMED', 'COMPLETED') THEN b.id END) as confirmedBookings,
+              COUNT(DISTINCT r.id) as totalReviews,
+              AVG(r.overallRating) as averageRating
+            FROM properties p
+            LEFT JOIN bookings b ON b."propertyId" = p.id
+            LEFT JOIN reviews r ON r."propertyId" = p.id
+            WHERE p."ownerId" = ${ownerId}
+          `
+        : prisma.$queryRaw<any[]>`
+            SELECT 
+              COUNT(DISTINCT p.id) as totalProperties,
+              COUNT(DISTINCT CASE WHEN p.status = 'PUBLISHED' THEN p.id END) as activeProperties,
+              COUNT(DISTINCT b.id) as totalBookings,
+              COUNT(DISTINCT CASE WHEN b.status = 'PENDING' THEN b.id END) as pendingBookings,
+              COUNT(DISTINCT CASE WHEN b.status IN ('CONFIRMED', 'COMPLETED') THEN b.id END) as confirmedBookings,
+              COUNT(DISTINCT r.id) as totalReviews,
+              AVG(r.overallRating) as averageRating
+            FROM properties p
+            LEFT JOIN bookings b ON b."propertyId" = p.id
+            LEFT JOIN reviews r ON r."propertyId" = p.id
+          `,
 
       // Revenue calculation
       prisma.bookings.aggregate({

@@ -2,10 +2,21 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { FaSearch, FaMapMarkerAlt, FaHome, FaCalendarAlt } from 'react-icons/fa'
+import { useRouter } from 'next/navigation'
+import { FaSearch, FaMapMarkerAlt, FaHome } from 'react-icons/fa'
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [propertyType, setPropertyType] = useState('')
+  const router = useRouter()
+
+  function handleSearch() {
+    const params = new URLSearchParams()
+    if (searchQuery.trim()) params.set('city', searchQuery.trim())
+    if (propertyType) params.set('type', propertyType)
+    const query = params.toString()
+    router.push(`/evler${query ? `?${query}` : ''}`)
+  }
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-brand-navy">
@@ -65,16 +76,22 @@ export default function HeroSection() {
                 {/* Property Type */}
                 <div className="relative">
                   <FaHome className="absolute left-5 top-1/2 transform -translate-y-1/2 text-brand-gold text-lg" />
-                  <select className="w-full md:w-48 pl-14 pr-4 py-4 rounded-xl border-2 border-transparent focus:border-brand-gold focus:outline-none transition-all text-brand-navy font-medium appearance-none cursor-pointer">
-                    <option>Hamısı</option>
-                    <option>Villa</option>
-                    <option>Mənzil</option>
-                    <option>Penthouse</option>
+                  <select
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value)}
+                    className="w-full md:w-48 pl-14 pr-4 py-4 rounded-xl border-2 border-transparent focus:border-brand-gold focus:outline-none transition-all text-brand-navy font-medium appearance-none cursor-pointer"
+                  >
+                    <option value="">Hamısı</option>
+                    <option value="VILLA">Villa</option>
+                    <option value="APARTMENT">Mənzil</option>
+                    <option value="PENTHOUSE">Penthouse</option>
+                    <option value="AFRAME">A-Frame</option>
+                    <option value="COTTAGE">Bağ Evi</option>
                   </select>
                 </div>
 
                 {/* Search Button */}
-                <button className="btn-premium whitespace-nowrap">
+                <button onClick={handleSearch} className="btn-premium whitespace-nowrap">
                   <FaSearch className="mr-2" />
                   Axtar
                 </button>

@@ -69,11 +69,12 @@ export async function loginAdmin(email: string, password: string) {
 
     // Create session
     const token = createSessionToken(user);
-    cookies().set(SESSION_COOKIE, token, {
+    const cookieJar = await cookies();
+    cookieJar.set(SESSION_COOKIE, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });
 
@@ -93,7 +94,8 @@ export async function loginAdmin(email: string, password: string) {
  */
 export async function logoutAdmin() {
   try {
-    cookies().delete(SESSION_COOKIE);
+    const cookieJar = await cookies();
+    cookieJar.delete(SESSION_COOKIE);
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {
@@ -107,16 +109,16 @@ export async function logoutAdmin() {
  */
 export async function getCurrentAdmin() {
   try {
-    const token = cookies().get(SESSION_COOKIE)?.value;
+    const cookieJar = await cookies();
+    const token = cookieJar.get(SESSION_COOKIE)?.value;
     if (!token) return null;
 
     const user = verifySessionToken(token);
     if (!user) {
-      cookies().delete(SESSION_COOKIE);
+      cookieJar.delete(SESSION_COOKIE);
       return null;
     }
 
-    // Verify user still exists and is active
     const isConnected = await checkDatabaseConnection();
     if (!isConnected) {
       console.error('Database unavailable during auth check');
@@ -136,7 +138,7 @@ export async function getCurrentAdmin() {
     });
 
     if (!dbUser || !dbUser.isActive || dbUser.isBanned) {
-      cookies().delete(SESSION_COOKIE);
+      cookieJar.delete(SESSION_COOKIE);
       return null;
     }
 
@@ -201,6 +203,9 @@ export async function getAdminProperties() {
  */
 export async function deleteProperty(propertyId: string) {
   return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
     if (!propertyId) {
       throw new Error('Property ID tələb olunur');
     }
@@ -224,6 +229,9 @@ export async function updatePropertyStatus(
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'MAINTENANCE' | 'SUSPENDED'
 ) {
   return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
     if (!propertyId || !status) {
       throw new Error('Property ID və status tələb olunur');
     }
@@ -249,6 +257,9 @@ export async function updatePropertyStatus(
  */
 export async function togglePropertyFeatured(propertyId: string) {
   return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
     if (!propertyId) {
       throw new Error('Property ID tələb olunur');
     }
@@ -330,6 +341,9 @@ export async function updateBookingStatus(
   status: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'COMPLETED'
 ) {
   return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
     if (!bookingId || !status) {
       throw new Error('Booking ID və status tələb olunur');
     }
@@ -403,11 +417,9 @@ export async function createProperty(data: any) {
 
     console.log('[CREATE PROPERTY] Current user:', currentUser.id);
 
-    // Generate slug from title
-    const slug = data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    // Generate slug from title using proper Azerbaijani character mapping
+    const { generateSlug } = await import('@/lib/utils');
+    const baseSlug = generateSlug(data.title);
 
     const now = new Date();
 
@@ -415,7 +427,7 @@ export async function createProperty(data: any) {
     const propertyData: any = {
       id: data.id,
       title: data.title,
-      slug: `${slug}-${Date.now()}`,
+      slug: `${baseSlug}-${Date.now()}`,
       city: data.city,
       district: data.district,
       address: data.address,
@@ -956,6 +968,13 @@ export async function createAdminBooking(data: {
 
     // Create booking
     const bookingId = `BRN${Date.now()}`;
+
+    // Fetch user for guest details
+    const bookingUser = await prisma.users.findUnique({
+      where: { id: data.userId },
+      select: { id: true, name: true, email: true, phone: true },
+    });
+
     const booking = await prisma.bookings.create({
       data: {
         id: bookingId,
@@ -967,9 +986,9 @@ export async function createAdminBooking(data: {
         totalNights: nights,
         totalPrice: data.totalPrice,
         status: data.status,
-        guestName: '', // Will be filled from user
-        guestPhone: '', // Will be filled from user
-        guestEmail: '', // Will be filled from user
+        guestName: bookingUser?.name || 'Qonaq',
+        guestPhone: bookingUser?.phone || '',
+        guestEmail: bookingUser?.email || '',
         basePrice: Math.floor(data.totalPrice / nights),
         bookingNumber: bookingId,
         updatedAt: new Date(),
@@ -1051,44 +1070,52 @@ export async function getPropertyAvailability(propertyId: string) {
 }
 
 /**
- * Update property availability (batch update)
+ * Update property availability (batch update) — transaction-safe
  */
 export async function updatePropertyAvailability(
   propertyId: string,
   blockedDates: string[] // Array of YYYY-MM-DD strings
 ) {
   return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
     if (!propertyId) {
       throw new Error('Property ID tələb olunur');
     }
 
-    // Delete all future availability records for this property
-    await prisma.property_availability.deleteMany({
-      where: {
-        propertyId,
-        startDate: { gte: new Date() },
-      },
-    });
-
-    // Create new availability records for blocked dates
-    if (blockedDates.length > 0) {
-      const availabilityRecords = blockedDates.map((dateStr) => {
-        const date = new Date(dateStr);
-        return {
-          id: `avail_${propertyId}_${dateStr}_${Date.now()}`,
+    // Wrap delete + create in a transaction to prevent race condition
+    await prisma.$transaction(async (tx) => {
+      // Delete all future availability records for this property
+      await tx.property_availability.deleteMany({
+        where: {
           propertyId,
-          startDate: date,
-          endDate: date,
-          isAvailable: false,
-          blockReason: 'Admin blocked',
-          updatedAt: new Date(),
-        };
+          startDate: { gte: new Date() },
+        },
       });
 
-      await prisma.property_availability.createMany({
-        data: availabilityRecords,
-      });
-    }
+      // Create new availability records for blocked dates
+      if (blockedDates.length > 0) {
+        // Use unique IDs by appending index to avoid millisecond collisions
+        const availabilityRecords = blockedDates.map((dateStr, index) => {
+          const date = new Date(dateStr);
+          return {
+            id: `avail_${propertyId}_${dateStr}_${index}`,
+            propertyId,
+            startDate: date,
+            endDate: date,
+            isAvailable: false,
+            blockReason: 'Admin blocked',
+            updatedAt: new Date(),
+          };
+        });
+
+        await tx.property_availability.createMany({
+          data: availabilityRecords,
+          skipDuplicates: true,
+        });
+      }
+    });
 
     revalidatePath('/admin');
     revalidatePath(`/properties/${propertyId}`);

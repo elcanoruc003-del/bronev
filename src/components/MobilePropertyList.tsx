@@ -37,30 +37,31 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
     if (savedFavorites) {
       setFavorites(new Set(JSON.parse(savedFavorites)));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
-    // Scroll Reveal Animation
+  useEffect(() => {
+    // Scroll Reveal Animation — set up after properties are loaded
     const observerOptions = {
       threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+      rootMargin: '0px 0px -50px 0px',
     };
 
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('revealed');
         }
       });
     }, observerOptions);
 
-    // Observe all scroll-reveal elements
     const elements = document.querySelectorAll('.scroll-reveal');
-    elements.forEach(el => observer.observe(el));
+    elements.forEach((el) => observer.observe(el));
 
     return () => {
-      elements.forEach(el => observer.unobserve(el));
+      observer.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [properties]); // Re-run when properties change so new cards are observed
 
   async function fetchProperties() {
     try {
@@ -76,8 +77,8 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
       if (filters.poolType) params.append('poolType', filters.poolType);
       if (filters.propertyType) params.append('type', filters.propertyType);
       
-      // Set high limit to show all properties (up to 1000)
-      params.append('limit', '1000');
+      // Set reasonable limit — fetch up to 200 properties
+      params.append('limit', '500');
 
       const res = await fetch(`/api/properties?${params.toString()}`);
       const data = await res.json();
@@ -200,7 +201,7 @@ export default function MobilePropertyList({ filters = {} }: MobilePropertyListP
               Tezliklə yeni evlər əlavə ediləcək. Bizimlə əlaqədə qalın!
             </p>
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '994777670031'}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-premium inline-flex items-center gap-2"

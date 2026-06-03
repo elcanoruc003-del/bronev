@@ -1,20 +1,22 @@
-export function cn(...inputs: string[]) {
-  return inputs.filter(Boolean).join(' ')
+type ClassValue = string | undefined | null | false | 0;
+
+export function cn(...inputs: ClassValue[]): string {
+  return inputs.filter(Boolean).join(' ');
 }
 
 export function generateSlug(title: string): string {
   const azMap: Record<string, string> = {
     'ə': 'e', 'ı': 'i', 'ö': 'o', 'ü': 'u', 'ğ': 'g', 'ş': 's', 'ç': 'c',
-    'Ə': 'e', 'I': 'i', 'Ö': 'o', 'Ü': 'u', 'Ğ': 'g', 'Ş': 's', 'Ç': 'c'
-  }
-  
+    'Ə': 'e', 'I': 'i', 'Ö': 'o', 'Ü': 'u', 'Ğ': 'g', 'Ş': 's', 'Ç': 'c',
+  };
+
   return title
     .toLowerCase()
     .split('')
-    .map(char => azMap[char] || char)
+    .map((char) => azMap[char] || char)
     .join('')
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function formatPrice(price: number): string {
@@ -22,7 +24,7 @@ export function formatPrice(price: number): string {
     style: 'currency',
     currency: 'AZN',
     minimumFractionDigits: 0,
-  }).format(price)
+  }).format(price);
 }
 
 export function formatDate(date: Date): string {
@@ -30,12 +32,12 @@ export function formatDate(date: Date): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(date)
+  }).format(date);
 }
 
 export function calculateDays(checkIn: Date, checkOut: Date): number {
-  const diff = checkOut.getTime() - checkIn.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const diff = checkOut.getTime() - checkIn.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
 export function getPropertyTypeLabel(type: string): string {
@@ -45,6 +47,9 @@ export function getPropertyTypeLabel(type: string): string {
     HOUSE: 'Ev',
     PENTHOUSE: 'Penthouse',
     COTTAGE: 'Bağ Evi',
-  }
-  return labels[type] || type
+    STUDIO: 'Studiya',
+    LOFT: 'Loft',
+    AFRAME: 'A-Frame',
+  };
+  return labels[type] || type;
 }

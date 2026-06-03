@@ -1,14 +1,10 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
+import { getCurrentUser } from './auth';
 
-/**
- * Get user ID from session
- */
 async function getUserId(): Promise<string | null> {
   try {
-    const { getCurrentUser } = await import('./auth');
     const user = await getCurrentUser();
     return user?.id || null;
   } catch (error) {
@@ -17,9 +13,6 @@ async function getUserId(): Promise<string | null> {
   }
 }
 
-/**
- * Toggle favorite
- */
 export async function toggleFavorite(propertyId: string) {
   try {
     const userId = await getUserId();
@@ -27,24 +20,14 @@ export async function toggleFavorite(propertyId: string) {
       return { success: false, error: 'Giriş etməlisiniz', requiresAuth: true };
     }
 
-    // Check if already favorited
     const existing = await prisma.favorites.findUnique({
-      where: {
-        propertyId_userId: {
-          propertyId,
-          userId,
-        },
-      },
+      where: { propertyId_userId: { propertyId, userId } },
     });
 
     if (existing) {
-      // Remove from favorites
-      await prisma.favorites.delete({
-        where: { id: existing.id },
-      });
+      await prisma.favorites.delete({ where: { id: existing.id } });
       return { success: true, isFavorite: false };
     } else {
-      // Add to favorites
       await prisma.favorites.create({
         data: {
           id: `fav_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -60,15 +43,10 @@ export async function toggleFavorite(propertyId: string) {
   }
 }
 
-/**
- * Get user favorites
- */
 export async function getUserFavorites() {
   try {
     const userId = await getUserId();
-    if (!userId) {
-      return { success: true, favorites: [] };
-    }
+    if (!userId) return { success: true, favorites: [] };
 
     const favorites = await prisma.favorites.findMany({
       where: { userId },
@@ -92,21 +70,13 @@ export async function getUserFavorites() {
   }
 }
 
-/**
- * Check if property is favorited
- */
 export async function isFavorited(propertyId: string) {
   try {
     const userId = await getUserId();
     if (!userId) return { success: true, isFavorite: false };
 
     const favorite = await prisma.favorites.findUnique({
-      where: {
-        propertyId_userId: {
-          propertyId,
-          userId,
-        },
-      },
+      where: { propertyId_userId: { propertyId, userId } },
     });
 
     return { success: true, isFavorite: !!favorite };
