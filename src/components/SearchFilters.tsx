@@ -102,26 +102,27 @@ export default function SearchFilters({ onSearch }: SearchFiltersProps) {
       </div>
 
       {/* Row 2 — Hovuz filter (həmişə görünür) */}
-      <div className="flex items-center gap-1.5 mb-2 overflow-x-auto hide-scrollbar pb-0.5">
-        <FaSwimmingPool className="text-[#8B7355] text-xs flex-shrink-0" />
-        {POOL_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setPool(opt.value)}
-            className={`
-              flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-medium
-              flex-shrink-0 transition-all duration-200
-              ${filters.poolType === opt.value
-                ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-sm'
-                : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
-              }
-            `}
-          >
-            {opt.icon && <FaSwimmingPool className="text-[9px]" />}
-            {opt.label}
-          </button>
-        ))}
+      <div className="mb-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {POOL_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setPool(opt.value)}
+              className={`
+                flex items-center justify-center gap-1 py-1.5 rounded-lg border text-[11px] font-medium
+                transition-all duration-200 w-full
+                ${filters.poolType === opt.value
+                  ? 'bg-[#8B7355] text-white border-[#8B7355] shadow-sm'
+                  : 'bg-white text-[#6B5D4F] border-[#E5DDD5] hover:border-[#8B7355]'
+                }
+              `}
+            >
+              {opt.icon && <FaSwimmingPool className="text-[9px] flex-shrink-0" />}
+              <span className="truncate">{opt.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Row 3 — Ətraflı / Axtarış */}
