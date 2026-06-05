@@ -48,6 +48,12 @@ export async function GET(request: NextRequest) {
       where.poolType = poolType
     }
 
+    // featured filter (VIP section uses this)
+    const featuredParam = searchParams.get('featured')
+    if (featuredParam === 'true') {
+      where.featured = true
+    }
+
     const [properties, total] = await Promise.all([
       prisma.properties.findMany({
         where,
