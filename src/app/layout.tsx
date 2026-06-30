@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description: 'Azərbaycanda ən yaxşı günlük kirayə evlər',
     url: 'https://bron-ev.com',
     siteName: 'BronEv',
-    locale: 'az_AZ',
+    locale: 'tr_TR',
     type: 'website',
   },
   robots: {
@@ -33,6 +33,9 @@ export const metadata: Metadata = {
   },
   themeColor: '#8B7355',
   viewport: 'width=device-width, initial-scale=1',
+  verification: {
+    google: '_4D6yf4LpBdq7xWHEprgBh8zjdMyjpeonvqQcyeUqNk',
+  },
 };
 
 export default function RootLayout({
@@ -41,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="az">
+    <html lang="tr">
       <head>
         {/* Font preconnect */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,8 +74,9 @@ export default function RootLayout({
         {/* Google AdSense */}
         {ADSENSE_ID && (
           <Script
+            async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             crossOrigin="anonymous"
           />
         )}

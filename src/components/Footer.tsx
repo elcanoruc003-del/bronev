@@ -41,13 +41,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="hover:text-brand-gold transition-colors">
-                  Əlaqə
+                <Link href="/about" className="hover:text-brand-gold transition-colors">
+                  Haqqımızda
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="hover:text-brand-gold transition-colors">
-                  Admin
+                <Link href="/contact" className="hover:text-brand-gold transition-colors">
+                  Əlaqə
                 </Link>
               </li>
             </ul>
