@@ -168,6 +168,7 @@ export default function ProfilePage() {
                             src={booking.properties.property_images[0].url}
                             alt={booking.properties.title}
                             fill
+                            sizes="96px"
                             className="object-cover"
                           />
                         </div>
@@ -222,6 +223,7 @@ export default function ProfilePage() {
                         src={favorite.properties.property_images[0]?.url || '/placeholder.jpg'}
                         alt={favorite.properties.title}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>

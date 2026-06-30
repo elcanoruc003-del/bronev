@@ -93,6 +93,7 @@ export default function FavoritesPage() {
                     src={favorite.properties.property_images[0]?.url || '/placeholder.jpg'}
                     alt={favorite.properties.title}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                   <div className="absolute top-2 left-2 bg-gradient-to-r from-[#8B7355] to-[#C19A6B] text-white text-xs px-3 py-1 rounded-full">

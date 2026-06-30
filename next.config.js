@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    loader: 'custom',
+    loaderFile: './lib/cloudinaryLoader.js',
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,6 +15,7 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 year
   },
   compress: true,
   poweredByHeader: false,

@@ -402,6 +402,7 @@ function PropertyCard({
             sizes="(max-width: 640px) 50vw, 25vw"
             className="object-cover transition-transform duration-700 group-hover:scale-110"
             loading={eager ? 'eager' : 'lazy'}
+            priority={eager}
             onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
           />
 
