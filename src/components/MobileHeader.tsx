@@ -52,6 +52,25 @@ export default function MobileHeader() {
           
           {/* Contact & Social Buttons - Minimalist & Aligned */}
           <div className="flex items-center gap-2">
+            {/* Campaigns Button - Premium */}
+            <Link
+              href="/campaigns"
+              className="
+                relative w-9 h-9 rounded-full 
+                bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500
+                hover:from-yellow-600 hover:via-orange-600 hover:to-red-600
+                flex items-center justify-center text-white 
+                shadow-lg hover:shadow-xl
+                transition-all duration-300
+                hover:scale-110 active:scale-95
+                tap-scale
+                animate-pulse
+              "
+              aria-label="Kompaniyalar"
+            >
+              <span className="text-lg relative z-10">🎁</span>
+            </Link>
+
             {/* Phone Call - Minimalist */}
             <a
               href={`tel:${process.env.NEXT_PUBLIC_PHONE_NUMBER}`}

@@ -1,7 +1,6 @@
 'use client';
 
 import { FaGift, FaWhatsapp, FaFire, FaStar, FaTicketAlt } from 'react-icons/fa';
-import Image from 'next/image';
 
 export default function CampaignsPage() {
   return (
@@ -46,16 +45,22 @@ export default function CampaignsPage() {
           {/* Campaign Card 1 - "1 Manata Ev" */}
           <div className="group relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
             {/* Image Container with Overlay */}
-            <div className="relative h-64 overflow-hidden">
-              <Image
-                src="/placeholder.jpg"
-                alt="Lüks Villa"
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700"
-              />
+            <div className="relative h-64 overflow-hidden bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50">
+              {/* Decorative Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-10 left-10 w-32 h-32 bg-yellow-400 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-10 right-10 w-40 h-40 bg-orange-400 rounded-full blur-3xl"></div>
+              </div>
+              
+              {/* Center Icon */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 rounded-3xl shadow-2xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                  <span className="text-6xl">🏡</span>
+                </div>
+              </div>
               
               {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
               {/* Floating Badges */}
               <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
@@ -97,7 +102,7 @@ export default function CampaignsPage() {
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-sm text-[#6B5D4F]">
                   <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500"></div>
-                  <span>Çəkiliş tarixi: <span className="font-semibold text-[#2C2416]">15 İyul 2026</span></span>
+                  <span>Çəkiliş tarixi: <span className="font-semibold text-[#2C2416]">10 Avqust 2026</span></span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[#6B5D4F]">
                   <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500"></div>
