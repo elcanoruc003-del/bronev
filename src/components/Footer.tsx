@@ -41,6 +41,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/campaigns" className="hover:text-brand-gold transition-colors flex items-center gap-2">
+                  Kompaniyalar
+                  <span className="text-yellow-500 animate-pulse text-sm">🎁</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className="hover:text-brand-gold transition-colors">
                   Haqqımızda
                 </Link>

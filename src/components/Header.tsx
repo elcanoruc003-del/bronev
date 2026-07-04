@@ -68,6 +68,13 @@ export default function Header() {
                 Evlər
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-gold group-hover:w-full transition-all duration-300" />
               </Link>
+              <Link href="/campaigns" className="relative text-neutral-700 hover:text-brand-navy font-medium transition-colors group">
+                <span className="flex items-center gap-2">
+                  <span>Kompaniyalar</span>
+                  <span className="text-yellow-500 animate-pulse text-xl">🎁</span>
+                </span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-gold group-hover:w-full transition-all duration-300" />
+              </Link>
               <Link href="/contact" className="text-neutral-700 hover:text-brand-navy font-medium transition-colors relative group">
                 Əlaqə
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-gold group-hover:w-full transition-all duration-300" />
@@ -111,6 +118,12 @@ export default function Header() {
               </Link>
               <Link href="/evler" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium text-neutral-700 hover:text-brand-navy">
                 Evlər
+              </Link>
+              <Link href="/campaigns" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium text-neutral-700 hover:text-brand-navy">
+                <span className="flex items-center gap-2">
+                  Kompaniyalar
+                  <span className="text-yellow-500 animate-pulse">🎁</span>
+                </span>
               </Link>
               <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block py-2 font-medium text-neutral-700 hover:text-brand-navy">
                 Əlaqə
