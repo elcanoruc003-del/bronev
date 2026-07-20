@@ -1162,3 +1162,279 @@ export async function getBlockedDates(propertyId: string) {
     return blockedDates;
   }, 'Dolu tarixlər yüklənərkən xəta');
 }
+
+
+/**
+ * ==========================================
+ * CAMPAIGN MANAGEMENT FUNCTIONS
+ * ==========================================
+ */
+
+/**
+ * Get all campaigns for admin
+ */
+export async function getAdminCampaigns() {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const campaigns = await prisma.campaigns.findMany({
+      include: {
+        properties: {
+          select: {
+            id: true,
+            title: true,
+            city: true,
+          },
+        },
+        _count: {
+          select: {
+            participants: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return campaigns;
+  }, 'Kampaniyalar yüklənərkən xəta baş verdi');
+}
+
+/**
+ * Get single campaign with participants
+ */
+export async function getAdminCampaignDetails(campaignId: string) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const campaign = await prisma.campaigns.findUnique({
+      where: { id: campaignId },
+      include: {
+        properties: true,
+        participants: {
+          include: {
+            users: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+          orderBy: {
+            submittedAt: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      throw new Error('Kampaniya tapılmadı');
+    }
+
+    return campaign;
+  }, 'Kampaniya detalları yüklənərkən xəta baş verdi');
+}
+
+/**
+ * Create new campaign
+ */
+export async function createCampaign(data: {
+  title: string;
+  description: string;
+  slug: string;
+  propertyId?: string;
+  prizeDescription: string;
+  participationFee: number;
+  cardNumber?: string;
+  cardHolder?: string;
+  bankName?: string;
+  drawDate?: string;
+  status: 'DRAFT' | 'ACTIVE' | 'ENDED' | 'CANCELLED';
+  featuredImage?: string;
+  termsAndConditions?: string;
+  maxParticipants?: number;
+}) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    // Check if slug is unique
+    const existingCampaign = await prisma.campaigns.findUnique({
+      where: { slug: data.slug },
+    });
+
+    if (existingCampaign) {
+      throw new Error('Bu slug artıq istifadə olunur');
+    }
+
+    const campaign = await prisma.campaigns.create({
+      data: {
+        id: `camp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        title: data.title,
+        description: data.description,
+        slug: data.slug,
+        propertyId: data.propertyId || null,
+        prizeDescription: data.prizeDescription,
+        participationFee: data.participationFee,
+        cardNumber: data.cardNumber || null,
+        cardHolder: data.cardHolder || null,
+        bankName: data.bankName || null,
+        drawDate: data.drawDate ? new Date(data.drawDate) : null,
+        status: data.status,
+        featuredImage: data.featuredImage || null,
+        termsAndConditions: data.termsAndConditions || null,
+        maxParticipants: data.maxParticipants || null,
+        updatedAt: new Date(),
+      },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/campaigns');
+
+    return campaign;
+  }, 'Kampaniya yaradılarkən xəta baş verdi');
+}
+
+/**
+ * Update campaign
+ */
+export async function updateCampaign(campaignId: string, data: any) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const campaign = await prisma.campaigns.update({
+      where: { id: campaignId },
+      data: {
+        title: data.title,
+        description: data.description,
+        propertyId: data.propertyId || null,
+        prizeDescription: data.prizeDescription,
+        participationFee: data.participationFee,
+        cardNumber: data.cardNumber || null,
+        cardHolder: data.cardHolder || null,
+        bankName: data.bankName || null,
+        drawDate: data.drawDate ? new Date(data.drawDate) : null,
+        status: data.status,
+        featuredImage: data.featuredImage || null,
+        termsAndConditions: data.termsAndConditions || null,
+        maxParticipants: data.maxParticipants || null,
+        updatedAt: new Date(),
+      },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/campaigns');
+
+    return campaign;
+  }, 'Kampaniya yenilənərkən xəta baş verdi');
+}
+
+/**
+ * Delete campaign
+ */
+export async function deleteCampaign(campaignId: string) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    await prisma.campaigns.delete({
+      where: { id: campaignId },
+    });
+
+    revalidatePath('/admin');
+    revalidatePath('/campaigns');
+
+    return true;
+  }, 'Kampaniya silinərkən xəta baş verdi');
+}
+
+/**
+ * Approve campaign participation
+ */
+export async function approveCampaignParticipation(participationId: string) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const participation = await prisma.campaign_participants.update({
+      where: { id: participationId },
+      data: {
+        status: 'APPROVED',
+        reviewedAt: new Date(),
+        reviewedBy: admin.id,
+      },
+    });
+
+    revalidatePath('/admin');
+
+    return participation;
+  }, 'İştirak təsdiq edilərkən xəta baş verdi');
+}
+
+/**
+ * Reject campaign participation
+ */
+export async function rejectCampaignParticipation(
+  participationId: string,
+  rejectionReason: string
+) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const participation = await prisma.campaign_participants.update({
+      where: { id: participationId },
+      data: {
+        status: 'REJECTED',
+        reviewedAt: new Date(),
+        reviewedBy: admin.id,
+        rejectionReason,
+      },
+    });
+
+    revalidatePath('/admin');
+
+    return participation;
+  }, 'İştirak rədd edilərkən xəta baş verdi');
+}
+
+/**
+ * Get all campaign participants (for admin)
+ */
+export async function getAdminCampaignParticipants(campaignId?: string) {
+  return safeServerAction(async () => {
+    const admin = await getCurrentAdmin();
+    if (!admin) throw new Error('Admin icazəsi tələb olunur');
+
+    const participants = await prisma.campaign_participants.findMany({
+      where: campaignId ? { campaignId } : undefined,
+      include: {
+        campaigns: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: {
+        submittedAt: 'desc',
+      },
+    });
+
+    return participants;
+  }, 'İştirakçılar yüklənərkən xəta baş verdi');
+}

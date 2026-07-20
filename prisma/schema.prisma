@@ -191,6 +191,7 @@ model properties {
   property_availability  property_availability[]
   property_images        property_images[]
   reviews                reviews[]
+  campaigns              campaigns[]
 
   @@index([averageRating])
   @@index([basePricePerNight])
@@ -273,38 +274,91 @@ model reviews {
 }
 
 model users {
-  id               String          @id
-  name             String
-  email            String          @unique
-  phone            String?         @unique
-  password         String
-  role             UserRole        @default(USER)
-  emailVerified    DateTime?
-  image            String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime
-  bannedAt         DateTime?
-  bannedReason     String?
-  bio              String?
-  isActive         Boolean         @default(true)
-  isBanned         Boolean         @default(false)
-  language         String          @default("az")
-  lastLoginAt      DateTime?
-  lastLoginIp      String?
-  phoneVerified    DateTime?
-  timezone         String          @default("Asia/Baku")
-  twoFactorEnabled Boolean         @default(false)
-  audit_logs       audit_logs[]
-  bookings         bookings[]
-  favorites        favorites[]
-  notifications    notifications[]
-  properties       properties[]
-  reviews          reviews[]
+  id                     String                   @id
+  name                   String
+  email                  String                   @unique
+  phone                  String?                  @unique
+  password               String
+  role                   UserRole                 @default(USER)
+  emailVerified          DateTime?
+  image                  String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  bannedAt               DateTime?
+  bannedReason           String?
+  bio                    String?
+  isActive               Boolean                  @default(true)
+  isBanned               Boolean                  @default(false)
+  language               String                   @default("az")
+  lastLoginAt            DateTime?
+  lastLoginIp            String?
+  phoneVerified          DateTime?
+  timezone               String                   @default("Asia/Baku")
+  twoFactorEnabled       Boolean                  @default(false)
+  audit_logs             audit_logs[]
+  bookings               bookings[]
+  favorites              favorites[]
+  notifications          notifications[]
+  properties             properties[]
+  reviews                reviews[]
+  campaign_participants  campaign_participants[]
 
   @@index([email])
   @@index([isActive])
   @@index([phone])
   @@index([role])
+}
+
+model campaigns {
+  id                    String                  @id
+  title                 String
+  description           String
+  slug                  String                  @unique
+  propertyId            String?
+  prizeDescription      String
+  participationFee      Int                     @default(100)
+  cardNumber            String?
+  cardHolder            String?
+  bankName              String?
+  drawDate              DateTime?               @db.Date
+  winnerUserId          String?
+  status                CampaignStatus          @default(DRAFT)
+  featuredImage         String?
+  termsAndConditions    String?
+  maxParticipants       Int?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  endedAt               DateTime?
+  properties            properties?             @relation(fields: [propertyId], references: [id])
+  participants          campaign_participants[]
+
+  @@index([status])
+  @@index([slug])
+  @@index([propertyId])
+  @@index([drawDate])
+}
+
+model campaign_participants {
+  id                    String              @id
+  campaignId            String
+  userId                String
+  participantName       String
+  participantPhone      String
+  receiptImage          String?
+  status                ParticipationStatus @default(PENDING)
+  submittedAt           DateTime            @default(now())
+  reviewedAt            DateTime?
+  reviewedBy            String?
+  rejectionReason       String?
+  ticketNumber          String?             @unique
+  campaigns             campaigns           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  users                 users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
 }
 
 enum AdjustmentType {
@@ -378,4 +432,17 @@ enum UserRole {
   ADMIN
   OWNER
   SUPER_ADMIN
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  ENDED
+  CANCELLED
+}
+
+enum ParticipationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

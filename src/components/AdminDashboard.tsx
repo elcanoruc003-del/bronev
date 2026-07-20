@@ -15,6 +15,7 @@ import {
   FaSpinner,
   FaPlus,
   FaTimes,
+  FaGift,
 } from 'react-icons/fa';
 import {
   loginAdmin,
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'bookings' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'bookings' | 'campaigns' | 'settings'>('dashboard');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const [metrics, setMetrics] = useState<any>(null);
@@ -384,6 +385,17 @@ export default function AdminDashboard() {
             >
               <FaCalendarAlt className="text-base md:text-lg" />
               <span>Bronlar</span>
+            </button>
+
+            <button
+              onClick={() => { 
+                router.push('/admin/campaigns'); 
+                setShowMobileMenu(false); 
+              }}
+              className={`w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl transition text-sm md:text-base text-[#6B5D4F] hover:bg-[#FAF8F5]`}
+            >
+              <FaGift className="text-base md:text-lg" />
+              <span>Kampaniyalar</span>
             </button>
 
             <button
