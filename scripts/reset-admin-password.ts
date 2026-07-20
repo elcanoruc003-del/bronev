@@ -4,94 +4,56 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🔍 Bütün istifadəçilərə baxırıq...\n');
+  console.log('🔍 Admin yoxlanır...\n');
 
-  const allUsers = await prisma.users.findMany({
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      phone: true,
-    },
+  // Check for admin@bronev.com
+  let admin = await prisma.users.findUnique({
+    where: { email: 'admin@bronev.com' },
   });
 
-  if (allUsers.length === 0) {
-    console.log('❌ Heç bir istifadəçi tapılmadı!\n');
-    console.log('İlk admin yaratmaq üçün:\n');
-    const newAdmin = await prisma.users.create({
-      data: {
-        id: `admin_${Date.now()}`,
-        email: 'admin@bronev.az',
-        name: 'Admin',
-        password: await bcrypt.hash('Bronev2026!', 12),
-        role: 'ADMIN',
-        isActive: true,
-        updatedAt: new Date(),
-      },
-    });
-    console.log('✅ Yeni admin yaradıldı!');
-    console.log(`📧 Email: ${newAdmin.email}`);
-    console.log(`🔑 Parol: Bronev2026!`);
-    return;
-  }
-
-  console.log(`✅ ${allUsers.length} istifadəçi tapıldı:\n`);
-  allUsers.forEach((user, index) => {
-    console.log(`${index + 1}. ${user.email} (${user.role})`);
-  });
-
-  // Admin olanları tap
-  const admins = allUsers.filter(u => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN');
-
-  if (admins.length === 0) {
-    console.log('\n⚠️ Admin role-u olan istifadəçi yoxdur!');
-    console.log('Birinci istifadəçini admin edək:\n');
+  if (admin) {
+    console.log('✅ Admin tapıldı:', admin.email);
+    console.log('🔄 Parol yenilənir...\n');
     
-    const firstUser = allUsers[0];
-    const newPassword = 'Bronev2026!';
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-    await prisma.users.update({
-      where: { id: firstUser.id },
-      data: {
-        role: 'ADMIN',
-        password: hashedPassword,
-        isActive: true,
-        updatedAt: new Date(),
-      },
-    });
-
-    console.log('✅ İstifadəçi admin edildi və parolu yeniləndi!');
-    console.log(`📧 Email: ${firstUser.email}`);
-    console.log(`🔑 Yeni Parol: ${newPassword}`);
-  } else {
-    console.log(`\n✅ ${admins.length} admin tapıldı:`);
+    // Reset password to admin123
+    const hashedPassword = await bcrypt.hash('admin123', 12);
     
-    for (const admin of admins) {
-      console.log(`\n📧 Email: ${admin.email}`);
-      console.log(`👤 Ad: ${admin.name}`);
-      console.log(`🔧 Role: ${admin.role}`);
-    }
-
-    // İlk adminin parolunu reset et
-    const firstAdmin = admins[0];
-    const newPassword = 'Bronev2026!';
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-    await prisma.users.update({
-      where: { id: firstAdmin.id },
+    admin = await prisma.users.update({
+      where: { email: 'admin@bronev.com' },
       data: {
         password: hashedPassword,
         isActive: true,
         isBanned: false,
+        role: 'ADMIN',
         updatedAt: new Date(),
       },
     });
+    
+    console.log('✅ Admin parol yeniləndi!');
+  } else {
+    console.log('❌ Admin tapılmadı. Yaradılır...\n');
+    
+    const hashedPassword = await bcrypt.hash('admin123', 12);
 
-    console.log(`\n✅ ${firstAdmin.email} parol yeniləndi!`);
-    console.log(`🔑 Yeni Parol: ${newPassword}`);
+    admin = await prisma.users.create({
+      data: {
+        id: `admin_${Date.now()}`,
+        email: 'admin@bronev.com',
+        name: 'Admin',
+        password: hashedPassword,
+        role: 'ADMIN',
+        phone: '0777670031',
+        isActive: true,
+        updatedAt: new Date(),
+      },
+    });
+    
+    console.log('✅ Yeni admin yaradıldı!');
   }
+
+  console.log('\n📧 Email: admin@bronev.com');
+  console.log('🔑 Password: admin123');
+  console.log('\n✅ Artıq login edə bilərsiniz!');
 }
 
 main()
