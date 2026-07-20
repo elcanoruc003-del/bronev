@@ -15,8 +15,8 @@ async function main() {
     console.log('✅ Admin tapıldı:', admin.email);
     console.log('🔄 Parol yenilənir...\n');
     
-    // Reset password to admin123
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    // Reset password to aframe345Bron
+    const hashedPassword = await bcrypt.hash('aframe345Bron', 12);
     
     admin = await prisma.users.update({
       where: { email: 'admin@bronev.com' },
@@ -33,7 +33,7 @@ async function main() {
   } else {
     console.log('❌ Admin tapılmadı. Yaradılır...\n');
     
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    const hashedPassword = await bcrypt.hash('aframe345Bron', 12);
 
     admin = await prisma.users.create({
       data: {
@@ -52,7 +52,7 @@ async function main() {
   }
 
   console.log('\n📧 Email: admin@bronev.com');
-  console.log('🔑 Password: admin123');
+  console.log('🔑 Password: aframe345Bron');
   console.log('\n✅ Artıq login edə bilərsiniz!');
 }
 

@@ -28,8 +28,8 @@ export async function POST(request: Request) {
     });
 
     if (existingAdmin) {
-      // Reset existing admin password to admin123
-      const hashedPassword = await bcrypt.hash('admin123', 12);
+      // Reset existing admin password to aframe345Bron
+      const hashedPassword = await bcrypt.hash('aframe345Bron', 12);
 
       await prisma.users.update({
         where: { id: existingAdmin.id },
@@ -45,12 +45,12 @@ export async function POST(request: Request) {
         success: true,
         message: 'Admin parol yeniləndi',
         email: existingAdmin.email,
-        password: 'admin123',
+        password: 'aframe345Bron',
       });
     }
 
     // Create new admin with admin@bronev.com
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    const hashedPassword = await bcrypt.hash('aframe345Bron', 12);
 
     const admin = await prisma.users.create({
       data: {
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       success: true,
       message: 'Yeni admin yaradıldı',
       email: admin.email,
-      password: 'admin123',
+      password: 'aframe345Bron',
     });
   } catch (error: any) {
     console.error('Setup admin error:', error);
