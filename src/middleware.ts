@@ -8,11 +8,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect all admin routes except the login page itself
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin') === false) {
-    // This branch never runs — kept for documentation clarity
-  }
-
+  // Protect admin dashboard and properties routes
   if (pathname.startsWith('/admin/dashboard') || pathname.startsWith('/admin/properties')) {
     const session = request.cookies.get('bronev_session');
 
@@ -38,7 +34,12 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/dashboard/:path*',
-    '/admin/properties/:path*',
+    /*
+     * Match all admin routes except:
+     * - /admin (login page)
+     * - /admin/_next (Next.js internals)
+     * - /admin/api (API routes)
+     */
+    '/admin/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

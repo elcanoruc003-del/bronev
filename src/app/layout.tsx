@@ -31,7 +31,6 @@ export const metadata: Metadata = {
       { url: '/favicon.ico', sizes: 'any' },
     ],
   },
-  themeColor: '#8B7355',
   verification: {
     google: '_4D6yf4LpBdq7xWHEprgBh8zjdMyjpeonvqQcyeUqNk',
   },
@@ -40,6 +39,7 @@ export const metadata: Metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#8B7355',
 };
 
 export default function RootLayout({

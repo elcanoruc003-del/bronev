@@ -19,9 +19,6 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
-  experimental: {
-    optimizePackageImports: ['react-icons'],
-  },
   async generateBuildId() {
     return 'build-' + Date.now();
   },
