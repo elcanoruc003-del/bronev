@@ -52,8 +52,10 @@ export default function ProfilePage() {
 
       // Load campaign participations
       const campaignsResult = await getUserCampaignParticipations();
-      if (campaignsResult.success) {
+      if (campaignsResult.success && campaignsResult.participations) {
         setCampaigns(campaignsResult.participations);
+      } else {
+        setCampaigns([]);
       }
     } catch (error) {
       console.error('Load user data error:', error);
