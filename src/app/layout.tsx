@@ -32,10 +32,14 @@ export const metadata: Metadata = {
     ],
   },
   themeColor: '#8B7355',
-  viewport: 'width=device-width, initial-scale=1',
   verification: {
     google: '_4D6yf4LpBdq7xWHEprgBh8zjdMyjpeonvqQcyeUqNk',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
